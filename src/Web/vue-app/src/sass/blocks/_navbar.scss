@@ -1,6 +1,6 @@
 @use "../tools" as *;
 .navbar {
-  background-color: $color-green-medium;
+  background-color: $color-grey-medium;
   padding-top: 0;
   display: flex;
   justify-content: space-between;
@@ -22,14 +22,14 @@
     background-color: $color-white;
     font-size: rem(13);
     line-height: rem(16);
-    border-top: 1px solid $color-green;
+    border-top: 1px solid $color-grey;
   }
 
   &__drawer-btn {
     font-size: rem(16);
     line-height: rem(16);
     color: $color-white;
-    @include backgroundColorHover($color-green);
+    @include backgroundColorHover($color-grey-dark);
 
     .icon {
       flex-shrink: 0;
@@ -55,13 +55,13 @@
 
     &.router-link-active {
       color: $color-white;
-      background-color: $color-green-medium;
+      background-color: $color-grey-dark;
       pointer-events: none;
     }
   }
 
   &__footer {
-    border-top: 1px solid $color-green-lighter;
+    border-top: 1px solid $color-grey;
     padding: 40px 48px;
     display: flex;
     flex-direction: column;

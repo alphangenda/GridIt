@@ -22,7 +22,7 @@
       flex-shrink: 0;
       padding: 4px;
       border-radius: 100%;
-      background-color: $color-green-medium;
+      background-color: $color-grey-dark;
       width: 18px;
       height: 18px;
     }
@@ -45,20 +45,20 @@
 
     &.router-link-active {
       color: $color-black;
-      background-color: $color-green-lighter;
+      background-color: $color-grey-light;
       pointer-events: none;
     }
   }
 
   &--expand {
     margin: 8px 0;
-    background-color: $color-green-medium;
+    background-color: $color-grey-medium;
 
     .subnav__title {
       color: $color-white;
 
       .icon {
-        background-color: $color-green;
+        background-color: $color-grey-dark;
       }
     }
   }
