@@ -681,6 +681,8 @@ FodyWeavers.xsd
 # End of https://www.toptal.com/developers/gitignore/api/sass,linux,rider,windows,dotnetcore,aspnetcore,visualstudio,visualstudiocode
 
 appsettings.local.json
+# Connection strings and dev secrets (each developer has their own)
+src/Web/appsettings.Development.json
 .dev
 
 src/Web/wwwroot/css
