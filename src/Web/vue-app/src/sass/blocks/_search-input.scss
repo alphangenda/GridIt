@@ -6,12 +6,13 @@
   display: flex;
   flex-direction: row-reverse;
   gap: 8px;
-  padding: 8px;
-  transition: border-color 0.2s cb(snappy);
+  padding: 8px 12px;
+  transition: border-color 0.2s cb(snappy), box-shadow 0.2s cb(snappy);
+  background-color: $color-white;
 
   input {
     &::placeholder {
-      color: $color-black;
+      color: $color-grey-medium;
     }
 
     &:focus {
@@ -22,6 +23,7 @@
   &:focus-within,
   &:hover {
     border-color: $color-green;
+    box-shadow: 0 0 0 3px rgba($color-green, 0.1);
 
     .icon {
       * {

@@ -1,6 +1,6 @@
 @use "../tools" as *;
 .subnav {
-  border-radius: $common-border-radius;
+  border-radius: 6px;
   transition: background-color 0.2s cb(snappy), margin 0.2s cb(snappy);
 
   &__title {
@@ -9,56 +9,70 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    font-weight: 700;
+    font-weight: 600;
     font-family: $font-montserrat;
-    font-size: rem(16);
+    font-size: rem(14);
     line-height: rem(16);
-    padding: 12px 20px;
-    border-radius: $common-border-radius;
-    @include colorHover($color-white);
-    @include iconFillHover($color-white);
+    padding: 10px 14px;
+    border-radius: 6px;
+    color: rgba($color-white, 0.7);
+    transition: color 0.2s cb(snappy);
+
+    @media (hover: hover) {
+      &:hover {
+        color: $color-white;
+      }
+    }
 
     .icon {
       flex-shrink: 0;
       padding: 4px;
       border-radius: 100%;
-      background-color: $color-grey-dark;
+      background-color: rgba($color-white, 0.1);
       width: 18px;
       height: 18px;
     }
   }
 
   &__content {
-    padding: 8px 20px;
+    padding: 4px 14px 8px;
   }
 
   &__navlink {
     display: flex;
-    font-weight: 600;
-    font-size: rem(14);
+    font-weight: 500;
+    font-size: rem(13);
     line-height: rem(14);
     width: 100%;
-    padding: 8px;
-    border-radius: $common-border-radius;
-    color: $color-white;
-    @include colorHover($color-black);
+    padding: 6px 8px;
+    border-radius: 4px;
+    color: rgba($color-white, 0.6);
+    transition: color 0.15s ease, background-color 0.15s ease;
+
+    @media (hover: hover) {
+      &:hover {
+        color: $color-white;
+        background-color: rgba($color-white, 0.05);
+      }
+    }
 
     &.router-link-active {
-      color: $color-black;
-      background-color: $color-grey-light;
+      color: $color-white;
+      background-color: rgba($color-white, 0.1);
+      font-weight: 600;
       pointer-events: none;
     }
   }
 
   &--expand {
-    margin: 8px 0;
-    background-color: $color-grey-medium;
+    margin: 4px 0;
+    background-color: rgba($color-white, 0.05);
 
     .subnav__title {
       color: $color-white;
 
       .icon {
-        background-color: $color-grey-dark;
+        background-color: rgba($color-white, 0.1);
       }
     }
   }

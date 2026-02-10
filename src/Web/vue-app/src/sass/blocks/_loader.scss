@@ -24,7 +24,7 @@
       width: 64px;
       height: 64px;
       margin: 8px;
-      border: 8px solid $color-green;
+      border: 6px solid $color-green;
       border-radius: 50%;
       animation: loading 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
       border-color: $color-green transparent transparent transparent;
@@ -47,7 +47,8 @@
     position: fixed;
     inset: 0;
     z-index: $zindex-popup;
-    background-color: rgba($color-black, 0.5);
+    background-color: rgba($color-grey-darker, 0.4);
+    backdrop-filter: blur(2px);
   }
 }
 

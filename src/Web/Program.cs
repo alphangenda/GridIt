@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Application;
 using Domain.Common;
 using Domain.Extensions;
@@ -8,6 +9,22 @@ using Microsoft.AspNetCore.Diagnostics;
 using Persistence;
 using Serilog;
 using Web.Extensions;
+
+// #region agent log
+var _debugLogPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "..", "..", "..", "..", ".cursor", "debug.log"));
+void _agentLog(string location, string message, object? data, string hypothesisId)
+{
+    try
+    {
+        var dir = Path.GetDirectoryName(_debugLogPath);
+        if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+        var line = JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location, message, data, runId = "run1", hypothesisId }) + "\n";
+        File.AppendAllText(Path.GetFullPath(_debugLogPath), line);
+    }
+    catch { /* no-op */ }
+}
+_agentLog("Program.cs:start", "startup", new { processId = Environment.ProcessId }, "A");
+// #endregion
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +78,10 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+// #region agent log
+var _urls = builder.Configuration["ASPNETCORE_URLS"] ?? "(from launchSettings profile)";
+_agentLog("Program.cs:after Build", "configured urls", new { urls = _urls, processId = Environment.ProcessId }, "B");
+// #endregion
 await app.Services.InitializeAndSeedDatabase();
 
 var supportedCultures = new[] { "en-CA", "fr-CA" };
@@ -105,4 +126,14 @@ app.UseSwaggerGen();
 // SPA fallback - serve Vue app for any non-API route
 app.MapFallbackToFile("vue/index.html");
 
-app.Run();
+// #region agent log
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    _agentLog("Program.cs:Run", "bind_failed", new { message = ex.Message, processId = Environment.ProcessId }, "D");
+    throw;
+}
+// #endregion

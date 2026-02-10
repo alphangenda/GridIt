@@ -18,6 +18,11 @@ import BookIndex from "@/views/member/BookIndex.vue";
 import AddBookForm from "@/views/member/AddBookForm.vue";
 import EditBookForm from "@/views/member/EditBookForm.vue";
 
+import ClassesView from "@/views/classes/ClassesView.vue";
+import ClassesIndexView from "@/views/classes/ClassesIndexView.vue";
+import ClassExamsView from "@/views/classes/ClassExamsView.vue";
+import ExamDetailView from "@/views/classes/ExamDetailView.vue";
+
 import {getLocalizedRoutes} from "@/locales/helpers";
 import {useUserStore} from "@/stores/userStore";
 
@@ -149,30 +154,60 @@ const router = createRouter({
         }
       ]
     },
+    {
+      path: i18n.t("routes.classes.path"),
+      alias: getLocalizedRoutes("routes.classes.path"),
+      name: "classes",
+      component: ClassesView,
+      meta: {
+        requiredRole: [Role.Member, Role.Admin],
+        title: "routes.classes.name"
+      },
+      children: [
+        {
+          path: "",
+          name: "classes.index",
+          component: ClassesIndexView,
+          meta: { title: "routes.classes.name" }
+        },
+        {
+          path: ":classId",
+          name: "classes.detail",
+          component: ClassExamsView,
+          props: true,
+          meta: { title: "routes.classes.name" }
+        },
+        {
+          path: ":classId/exams/:examId",
+          name: "classes.examDetail",
+          component: ExamDetailView,
+          props: true,
+          meta: { title: "routes.classes.examDetail" }
+        }
+      ]
+    }
   ]
 });
 
 // eslint-disable-next-line
 router.beforeEach(async (to, from) => {
-  const userStore = useUserStore()
+  const userStore = useUserStore();
 
-  // Handle root path redirect
+  // Default: root path → classes when logged in, login otherwise
   if (to.path === "/") {
     if (userStore.user.email)
-      return { name: "account" };
+      return { name: "classes" };
     return { name: "login" };
   }
 
   if (!to.meta.requiredRole)
     return;
 
-  const isRoleArray = Array.isArray(to.meta.requiredRole)
+  const isRoleArray = Array.isArray(to.meta.requiredRole);
   const doesNotHaveGivenRole = !isRoleArray && !userStore.hasRole(to.meta.requiredRole as Role);
   const hasNoRoleAmongRoleList = isRoleArray && !userStore.hasOneOfTheseRoles(to.meta.requiredRole as Role[]);
   if (doesNotHaveGivenRole || hasNoRoleAmongRoleList) {
-    return {
-      name: "account",
-    };
+    return { name: "classes" };
   }
 });
 

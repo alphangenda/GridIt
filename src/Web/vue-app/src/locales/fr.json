@@ -63,9 +63,36 @@
           "name": "Modifier un livre"
         }
       }
+    },
+    "classes": {
+      "path": "/cours",
+      "fullPath": "/cours",
+      "name": "Cours",
+      "examDetail": "Détail de l'examen"
     }
   },
+  "navigation": {
+    "classes": "Cours",
+    "exams": "Examens",
+    "addClass": "Ajouter une classe",
+    "addExam": "Ajouter un examen",
+    "selectClass": "Sélectionnez un cours dans la liste.",
+    "examsOfCourse": "Examens de ce cours",
+    "exam": "Examen",
+    "examDetailPlaceholder": "Détail de l'examen.",
+    "noClasses": "Aucune classe pour l'instant. Ajoutez-en une pour commencer.",
+    "noExams": "Aucun examen pour cette classe.",
+    "className": "Nom de la classe",
+    "examName": "Nom de l'examen",
+    "deleteClassConfirm": "Êtes-vous sûr de vouloir supprimer cette classe ?",
+    "deleteExamConfirm": "Êtes-vous sûr de vouloir supprimer cet examen ?",
+    "myAccount": "Mon compte",
+    "logout": "Déconnexion"
+  },
   "pages": {
+    "classes": {
+      "addError": "Impossible d'ajouter la classe. Veuillez réessayer."
+    },
     "login": {
       "username": "Nom d'utilisateur",
       "password": "Mot de passe",

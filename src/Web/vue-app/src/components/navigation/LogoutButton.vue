@@ -27,13 +27,11 @@ const administratorStore = useAdministratorStore();
 const authenticationService = useAuthenticationService()
 
 async function logout() {
-  let succeededOrNotResponse = await authenticationService.logout()
-  if (succeededOrNotResponse.succeeded) {
-    userStore.reset()
-    personStore.reset()
-    memberStore.reset()
-    administratorStore.reset()
-    await router.push(t("routes.login.path"))
-  }
+  await authenticationService.logout().catch(() => {})
+  userStore.reset()
+  personStore.reset()
+  memberStore.reset()
+  administratorStore.reset()
+  await router.push(t("routes.login.path"))
 }
 </script>

@@ -2,10 +2,12 @@
 using Domain.Common;
 using Domain.Entities;
 using Domain.Entities.Books;
+using Domain.Entities.Classes;
 using Domain.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Web.Dtos;
 using Web.Features.Members.Books;
+using Web.Features.Members.Classes;
 using GetMeMemberResponse = Web.Features.Members.Me.GetMe.GetMeResponse;
 using GetMeAdminResponse = Web.Features.Admins.Me.GetMe.GetMeResponse;
 
@@ -44,5 +46,8 @@ public class ResponseMappingProfile : Profile
             .ForMember(x => x.Roles, opt => opt.MapFrom(x => x.User.RoleNames))
             .ForMember(x => x.PhoneNumber, opt => opt.MapFrom(x => x.PhoneNumber!.Number))
             .ForMember(x => x.PhoneExtension, opt => opt.MapFrom(x => x.PhoneNumber!.Extension));
+
+        CreateMap<Class, ClassDto>();
+        CreateMap<Exam, ExamDto>();
     }
 }

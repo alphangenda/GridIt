@@ -3,27 +3,35 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
-  font-size: rem(14);
+  gap: 6px;
+  font-size: rem(13);
   margin-bottom: 8px;
+  color: $color-grey-medium;
 
   &__breadcrumb {
-    color: $color-grey-medium;
     display: flex;
     align-items: center;
 
     a {
-      @include colorHover($color-green);
+      transition: color 0.15s ease;
+
+      @media (hover: hover) {
+        &:hover {
+          color: $color-green;
+        }
+      }
     }
 
     &::after {
       content: "/";
-      margin-left: 8px;
+      margin-left: 6px;
+      opacity: 0.4;
     }
   }
 
   &__active {
-    font-weight: 700;
+    font-weight: 600;
+    color: $color-text;
   }
 }
 

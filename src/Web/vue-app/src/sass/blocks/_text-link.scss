@@ -1,6 +1,14 @@
 @use "../tools" as *;
 .text-link {
   display: flex;
-  font-size: rem(15);
+  font-size: rem(14);
+  font-weight: 500;
   color: $color-green;
+  transition: color 0.15s ease;
+
+  @media (hover: hover) {
+    &:hover {
+      color: $color-green-dark;
+    }
+  }
 }

@@ -2,15 +2,19 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   color: $color-text;
   @include text--body;
   position: relative;
+  background-color: $color-grey-lighter;
 }
 
 hr {
+  border: none;
   border-top: 1px solid $color-border;
   padding-bottom: 16px;
   margin-top: 16px;
