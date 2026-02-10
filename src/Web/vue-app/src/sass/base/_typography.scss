@@ -5,47 +5,49 @@
 h1,
 .h1-like {
   font-weight: 700;
-  font-size: rem(20);
-  line-height: rem(20);
+  font-size: rem(24);
+  line-height: rem(32);
   text-transform: none;
+  letter-spacing: -0.02em;
 }
 
 h2,
 .h2-like {
   font-weight: 700;
   font-size: rem(20);
-  line-height: rem(20);
+  line-height: rem(28);
   text-transform: none;
+  letter-spacing: -0.01em;
 }
 
 h3,
 .h3-like {
-  font-weight: 700;
+  font-weight: 600;
   font-size: rem(18);
-  line-height: rem(18);
+  line-height: rem(24);
   text-transform: none;
 }
 
 
 h4,
 .h4-like {
-  font-weight: 700;
+  font-weight: 600;
   font-size: rem(14);
-  line-height: rem(14);
+  line-height: rem(20);
   color: $color-grey-medium;
   text-transform: none;
 
   @include breakpoint(md-up) {
     font-size: rem(16);
-    line-height: rem(16);
+    line-height: rem(22);
   }
 }
 
 h5,
 .h5-like {
-  font-weight: 700;
+  font-weight: 600;
   font-size: rem(13);
-  line-height: rem(15);
+  line-height: rem(18);
   color: $color-grey-dark;
   text-transform: none;
 }
@@ -60,7 +62,7 @@ p {
     color: $color-green;
     text-decoration: underline;
     @include underlineHover($color-green);
-    font-weight: 800;
+    font-weight: 700;
   }
 }
 

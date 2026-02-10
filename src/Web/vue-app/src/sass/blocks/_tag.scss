@@ -1,12 +1,13 @@
-﻿@use "../tools" as *;
+@use "../tools" as *;
 .tag {
   display: block;
   max-width: fit-content;
-  padding: 4px 8px;
-  font-size: rem(14);
-  line-height: rem(20);
-  font-weight: 700;
-  border-radius: 8px;
-  background-color: $color-green-light;
+  padding: 3px 10px;
+  font-size: rem(12);
+  line-height: rem(18);
+  font-weight: 600;
+  border-radius: 20px;
+  background-color: $color-green-lighter;
+  color: $color-green-dark;
   transition: background-color 0.2s cb(snappy);
 }

@@ -1,32 +1,32 @@
 @use "../tools" as *;
 .vue3-easy-data-table {
   //we stan this plugin with an easy overwriting process <3
-  --easy-table-border: 1px solid #{$color-green};
-  --easy-table-row-border: 1px solid #{$color-green-lighter};
+  --easy-table-border: 1px solid #{$color-border};
+  --easy-table-row-border: 1px solid #{$color-border};
 
   //header
-  --easy-table-header-font-size: #{rem(14)};
+  --easy-table-header-font-size: #{rem(13)};
   --easy-table-header-font-color: #{$color-grey-medium};
-  --easy-table-header-item-padding: 24px 16px 8px;
+  --easy-table-header-item-padding: 16px 16px 8px;
 
   //body
   --easy-table-body-row-font-size: #{rem(14)};
   --easy-table-body-row-font-color: #{$color-text};
   --easy-table-body-row-hover-font-color: #{$color-text};
-  --easy-table-body-row-hover-background-color: #{$color-green-light};
-  --easy-table-body-row-background-color: #{$color-green-lighter};
-  --easy-table-body-even-row-background-color: #{$color-white};
-  --easy-table-body-item-padding: 16px;
+  --easy-table-body-row-hover-background-color: #{$color-grey-lighter};
+  --easy-table-body-row-background-color: #{$color-white};
+  --easy-table-body-even-row-background-color: #{$color-grey-lighter};
+  --easy-table-body-item-padding: 14px 16px;
 
   //scrollbar
-  --easy-table-scrollbar-track-color: #{$color-green-lighter};
-  --easy-table-scrollbar-thumb-color: #{$color-green};
+  --easy-table-scrollbar-track-color: #{$color-grey-light};
+  --easy-table-scrollbar-thumb-color: #{$color-grey};
 
   //footer
-  --easy-table-footer-font-size: #{rem(14)};
+  --easy-table-footer-font-size: #{rem(13)};
   --easy-table-rows-per-page-selector-option-padding: 8px;
-  --easy-table-footer-font-color: #{$color-black};
-  --easy-table-footer-height: 54px;
+  --easy-table-footer-font-color: #{$color-text};
+  --easy-table-footer-height: 48px;
 
   //Custom styles ========================================================
   border-radius: $common-border-radius;
@@ -35,8 +35,15 @@
   &__main {
     th,
     td {
-      font-weight: 700;
-      transition: background-color 0.2s cb(snappy);
+      font-weight: 600;
+      transition: background-color 0.15s ease;
+    }
+
+    th {
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: rem(11) !important;
+      letter-spacing: 0.04em;
     }
   }
 
@@ -73,7 +80,7 @@
   &__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 8px;
 
     .vue3-easy-data-table__action::after {
       content: none;//remove default link hover
@@ -85,13 +92,24 @@
     align-items: center;
     justify-content: center;
     padding: 4px;
-    border-radius: $common-border-radius;
+    border-radius: 6px;
     background-color: $color-green;
-    @include backgroundColorHover($color-green-medium);
+    transition: background-color 0.15s ease;
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: $color-green-dark;
+      }
+    }
 
     &.red-bg {
-      background-color: rgba($color-red, 0.8);
-      @include backgroundColorHover($color-red)
+      background-color: $color-red;
+
+      @media (hover: hover) {
+        &:hover {
+          background-color: $color-red-dark;
+        }
+      }
     }
   }
 
@@ -124,14 +142,21 @@
   .next-page__click-button,
   .previous-page__click-button {
     padding: 2.5px;
-    border: 2px solid $color-green;
-    transition: transform 0.2s cb(snappy);
+    border: 1.5px solid $color-grey;
+    border-radius: 6px;
+    transition: transform 0.2s cb(snappy), border-color 0.2s cb(snappy);
+
+    @media (hover: hover) {
+      &:hover {
+        border-color: $color-green;
+      }
+    }
 
     &.first-page,
     &.last-page {
       pointer-events: none;
       filter: grayscale(1);
-      opacity: 0.5;
+      opacity: 0.3;
     }
 
     .arrow {
@@ -164,12 +189,19 @@
 
     &.button {
       border: none;
-      border-radius: 0;
-      @include btnHover($color-green-medium, $color-white);
-      font-weight: 700;
+      border-radius: 4px;
+      font-weight: 600;
+      transition: background-color 0.15s ease;
+
+      @media (hover: hover) {
+        &:hover {
+          background-color: $color-green-lighter;
+        }
+      }
 
       &.active {
-        text-decoration: underline;
+        background-color: $color-green-lighter;
+        color: $color-green-dark;
         pointer-events: none;
       }
     }
@@ -179,7 +211,7 @@
   @media(hover:hover){
     tr:hover {
       .tag {
-        background-color: $color-green-lighter;
+        background-color: $color-green-light;
       }
     }
   }

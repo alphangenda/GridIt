@@ -2,8 +2,6 @@
   <div class="authentication-page">
     <div class="container container--maxwidth-lg">
       <div class="authentication-page__container">
-        <LogoGarneau class="authentication-page__logo icon icon--white" />
-
         <LangSwitcher />
 
         <div class="grid__row grid__row--jcc">

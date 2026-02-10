@@ -2,19 +2,19 @@
 .lang-switcher {
   gap: 8px;
   color: $color-green;
-  font-size: rem(18);
-  line-height: rem(28);
+  font-size: rem(16);
+  line-height: rem(24);
   text-transform: capitalize;
 
   &__option {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     @include colorHover($color-green-light);
   }
 
   &__option-text {
-    padding-top: 6px;
+    padding-top: 4px;
   }
 
   //States ---------------------------------

@@ -21,7 +21,8 @@ public static class JwtTokenFactory
 
         var claimList = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, user.UserName)
+            new(JwtRegisteredClaimNames.Sub, user.UserName),
+            new(ClaimTypes.Email, user.Email ?? user.UserName)
         };
 
         if (user.UserRoles.All(x => x.Role.Name != null))

@@ -1,29 +1,63 @@
 @use "../tools" as *;
 .btn {
-  display: flex;
-  gap: 12px;
-  padding: 12px 8px;
+  display: inline-flex;
+  gap: 8px;
+  padding: 10px 18px;
   font-size: rem(13);
-  line-height: rem(15);
-  font-weight: 700;
-  background-color: $color-green-light;
+  line-height: rem(16);
+  font-weight: 600;
+  background-color: $color-green;
   border: 1px solid $color-green;
   border-radius: $common-border-radius;
   cursor: pointer;
   width: fit-content;
   text-transform: none;
-  color: $color-text;
+  color: $color-white;
   align-items: center;
+  transition: all 0.2s cb(snappy);
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: $color-green-dark;
+      border-color: $color-green-dark;
+    }
+  }
+
+  .icon {
+    width: 16px;
+    height: 16px;
+
+    * {
+      fill: $color-white;
+    }
+  }
 
   //States ----------
   &--red {
+    background-color: $color-red;
     border-color: $color-red;
-    background-color: rgba($color-red, 0.5);
-    @include btnHover($color-red, $color-text)
+    @include btnHover(darken($color-red, 8%), $color-white)
+  }
+
+  &--secondary {
+    background-color: $color-white;
+    border-color: $color-border;
+    color: $color-text;
+
+    .icon * {
+      fill: $color-text;
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: $color-grey-lighter;
+        border-color: $color-grey;
+      }
+    }
   }
 
   &--square {
-    padding: 4px;
+    padding: 6px;
 
     .icon {
       width: 16px;
@@ -33,18 +67,34 @@
 
   &--link {
     padding: 0;
-    font-weight: 700;
-    color: $color-black;
+    font-weight: 600;
+    color: $color-green;
     border: none;
-    text-decoration: underline;
+    text-decoration: none;
     background-color: unset;
+
+    .icon * {
+      fill: $color-green;
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        color: $color-green-dark;
+        background-color: unset;
+        border-color: unset;
+
+        .icon * {
+          fill: $color-green-dark;
+        }
+      }
+    }
   }
 
   &:disabled,
   &--disabled {
     pointer-events: none;
     background-color: $color-grey-light;
-    border-color: $color-grey;
+    border-color: $color-grey-light;
     color: $color-grey;
   }
 

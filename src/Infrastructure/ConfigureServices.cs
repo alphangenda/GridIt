@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Application.Interfaces.FileStorage;
 using Application.Interfaces.Services;
 using Domain.Entities.Identity;
@@ -10,6 +10,7 @@ using Infrastructure.Mailing;
 using Infrastructure.Repositories.Admins;
 using Infrastructure.Repositories.Authentication;
 using Infrastructure.Repositories.Books;
+using Infrastructure.Repositories.Classes;
 using Infrastructure.Repositories.Members;
 using Infrastructure.Repositories.Users;
 using Infrastructure.Services;
@@ -63,6 +64,8 @@ public static class ConfigureServices
 
         services.AddScoped<IAdministratorRepository, AdministratorRepository>();
         services.AddScoped<IBookRepository, BookRepository>();
+        services.AddScoped<IClassRepository, ClassRepository>();
+        services.AddScoped<IExamRepository, ExamRepository>();
         services.AddScoped<IMemberRepository, MemberRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();

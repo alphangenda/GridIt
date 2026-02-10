@@ -89,7 +89,7 @@ async function sendTwoFactorAuthenticationRequest() {
   let user = await userService.getCurrentUser()
   userStore.setUser(user)
   apiStore.setNeedToLogout(false)
-  await router.push(t("routes.account.path"))
+  await router.push(t("routes.classes.path"))
   preventMultipleSubmit.value = false;
 }
 </script>

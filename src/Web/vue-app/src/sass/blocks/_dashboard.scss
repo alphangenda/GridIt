@@ -5,30 +5,41 @@
   display: flex;
   flex-direction: column;
 
-  &__content {
+  &__body {
+    display: flex;
     flex: 1;
-    padding: 24px 0 48px;
-    @include pagePadding;
-    background-color: $color-green-lighter;
+    min-height: 0;
+    flex-direction: column;
   }
 
-  &__content-header {
-    display: flex;
-    justify-content: flex-end;
-    gap: 32px;
-    margin-bottom: 60px;
+  &__content {
+    flex: 1;
+    padding: 32px 0 48px;
+    @include pagePadding;
+    background-color: $color-grey-lighter;
+    min-height: 0;
+    overflow: auto;
   }
 }
 
 //Breakpoints ==================================
 @include breakpoint(md-up) {
   .dashboard {
-    display: grid;
-    min-height: 100vh;
-    grid-template-columns: minmax(250px, 2fr) minmax(0, 10fr);
+    &__body {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: calc(100vh - 56px);
+    }
 
     &__content {
       padding-left: 40px;
+      padding-top: 40px;
+    }
+
+    &--with-exams {
+      .dashboard__body {
+        grid-template-columns: 240px 240px 1fr;
+      }
     }
   }
 }

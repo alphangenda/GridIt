@@ -151,6 +151,7 @@ form {
     font-size: rem(13);
     font-style: italic;
     margin-bottom: 4px;
+    color: $color-grey-medium;
   }
 
   &__link {
@@ -162,7 +163,8 @@ form {
 
   &__error-message {
     color: $color-red;
-    font-size: rem(14);
+    font-size: rem(13);
+    margin-top: 4px;
   }
 
   &__indicator {
@@ -195,8 +197,10 @@ form {
     transition: color 0.2s cb(snappy);
     color: $color-grey-medium;
     order: -1;
-    font-size: rem(14);
-    line-height: rem(24);
+    font-size: rem(13);
+    line-height: rem(20);
+    font-weight: 500;
+    margin-bottom: 4px;
   }
 
   input,
@@ -205,9 +209,10 @@ form {
     width: 100%;
     border: 1px solid $color-border;
     border-radius: $common-border-radius;
-    padding: 8px;
-    transition: border-color 0.2s cb(snappy), background-color 0.2s cb(snappy);
-    background-color: $color-grey-lighter;
+    padding: 10px 12px;
+    transition: border-color 0.2s cb(snappy), background-color 0.2s cb(snappy), box-shadow 0.2s cb(snappy);
+    background-color: $color-white;
+    font-size: rem(14);
 
     &:not(:read-only):not(:disabled) {
       @media (hover: hover) {
@@ -215,6 +220,7 @@ form {
         &:hover {
           outline: none;
           border-color: $color-green;
+          box-shadow: 0 0 0 3px rgba($color-green, 0.1);
           background-color: $color-white;
 
           + label {
@@ -226,6 +232,7 @@ form {
 
     &:disabled {
       pointer-events: none;
+      opacity: 0.6;
     }
   }
 
@@ -248,7 +255,7 @@ form {
     background-image: url(@/assets/icons/icon__chevron--select.png);
     background-repeat: no-repeat;
     background-size: 14px;
-    background-position: calc(100% - 8px) center;
+    background-position: calc(100% - 12px) center;
   }
 
   //Checkboxs & radios ----------------------------------------------------
@@ -258,7 +265,7 @@ form {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    gap: 24px;
+    gap: 20px;
   }
 
   &__checkbox,
@@ -296,17 +303,17 @@ form {
       &::before,
       &::after {
         content: "";
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
         display: block;
       }
 
       &::before {
         //Replace the default appearance of the checkbox
-        transition: border 0.2s ease-in-out;
+        transition: border 0.2s ease-in-out, background-color 0.2s ease-in-out;
         flex-shrink: 0;
         border-radius: 100%;
-        border: 2px solid $color-black;
+        border: 1.5px solid $color-grey;
       }
 
       &::after {
@@ -331,6 +338,11 @@ form {
     }
 
     &:checked + label {
+      &::before {
+        border-color: $color-green;
+        background-color: $color-green-lighter;
+      }
+
       &::after {
         opacity: 1;
       }
@@ -339,7 +351,7 @@ form {
 
   input[type="checkbox"] {
     & + label::before {
-      border-radius: $common-border-radius;
+      border-radius: 4px;
     }
   }
 
@@ -355,7 +367,7 @@ form {
     .btn {
       color: $color-red;
       border-color: $color-red;
-      background-color: rgba($color-red, 0.1);
+      background-color: rgba($color-red, 0.05);
 
       .icon * {
         fill: $color-red;
@@ -368,7 +380,7 @@ form {
 
     .form__error-message {
       display: block;
-      margin-top: 8px;
+      margin-top: 4px;
     }
   }
 
@@ -378,7 +390,8 @@ form {
     & textarea,
     &.form-select-multiple > span:first-child {
       border-color: $color-red;
-      background-color: rgba($color-red, 0.1);
+      background-color: rgba($color-red, 0.03);
+      box-shadow: 0 0 0 3px rgba($color-red, 0.08);
 
       + label {
         color: $color-red;
@@ -404,7 +417,7 @@ form {
 
         &::before {
           border-color: $color-red;
-          background-color: rgba($color-red, 0.1);
+          background-color: rgba($color-red, 0.05);
         }
       }
     }

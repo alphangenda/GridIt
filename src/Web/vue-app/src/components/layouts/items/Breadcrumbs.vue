@@ -2,7 +2,10 @@
   <ul class="breadcrumbs">
     <template v-for="(matched, i) in $route.matched" :key="i">
       <li class="breadcrumbs__breadcrumb" v-if="i+1 < $route.matched.length && matched.path != $route.path">
-        <router-link v-if="!matched.meta.noLinkInBreadcrumbs" :to="matched.path">
+        <router-link
+          v-if="!matched.meta.noLinkInBreadcrumbs"
+          :to="matched.name ? { name: matched.name as string, params: $route.params } : matched.path"
+        >
           {{ t(`routes.${matched.name?.toString()}.name`) }}
         </router-link>
         <p v-else>{{ t(`routes.${matched.name?.toString()}.name`) }}</p>

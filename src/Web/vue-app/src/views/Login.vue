@@ -87,7 +87,7 @@ async function sendLoginRequest() {
     userStore.setUser(user)
     userStore.setUsername(loginRequest.value.username)
     apiStore.setNeedToLogout(false)
-    await router.push(t("routes.account.path"))
+    await router.push(t("routes.classes.path"))
     preventMultipleSubmit.value = false;
     return;
   }

@@ -12,6 +12,7 @@
 @use "plugins/vue-quill";
 @use "plugins/vue3-easy-data-table";
 @use "plugins/vue-tippy";
+@use "blocks/app-header";
 @use "blocks/authentification-page";
 @use "blocks/back-link";
 @use "blocks/back-link-title";
@@ -30,6 +31,7 @@
 @use "blocks/popup";
 @use "blocks/progress-ring";
 @use "blocks/search-input";
+@use "blocks/side-nav";
 @use "blocks/subnav";
 @use "blocks/tag";
 @use "blocks/text-link";
