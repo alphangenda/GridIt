@@ -23,6 +23,8 @@ import ClassesIndexView from "@/views/classes/ClassesIndexView.vue";
 import ClassExamsView from "@/views/classes/ClassExamsView.vue";
 import ExamDetailView from "@/views/classes/ExamDetailView.vue";
 
+import EvaluationView from "@/views/evaluation/EvaluationView.vue";
+
 import {getLocalizedRoutes} from "@/locales/helpers";
 import {useUserStore} from "@/stores/userStore";
 
@@ -153,6 +155,16 @@ const router = createRouter({
           }
         }
       ]
+    },
+    {
+      path: i18n.t("routes.evaluation.path"),
+      alias: getLocalizedRoutes("routes.evaluation.path"),
+      name: "evaluation",
+      component: EvaluationView,
+      meta: {
+        requiredRole: [Role.Member, Role.Admin],
+        title: "routes.evaluation.name"
+      }
     },
     {
       path: i18n.t("routes.classes.path"),

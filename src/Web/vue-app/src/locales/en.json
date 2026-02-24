@@ -69,7 +69,22 @@
       "fullPath": "/classes",
       "name": "Classes",
       "examDetail": "Exam detail"
+    },
+    "evaluation": {
+      "path": "/evaluation",
+      "fullPath": "/evaluation",
+      "name": "Evaluation"
     }
+  },
+  "evaluation": {
+    "students": "Students",
+    "competence": "Competency",
+    "grade": "Grade",
+    "difficulties": "Difficulties",
+    "average": "Average",
+    "selectStudent": "Select a student from the list.",
+    "commentPlaceholder": "Comment...",
+    "openEvaluation": "Evaluation"
   },
   "navigation": {
     "classes": "Classes",

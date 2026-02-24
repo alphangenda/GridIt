@@ -69,7 +69,22 @@
       "fullPath": "/cours",
       "name": "Cours",
       "examDetail": "Détail de l'examen"
+    },
+    "evaluation": {
+      "path": "/evaluation",
+      "fullPath": "/evaluation",
+      "name": "Évaluation"
     }
+  },
+  "evaluation": {
+    "students": "Étudiants",
+    "competence": "Compétence",
+    "grade": "Note",
+    "difficulties": "Difficultés",
+    "average": "Moyenne",
+    "selectStudent": "Sélectionnez un étudiant dans la liste.",
+    "commentPlaceholder": "Commentaire...",
+    "openEvaluation": "Évaluation"
   },
   "navigation": {
     "classes": "Cours",
