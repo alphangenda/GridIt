@@ -99,6 +99,7 @@
     "selectMultipleClasses": "Hold Ctrl (or Cmd on Mac) to select multiple classes",
     "addClassToSession": "Add classes to session",
     "selectSession": "Select a session",
+    "allSessions": "All courses",
     "myAccount": "My account",
     "logout": "Log out"
   },
