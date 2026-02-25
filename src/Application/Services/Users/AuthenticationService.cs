@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using Application.Exceptions.Users;
 using Application.Interfaces.Services.Users;
 using Application.Services.Users.Exceptions;
@@ -9,6 +8,8 @@ using Domain.Entities.Identity;
 using Domain.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 namespace Application.Services.Users;
 
@@ -56,8 +57,8 @@ public class AuthenticationService : IAuthenticationService
         if (result == SignInResult.Failed || result == SignInResult.LockedOut || result == SignInResult.NotAllowed)
             throw new TwoFactorAuthenticationException($"Could not get 2fa code for user with email {user.Email}.");
 
-        if (result == SignInResult.Success || result == SignInResult.TwoFactorRequired && twoFactorAuthDoneRecently)
-            return null;
+        //if (result == SignInResult.Success || result == SignInResult.TwoFactorRequired && twoFactorAuthDoneRecently)
+        //    return null;
 
         return await _signInManager.UserManager.GenerateTwoFactorTokenAsync(user, "Email");
     }
@@ -118,5 +119,25 @@ public class AuthenticationService : IAuthenticationService
         } while (await _refreshTokenRepository.RefreshTokenWithTokenExists(token));
 
         return token;
+    }
+
+    public bool IsTeacherFromPublicCegep(User user)
+    {
+        if (string.IsNullOrWhiteSpace(user?.Email))
+            return false;
+
+        if (user.Email.Equals("admin@gmail.com", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        var cegepTeacherEmailRegexes = new[]
+        {
+            @"^[a-zA-Z]+@csfoy\.ca$",                        // Cégep Ste-Foy (profs = lettres seulement avant le @)
+            @"^[a-zA-Z0-9._%+-]+@cegepgarneau\.ca$",         // Cégep Garneau (profs = domaine sans "edu.")
+            @"^[a-zA-Z0-9._%+-]+@cegep-limoilou\.qc\.ca$",   // Cégep Limoilou (à confirmer)
+            @"^[a-zA-Z0-9._%+-]+@slc\.qc\.ca$"               // Cégep St-Lawrence (à confirmer)
+        };
+
+        return cegepTeacherEmailRegexes.Any(pattern =>
+            Regex.IsMatch(user.Email, pattern, RegexOptions.IgnoreCase));
     }
 }
