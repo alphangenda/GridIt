@@ -20,6 +20,13 @@
             {{ session.name }}
           </option>
         </select>
+        <button
+          type="button"
+          class="app-header__session-add-btn"
+          @click="goToSessions"
+        >
+          {{ t("navigation.addSession") }}
+        </button>
       </div>
     </div>
 
@@ -119,6 +126,10 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
 });
+
+async function goToSessions() {
+  await router.push({ name: "sessions.index" });
+}
 </script>
 
 <style scoped lang="scss">
@@ -146,5 +157,21 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.8);
   background-color: #ffffff;
   color: #111827;
+}
+
+.app-header__session-add-btn {
+  padding: 0.35rem 0.8rem;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background-color: #4b9e6b;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.app-header__session-add-btn:hover {
+  background-color: #3b8156;
 }
 </style>
