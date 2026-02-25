@@ -49,7 +49,7 @@ build_script:
   - ps: |
       if ($env:APPVEYOR_REPO_BRANCH -eq "main") {
         Remove-Item -Path src\Web\web.config
-        Move-Item -Path src\Web\web.main.config -Destination src\Web\web.config
+        Copy-Item -Path src\Web\web.main.config -Destination src\Web\web.config -Force
         Set-Location "$env:APPVEYOR_BUILD_FOLDER\src\Web\vue-app"
         Copy-Item ".env.main" -Destination ".env" -Force
         Copy-Item ".env.main" -Destination ".env.production" -Force
