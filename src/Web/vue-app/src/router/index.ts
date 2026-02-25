@@ -23,6 +23,9 @@ import ClassesIndexView from "@/views/classes/ClassesIndexView.vue";
 import ClassExamsView from "@/views/classes/ClassExamsView.vue";
 import ExamDetailView from "@/views/classes/ExamDetailView.vue";
 
+import SessionsView from "@/views/sessions/SessionsView.vue";
+import SessionsIndexView from "@/views/sessions/SessionsIndexView.vue";
+
 import {getLocalizedRoutes} from "@/locales/helpers";
 import {useUserStore} from "@/stores/userStore";
 
@@ -183,6 +186,24 @@ const router = createRouter({
           component: ExamDetailView,
           props: true,
           meta: { title: "routes.classes.examDetail" }
+        }
+      ]
+    },
+    {
+      path: i18n.t("routes.sessions.path"),
+      alias: getLocalizedRoutes("routes.sessions.path"),
+      name: "sessions",
+      component: SessionsView,
+      meta: {
+        requiredRole: [Role.Member, Role.Admin],
+        title: "routes.sessions.name"
+      },
+      children: [
+        {
+          path: "",
+          name: "sessions.index",
+          component: SessionsIndexView,
+          meta: { title: "routes.sessions.name" }
         }
       ]
     }

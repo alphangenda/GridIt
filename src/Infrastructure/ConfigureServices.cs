@@ -12,6 +12,7 @@ using Infrastructure.Repositories.Authentication;
 using Infrastructure.Repositories.Books;
 using Infrastructure.Repositories.Classes;
 using Infrastructure.Repositories.Members;
+using Infrastructure.Repositories.Sessions;
 using Infrastructure.Repositories.Users;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -66,6 +67,7 @@ public static class ConfigureServices
         services.AddScoped<IBookRepository, BookRepository>();
         services.AddScoped<IClassRepository, ClassRepository>();
         services.AddScoped<IExamRepository, ExamRepository>();
+        services.AddScoped<ISessionRepository, SessionRepository>();
         services.AddScoped<IMemberRepository, MemberRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
