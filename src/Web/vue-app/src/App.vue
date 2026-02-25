@@ -21,19 +21,6 @@ let isAuthenticationPath = computed(() => {
 });
 
 onMounted(async () => {
-  // #region agent log
-  fetch("http://127.0.0.1:7246/ingest/30a6a8d6-c62f-4864-9278-26401a3dafa6", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      location: "App.vue:onMounted:start",
-      message: "App onMounted",
-      data: { isAuthPath: isAuthenticationPath.value, hasEmail: !!userStore.user?.email },
-      timestamp: Date.now(),
-      hypothesisId: "H2",
-    }),
-  }).catch(() => {});
-  // #endregion
   // Skip on auth pages: user is not logged in, getCurrentUser() would 401 and can cause infinite loading
   if (isAuthenticationPath.value) return;
   if (!userStore.user.email) {
@@ -44,13 +31,6 @@ onMounted(async () => {
       // Not authenticated, leave store as-is
     }
   }
-  // #region agent log
-  fetch("http://127.0.0.1:7246/ingest/30a6a8d6-c62f-4864-9278-26401a3dafa6", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ location: "App.vue:onMounted:end", message: "App onMounted end", timestamp: Date.now(), hypothesisId: "H2" }),
-  }).catch(() => {});
-  // #endregion
 });
 
 </script>
