@@ -115,7 +115,13 @@
     "addClassToSession": "Ajouter des cours à la session",
     "selectSession": "Sélectionnez une session",
     "myAccount": "Mon compte",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "importStudents": "Import étudiant",
+    "studentsImported": "{count} étudiant(s) importé(s)",
+    "importStudentsFormatError": "Fichier JSON invalide. Format attendu: [{\"number\": \"...\", \"firstName\": \"...\", \"lastName\": \"...\"}]",
+    "studentNumber": "Numéro",
+    "studentFirstName": "Prénom",
+    "studentLastName": "Nom"
   },
   "pages": {
     "classes": {

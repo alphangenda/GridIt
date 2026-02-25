@@ -115,7 +115,13 @@
     "addClassToSession": "Add classes to session",
     "selectSession": "Select a session",
     "myAccount": "My account",
-    "logout": "Log out"
+    "logout": "Log out",
+    "importStudents": "Import students",
+    "studentsImported": "{count} student(s) imported",
+    "importStudentsFormatError": "Invalid JSON file. Expected: [{\"number\": \"...\", \"firstName\": \"...\", \"lastName\": \"...\"}]",
+    "studentNumber": "Number",
+    "studentFirstName": "First name",
+    "studentLastName": "Last name"
   },
   "pages": {
     "classes": {
