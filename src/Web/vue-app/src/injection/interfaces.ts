@@ -8,7 +8,7 @@ import {
   ITwoFactorRequest
 } from "@/types/requests"
 import {PaginatedResponse, SucceededOrNotResponse} from "@/types/responses"
-import {Administrator, Book, ClassItem, ExamItem, Member, User} from "@/types/entities"
+import {Administrator, Book, ClassItem, ExamItem, Member, SessionItem, User} from "@/types/entities"
 import {Guid} from "@/types";
 
 export interface IApiService {
@@ -75,6 +75,18 @@ export interface IClassService {
   createExam(classId: string, name: string): Promise<ExamItem>
 
   deleteExam(examId: string): Promise<void>
+}
+
+export interface ISessionService {
+  getAllSessions(): Promise<SessionItem[]>
+
+  getSession(sessionId: string): Promise<SessionItem>
+
+  createSession(name: string, classIds?: string[]): Promise<SessionItem>
+
+  updateSession(sessionId: string, name: string, classIds?: string[]): Promise<SessionItem>
+
+  deleteSession(sessionId: string): Promise<void>
 }
 
 export interface IUserService {
