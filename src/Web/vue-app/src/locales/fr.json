@@ -98,6 +98,7 @@
     "deleteSessionConfirm": "Êtes-vous sûr de vouloir supprimer cette session ?",
     "selectMultipleClasses": "Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs cours",
     "addClassToSession": "Ajouter des cours à la session",
+    "selectSession": "Sélectionnez une session",
     "myAccount": "Mon compte",
     "logout": "Déconnexion"
   },
@@ -106,6 +107,7 @@
       "addError": "Impossible d'ajouter la classe. Veuillez réessayer."
     },
     "sessions": {
+      "homeTitle": "Page d'accueil",
       "addError": "Impossible d'ajouter la session. Veuillez réessayer.",
       "sessionNotFound": "Session introuvable.",
       "classesAdded": "Cours ajoutés avec succès à la session."
