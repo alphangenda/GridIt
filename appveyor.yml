@@ -57,6 +57,7 @@ build_script:
         npm run build
         Set-Location ..
         dotnet publish .\ -o __publish -c Release
+        Copy-Item "web.main.config" -Destination "__publish\web.config" -Force
         7z a .\Web.zip .\__publish\* .\__publish\**\*
         Set-Location ..\..
       }
