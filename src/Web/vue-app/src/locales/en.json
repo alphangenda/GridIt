@@ -74,6 +74,7 @@
       "path": "/evaluation",
       "fullPath": "/evaluation",
       "name": "Evaluation"
+    },
     "sessions": {
       "path": "/sessions",
       "fullPath": "/sessions",
