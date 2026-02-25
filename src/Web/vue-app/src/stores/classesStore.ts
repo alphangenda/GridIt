@@ -29,9 +29,9 @@ export const useClassesStore = defineStore("classes", {
       const exams = await classService.getExamsByClass(classId);
       this.examsByClassId[classId] = exams;
     },
-    async addClass(name: string) {
+    async addClass(name: string, students?: { number: string; firstName: string; lastName: string }[]) {
       const classService = useClassService();
-      const created = await classService.createClass(name);
+      const created = await classService.createClass(name, students);
       this.classes.push(created);
     },
     async deleteClass(classId: string) {
