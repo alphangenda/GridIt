@@ -70,11 +70,26 @@
       "name": "Cours",
       "examDetail": "Détail de l'examen"
     },
+    "evaluation": {
+      "path": "/evaluation",
+      "fullPath": "/evaluation",
+      "name": "Évaluation"
+    },
     "sessions": {
       "path": "/sessions",
       "fullPath": "/sessions",
       "name": "Sessions"
     }
+  },
+  "evaluation": {
+    "students": "Étudiants",
+    "competence": "Compétence",
+    "grade": "Note",
+    "difficulties": "Difficultés",
+    "average": "Moyenne",
+    "selectStudent": "Sélectionnez un étudiant dans la liste.",
+    "commentPlaceholder": "Commentaire...",
+    "openEvaluation": "Évaluation"
   },
   "navigation": {
     "classes": "Cours",
@@ -100,7 +115,13 @@
     "addClassToSession": "Ajouter des cours à la session",
     "selectSession": "Sélectionnez une session",
     "myAccount": "Mon compte",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "importStudents": "Import étudiant",
+    "studentsImported": "{count} étudiant(s) importé(s)",
+    "importStudentsFormatError": "Fichier JSON invalide. Format attendu: [{\"number\": \"...\", \"firstName\": \"...\", \"lastName\": \"...\"}]",
+    "studentNumber": "Numéro",
+    "studentFirstName": "Prénom",
+    "studentLastName": "Nom"
   },
   "pages": {
     "classes": {

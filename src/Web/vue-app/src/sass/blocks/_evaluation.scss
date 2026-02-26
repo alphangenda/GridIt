@@ -1,0 +1,260 @@
+@use "../tools" as *;
+
+.dashboard__content:has(.evaluation) {
+  padding: 0;
+}
+
+.evaluation {
+  display: flex;
+  gap: 0;
+  height: 100%;
+  min-height: calc(100vh - 56px - 80px);
+
+  // ── Left panel: student list ──────────────────────────────
+  &__students {
+    width: 240px;
+    min-width: 240px;
+    background-color: $color-white;
+    border-right: 1px solid $color-border;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__students-title {
+    font-weight: 600;
+    font-family: $font-montserrat;
+    font-size: rem(12);
+    line-height: rem(16);
+    color: $color-grey-medium;
+    padding: 16px 20px 12px;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid $color-border;
+  }
+
+  &__students-list {
+    list-style: none;
+    margin: 0;
+    padding: 8px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  &__student-btn {
+    display: block;
+    width: 100%;
+    padding: 10px 14px;
+    text-align: left;
+    color: $color-text;
+    font-size: rem(13);
+    font-weight: 500;
+    font-family: $font-karla;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: color 0.15s ease, background-color 0.15s ease;
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: $color-grey-light;
+      }
+    }
+
+    &--active {
+      background-color: $color-green-light;
+      color: $color-green-dark;
+      font-weight: 600;
+    }
+  }
+
+  // ── Right panel: grading ──────────────────────────────────
+  &__grading {
+    flex: 1;
+    min-width: 0;
+    padding: 24px 32px;
+    overflow-y: auto;
+  }
+
+  &__grading-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  &__grading-title {
+    font-family: $font-montserrat;
+    font-weight: 700;
+    font-size: rem(20);
+    line-height: rem(24);
+    color: $color-text;
+    margin: 0;
+  }
+
+  &__average {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $common-border-radius;
+    padding: 8px 16px;
+  }
+
+  &__average-label {
+    font-size: rem(13);
+    color: $color-grey-medium;
+    font-weight: 500;
+  }
+
+  &__average-letter {
+    font-family: $font-montserrat;
+    font-weight: 700;
+    font-size: rem(16);
+    padding: 2px 10px;
+    border-radius: 4px;
+    color: $color-white;
+
+    &--A { background-color: #10b981; }
+    &--B { background-color: #3b82f6; }
+    &--C { background-color: #f59e0b; }
+    &--D { background-color: #f97316; }
+    &--E { background-color: #ef4444; }
+  }
+
+  &__average-numeric {
+    font-size: rem(13);
+    color: $color-grey-medium;
+    font-weight: 500;
+  }
+
+  // ── Table ─────────────────────────────────────────────────
+  &__table-wrapper {
+    background-color: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $common-border-radius;
+    overflow-x: auto;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  &__th {
+    text-align: left;
+    font-family: $font-montserrat;
+    font-weight: 600;
+    font-size: rem(11);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $color-grey-medium;
+    padding: 12px 16px;
+    border-bottom: 2px solid $color-border;
+    white-space: nowrap;
+
+    &--competence { width: 35%; }
+    &--grade { width: 28%; }
+    &--comment { width: 37%; }
+  }
+
+  &__td {
+    padding: 10px 16px;
+    border-bottom: 1px solid $color-border;
+    vertical-align: middle;
+    font-size: rem(13);
+
+    &--competence {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  }
+
+  &__color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  // ── Grade tiles ───────────────────────────────────────────
+  &__grade-tiles {
+    display: flex;
+    gap: 4px;
+  }
+
+  &__grade-btn {
+    width: 36px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: $font-montserrat;
+    font-weight: 600;
+    font-size: rem(13);
+    border: 1px solid $color-grey;
+    border-radius: 4px;
+    background-color: $color-white;
+    color: $color-text;
+    cursor: pointer;
+    transition: all 0.12s ease;
+
+    @media (hover: hover) {
+      &:hover {
+        border-color: $color-grey-medium;
+        background-color: $color-grey-light;
+      }
+    }
+
+    &--selected {
+      color: $color-white;
+      border-color: transparent;
+
+      &.evaluation__grade-btn--A { background-color: #10b981; }
+      &.evaluation__grade-btn--B { background-color: #3b82f6; }
+      &.evaluation__grade-btn--C { background-color: #f59e0b; }
+      &.evaluation__grade-btn--D { background-color: #f97316; }
+      &.evaluation__grade-btn--E { background-color: #ef4444; }
+    }
+  }
+
+  // ── Comment input ─────────────────────────────────────────
+  &__comment-input {
+    width: 100%;
+    padding: 6px 10px;
+    font-family: $font-karla;
+    font-size: rem(13);
+    border: 1px solid $color-border;
+    border-radius: 4px;
+    background-color: $color-grey-lighter;
+    color: $color-text;
+    transition: border-color 0.15s ease;
+
+    &::placeholder {
+      color: $color-grey;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $color-green;
+      background-color: $color-white;
+    }
+  }
+
+  // ── Empty state ───────────────────────────────────────────
+  &__empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $color-grey-medium;
+    font-size: rem(14);
+  }
+}

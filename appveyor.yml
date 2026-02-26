@@ -11,9 +11,14 @@ clone_depth: 1
 
 environment:
   nodejs_version: "22"
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 install:
   - ps: Install-Product node $env:nodejs_version
+  - ps: Invoke-WebRequest -Uri "https://dot.net/v1/dotnet-install.ps1" -OutFile "dotnet-install.ps1"
+  - ps: .\dotnet-install.ps1 -Channel 10.0 -InstallDir "C:\Program Files\dotnet"
 
 init:
   - net start MSSQL$SQL2019
@@ -28,47 +33,57 @@ dotnet_csproj:
   informational_version: '{version}'
 
 before_build:
+  - dotnet --version
   - node --version
-  - ps: Remove-Item -Path src\Web\web.config
-  - ps: Move-Item -Path src\Web\web.$env:APPVEYOR_REPO_BRANCH.config -Destination src\Web\web.config
-  - cd %APPVEYOR_BUILD_FOLDER%\src\Web\vue-app
-  - move /y .env.%APPVEYOR_REPO_BRANCH% .env
-  - npm install
+  - cd %APPVEYOR_BUILD_FOLDER%\tests\Tests.Common
+  - mv -f appsettings.appveyor.json appsettings.json
   - cd %APPVEYOR_BUILD_FOLDER%
 
 build_script:
-  - dotnet --version
-  - cd %APPVEYOR_BUILD_FOLDER%\tests\Tests.Common
-  - mv -f appsettings.appveyor.json appsettings.json
-  - cd %APPVEYOR_BUILD_FOLDER%\src\Web\vue-app
-  - npm run build
-  - cd ..
-  - dotnet publish .\ -o __publish -c Release
-  - 7z a .\Web.zip .\__publish\* .\__publish\**\*
-  - cd ..\..
+  # staging: build solution for tests
+  - ps: |
+      if ($env:APPVEYOR_REPO_BRANCH -eq "staging") {
+        dotnet build
+      }
+  # main: build Vue app + publish .NET app
+  - ps: |
+      if ($env:APPVEYOR_REPO_BRANCH -eq "main") {
+        Remove-Item -Path src\Web\web.config
+        Copy-Item -Path src\Web\web.main.config -Destination src\Web\web.config -Force
+        Set-Location "$env:APPVEYOR_BUILD_FOLDER\src\Web\vue-app"
+        Copy-Item ".env.main" -Destination ".env" -Force
+        Copy-Item ".env.main" -Destination ".env.production" -Force
+        npm install
+        npm run build
+        Set-Location ..
+        dotnet publish .\ -o __publish -c Release
+        Copy-Item "web.main.config" -Destination "__publish\web.config" -Force
+        7z a .\Web.zip .\__publish\* .\__publish\**\*
+        Set-Location ..\..
+      }
 
 test_script:
-  - dotnet build
-  - dotnet test --no-build .\tests\Tests.Infrastructure
-  - dotnet test --no-build .\tests\Tests.Application
-  - dotnet test --no-build .\tests\Tests.Domain\
-  - dotnet test --no-build .\tests\Tests.Web\
+  - ps: |
+      if ($env:APPVEYOR_REPO_BRANCH -eq "staging") {
+        dotnet test --no-build .\tests\Tests.Infrastructure
+        dotnet test --no-build .\tests\Tests.Application
+        dotnet test --no-build .\tests\Tests.Domain\
+        dotnet test --no-build .\tests\Tests.Web\
+      }
 
 artifacts:
   - path: ./src/Web/__publish
     name: garneau-template.web
 
-deploy:
-  - provider: Environment
-    name: garneau-template
-    website: {azure-website-name}
-    username: ${azure-user}
-    password:
-      secure: {azure-password}
-    aspnet_core: true
-    aspnet_core_force_restart: true
-    app_offline: true
-    remove_files: true
-    skip_dirs: \\App_Data;\\.well-known;
-    on:
-      branch: staging
+deploy_script:
+  - ps: |
+      if ($env:APPVEYOR_REPO_BRANCH -eq "main") {
+        $zipPath = "$env:APPVEYOR_BUILD_FOLDER\src\Web\Web.zip"
+        $username = "`$gridit"
+        $password = $env:DEPLOY_PASSWORD
+        $base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${username}:${password}"))
+        $url = "https://gridit.scm.azurewebsites.net/api/zipdeploy"
+        Write-Host "Deploying to Azure..."
+        Invoke-WebRequest -Uri $url -Method POST -InFile $zipPath -Headers @{Authorization = "Basic $base64Auth"} -ContentType "application/zip" -TimeoutSec 300
+        Write-Host "Deployment complete!"
+      }
