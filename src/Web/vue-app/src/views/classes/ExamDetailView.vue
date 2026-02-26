@@ -107,7 +107,7 @@
 
                   <div v-else class="criteria-list">
                     <div
-                      v-for="c in criteria[activeSkillId]"
+                      v-for="c in (criteria[activeSkillId] ?? [])"
                       :key="c.id"
                       class="criterion-block"
                     >
@@ -195,7 +195,7 @@
                     </div>
 
                     <div
-                      v-if="criteria[activeSkillId].length === 0"
+                      v-if="(criteria[activeSkillId] ?? []).length === 0"
                       class="hint"
                     >
                       Aucun critère pour cette compétence.
@@ -266,7 +266,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted , ref } from "vue";
+import { computed, onMounted , ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
@@ -276,10 +276,18 @@ const { t } = useI18n();
 const route = useRoute();
 const classesStore = useClassesStore();
 
+function normalizeSkill(s: any): Skill {
+  const rawId = s?.id ?? s?.Id ?? s?.skillId ?? s?.SkillId;
+  return {
+    id: String(rawId),
+    label: String(s?.label ?? s?.Label ?? ""),
+  };
+}
+
 const exam = computed(() => {
   const classId = route.params.classId as string;
   const examId = route.params.examId as string;
-  return classesStore.getExamsForClass(classId).find((e) => e.id === examId);
+  return classesStore.getExamsForClass(classId)?.find((e) => e.id === examId);
 });
 
 const showInfo = ref(false);
@@ -382,20 +390,38 @@ function weightPercentage(c: Criterion, e: WeightEvaluation) {
 
 const showSidePanel = ref(false);
 
-
 const allSkills = ref<Skill[]>([]);
 
+
 onMounted(async () => {
-  const res = await fetch("/api/skills");
+  if (!exam.value) return;
 
-  const data = await res.json();
+  const [skillsRes, examSkillsRes] = await Promise.all([
+    fetch("/api/skills"),
+    fetch(`/api/exams/${exam.value.id}/skills`),
+  ]);
 
-  allSkills.value = data.map((s: any) => ({
-    id: s.id ?? s.Id,
-    label: s.label ?? s.Label,
-  }));
+  const [skillsData, examSkillsData] = await Promise.all([
+    skillsRes.json(),
+    examSkillsRes.json(),
+  ]);
 
-  console.log("SKILLS MAPPÉES :", allSkills.value);
+  allSkills.value = (skillsData as any[]).map(normalizeSkill);
+
+  const seen = new Set<string>();
+  selectedSkills.value = (examSkillsData as any[])
+    .map(normalizeSkill)
+    .filter(s => {
+      if (seen.has(s.id)) return false;
+      seen.add(s.id);
+      return true;
+    });
+
+  for (const s of selectedSkills.value) {
+    criteria.value[s.id] ??= [];
+  }
+
+  activeSkillId.value = selectedSkills.value[0]?.id ?? "";
 });
 
 const showPicker = ref(false);
@@ -407,23 +433,49 @@ const criteria = ref<Record<string, Criterion[]>>({});
 
 const activeSkill = computed(() => selectedSkills.value.find(s => s.id === activeSkillId.value) ?? null);
 
-function isSelected(id: string) {
-  return selectedSkills.value.some(s => s.id === id);
+function isSelected(id: string | number) {
+  return selectedSkills.value.some(s => s.id === String(id));
 }
 
-function toggleSkill(skill: Skill) {
-  if (isSelected(skill.id)) {
-    selectedSkills.value = selectedSkills.value.filter(s => s.id !== skill.id);
-
-    if (activeSkillId.value === skill.id) activeSkillId.value = "";
-  } else {
-    selectedSkills.value.push(skill);
-    if (!activeSkillId.value) activeSkillId.value = skill.id;
-    if (!criteria.value[skill.id]) criteria.value[skill.id] = [];
+watch(selectedSkills, (list) => {
+  if (!list.some(s => s.id === activeSkillId.value)) {
+    activeSkillId.value = list[0]?.id ?? "";
   }
+});
 
-  if (!activeSkillId.value && selectedSkills.value.length > 0) {
-    activeSkillId.value = selectedSkills.value[0].id;
+async function toggleSkill(skill: Skill) {
+  if (!exam.value) return;
+
+  const normalizedSkill = normalizeSkill(skill);
+  const alreadySelected = isSelected(normalizedSkill.id);
+
+  if (alreadySelected) {
+    await fetch(
+      `/api/exams/${exam.value.id}/skills/${skill.id}`,
+      { method: "DELETE" }
+    );
+
+    selectedSkills.value = selectedSkills.value.filter(s => s.id !== normalizedSkill.id);
+    delete criteria.value[normalizedSkill.id];
+
+    if (activeSkillId.value === normalizedSkill.id) {
+      activeSkillId.value = selectedSkills.value[0]?.id ?? "";
+    }
+  } else {
+
+    if (isSelected(normalizedSkill.id)) return;
+
+    await fetch(`/api/exams/${exam.value.id}/skills`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ skillId: normalizedSkill.id }),
+    });
+
+    selectedSkills.value.push(normalizedSkill);
+    criteria.value[normalizedSkill.id] ??= [];
+
+    activeSkillId.value ||= skill.id;
+
   }
 }
 
