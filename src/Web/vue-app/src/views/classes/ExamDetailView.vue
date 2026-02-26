@@ -65,7 +65,7 @@
               <div class="picker__title">Sélectionner</div>
               <div class="picker__list">
                 <label
-                  v-for="s in ALL_SKILLS"
+                  v-for="s in allSkills"
                   :key="s.id"
                   class="picker__item"
                 >
@@ -266,7 +266,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted , ref } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
@@ -383,14 +383,20 @@ function weightPercentage(c: Criterion, e: WeightEvaluation) {
 const showSidePanel = ref(false);
 
 
-const ALL_SKILLS: Skill[] = [
-  { id: "general", label: "Configuration et qualité générale" },
-  { id: "django", label: "Administration Django" },
-  { id: "ui", label: "Templates et interface utilisateur" },
-  { id: "api", label: "API externe et fonctionnalités avancées" },
-  { id: "forms", label: "Formulaires et validations" },
-  { id: "views", label: "Vues principales et logique" },
-];
+const allSkills = ref<Skill[]>([]);
+
+onMounted(async () => {
+  const res = await fetch("/api/skills");
+
+  const data = await res.json();
+
+  allSkills.value = data.map((s: any) => ({
+    id: s.id ?? s.Id,
+    label: s.label ?? s.Label,
+  }));
+
+  console.log("SKILLS MAPPÉES :", allSkills.value);
+});
 
 const showPicker = ref(false);
 
