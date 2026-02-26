@@ -1,5 +1,4 @@
 <template>
-  <!-- Déplace le rendu à la racine du <body> pour éviter les problèmes de z-index parents -->
   <teleport to="body">
     <div
       v-if="modelValue"
@@ -9,18 +8,18 @@
       @keydown.esc.prevent="close"
       tabindex="-1"
     >
-      <!-- Arrière-plan sombre cliquable pour fermer -->
       <div class="fs-backdrop" @click="close"></div>
 
-      <div class="fs-panel">
-        <!-- Bouton de fermeture accessible -->
+      <div
+        class="fs-panel"
+        :class="{ 'fs-panel--expanded': expanded }"
+        >
         <button class="fs-close" type="button" @click="close" aria-label="Fermer">
           ✕
         </button>
 
-        <!-- Slot pour injecter le contenu personnalisé -->
         <div class="fs-content">
-          <slot />
+          <slot/>
         </div>
       </div>
     </div>
@@ -28,13 +27,15 @@
 </template>
 
 <script setup lang="ts">
-import { watch, nextTick } from "vue";
+import { watch, nextTick, useAttrs, computed } from "vue";
 
-/**
- * PROPS
- * modelValue: Gère l'affichage (v-model)
- * closeOnBackdrop: Option pour activer/désactiver la fermeture au clic fond
- */
+const attrs = useAttrs();
+
+const expanded = computed(() =>
+  typeof attrs.class === "string" &&
+  attrs.class.includes("modal--expanded")
+);
+
 const props = defineProps<{
   modelValue: boolean;
   closeOnBackdrop?: boolean;
@@ -44,29 +45,19 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: boolean): void;
 }>();
 
-/** Ferme la modale en mettant à jour la valeur du v-model */
 function close() {
   emit("update:modelValue", false);
 }
 
-/**
- * Surveille l'ouverture pour gérer l'UX et l'accessibilité
- */
 watch(
   () => props.modelValue,
   async (open) => {
     if (open) {
-      // Attend que le DOM soit rendu pour cibler l'élément
       await nextTick();
       const el = document.querySelector(".fs-overlay") as HTMLElement | null;
-
-      // Donne le focus à la modale pour activer l'écoute de la touche ESC
       el?.focus();
-
-      // Bloque le défilement de la page principale
       document.body.style.overflow = "hidden";
     } else {
-      // Restaure le défilement lors de la fermeture
       document.body.style.overflow = "";
     }
   }
@@ -74,36 +65,39 @@ watch(
 </script>
 
 <style scoped>
-/* Conteneur principal plein écran */
 .fs-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
   display: grid;
-  place-items: center; /* Centre le panel horizontalement et verticalement */
+  place-items: center;
   outline: none;
 }
 
-/* Fond semi-transparent */
+
 .fs-backdrop {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
 }
 
-/* Fenêtre modale (Panel) */
 .fs-panel {
   position: relative;
-  /* Taille adaptative : maximum 1100px ou 96% de la largeur écran */
-  width: min(1100px, 96vw);
+  width: 1100px;
+  max-width: 96vw;
   height: min(92vh, 900px);
   background: #fff;
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 20px 80px rgba(0, 0, 0, 0.35);
+  transition: width 0.25s ease;
 }
 
-/* Bouton de fermeture flottant */
+.fs-panel--expanded {
+  width: 1400px;
+  max-width: 98vw;
+}
+
 .fs-close {
   position: absolute;
   top: 14px;
@@ -123,10 +117,9 @@ watch(
   background: rgba(0, 0, 0, 0.15);
 }
 
-/* Zone de contenu scrollable */
 .fs-content {
   height: 100%;
   padding: 24px;
-  overflow: auto; /* Permet le scroll si le contenu dépasse la hauteur du panel */
+  overflow: auto;
 }
 </style>
