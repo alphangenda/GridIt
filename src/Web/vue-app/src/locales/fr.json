@@ -118,6 +118,8 @@
     "selectMultipleClasses": "Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs cours",
     "addClassToSession": "Ajouter des cours à la session",
     "selectSession": "Sélectionnez une session",
+    "allSessions": "Afficher tout les cours",
+    "removeClassFromSessionConfirm": "Voulez-vous vraiment supprimer le cours de cette session ?",
     "myAccount": "Mon compte",
     "logout": "Déconnexion",
     "importStudents": "Import étudiant",

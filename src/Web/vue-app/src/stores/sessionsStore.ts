@@ -4,26 +4,46 @@ import type { SessionItem } from "@/types/entities";
 
 interface SessionsState {
   sessions: SessionItem[];
+  selectedSessionId: string | null;
 }
 
 export const useSessionsStore = defineStore("sessions", {
   state: (): SessionsState => ({
     sessions: [],
+    selectedSessionId: null,
   }),
 
   getters: {
     getSessions: (state) => state.sessions,
+    getSelectedSessionId: (state) => state.selectedSessionId,
+    getSelectedSession: (state) =>
+      state.selectedSessionId
+        ? state.sessions.find((s) => s.id === state.selectedSessionId)
+        : undefined,
   },
 
   actions: {
     async fetchSessions() {
       const sessionService = useSessionService();
-      this.sessions = await sessionService.getAllSessions();
+      const sessions = await sessionService.getAllSessions();
+      this.sessions = sessions;
+
+      if (this.selectedSessionId) {
+        const stillExists = this.sessions.some(
+          (s) => s.id === this.selectedSessionId
+        );
+        if (!stillExists) {
+          this.selectedSessionId = null;
+        }
+      }
     },
     async addSession(name: string, classIds?: string[]) {
       const sessionService = useSessionService();
       const created = await sessionService.createSession(name, classIds);
       this.sessions.push(created);
+    },
+    selectSession(sessionId: string | null) {
+      this.selectedSessionId = sessionId;
     },
     async updateSession(sessionId: string, name: string, classIds?: string[]) {
       const sessionService = useSessionService();
@@ -37,6 +57,9 @@ export const useSessionsStore = defineStore("sessions", {
       const sessionService = useSessionService();
       await sessionService.deleteSession(sessionId);
       this.sessions = this.sessions.filter((s) => s.id !== sessionId);
+      if (this.selectedSessionId === sessionId) {
+        this.selectedSessionId = null;
+      }
     },
   },
 });

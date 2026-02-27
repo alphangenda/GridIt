@@ -1,7 +1,33 @@
 <template>
   <header class="app-header">
     <div class="app-header__left">
-      <LangSwitcher v-if="!isMobile" class="app-header__lang"/>
+      <LangSwitcher v-if="!isMobile" class="app-header__lang" />
+      <div v-if="!isMobile" class="app-header__session">
+        <label class="app-header__session-label" for="header-session-select">
+          {{ t("navigation.sessions") }}
+        </label>
+        <select
+          id="header-session-select"
+          v-model="selectedSessionId"
+          class="app-header__session-select"
+        >
+          <option value="">{{ t("navigation.allSessions") }}</option>
+          <option
+            v-for="session in sessions"
+            :key="session.id"
+            :value="session.id"
+          >
+            {{ session.name }}
+          </option>
+        </select>
+        <button
+          type="button"
+          class="app-header__session-add-btn"
+          @click="goToSessions"
+        >
+          {{ t("navigation.addSession") }}
+        </button>
+      </div>
     </div>
 
     <div class="app-header__right">
@@ -43,6 +69,7 @@ import { useUserStore } from "@/stores/userStore";
 import { useAuthenticationService } from "@/inversify.config";
 import { useMemberStore } from "@/stores/memberStore";
 import { useAdministratorStore } from "@/stores/administratorStore";
+import { useSessionsStore } from "@/stores/sessionsStore";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -51,11 +78,21 @@ const userStore = useUserStore();
 const memberStore = useMemberStore();
 const administratorStore = useAdministratorStore();
 const authenticationService = useAuthenticationService();
+const sessionsStore = useSessionsStore();
 
 const isDropdownOpen = ref(false);
 const profileRef = ref<HTMLElement | null>(null);
 
 const isMobile = computed(() => window.innerWidth < 768);
+
+const sessions = computed(() => sessionsStore.getSessions);
+
+const selectedSessionId = computed({
+  get: () => sessionsStore.getSelectedSessionId ?? "",
+  set: (value: string) => {
+    sessionsStore.selectSession(value || null);
+  },
+});
 
 function toggleDropdown() {
   isDropdownOpen.value = !isDropdownOpen.value;
@@ -83,9 +120,58 @@ function handleClickOutside(event: MouseEvent) {
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
+  sessionsStore.fetchSessions();
 });
 
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
 });
+
+async function goToSessions() {
+  await router.push({ name: "sessions.index" });
+}
 </script>
+
+<style scoped lang="scss">
+.app-header__left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-header__session {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.app-header__session-label {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.app-header__session-select {
+  min-width: 180px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background-color: #ffffff;
+  color: #111827;
+}
+
+.app-header__session-add-btn {
+  padding: 0.35rem 0.8rem;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background-color: #4b9e6b;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.app-header__session-add-btn:hover {
+  background-color: #3b8156;
+}
+</style>
