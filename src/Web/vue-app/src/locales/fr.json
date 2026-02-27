@@ -93,7 +93,10 @@
     "evaluate": "Évaluer",
     "loading": "Chargement...",
     "noStudents": "Aucun étudiant dans cette classe.",
-    "noSkills": "Aucune compétence pour cet examen."
+    "noSkills": "Aucune compétence pour cet examen.",
+    "preview": "Aperçu",
+    "competencyGrade": "Note compétence",
+    "comments": "Commentaires"
   },
   "navigation": {
     "classes": "Cours",

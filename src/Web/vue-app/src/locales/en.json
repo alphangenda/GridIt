@@ -93,7 +93,10 @@
     "evaluate": "Evaluate",
     "loading": "Loading...",
     "noStudents": "No students in this class.",
-    "noSkills": "No skills for this exam."
+    "noSkills": "No skills for this exam.",
+    "preview": "Preview",
+    "competencyGrade": "Competency grade",
+    "comments": "Comments"
   },
   "navigation": {
     "classes": "Classes",

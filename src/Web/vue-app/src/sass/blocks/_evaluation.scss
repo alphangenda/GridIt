@@ -184,6 +184,43 @@
     flex-shrink: 0;
   }
 
+  // ── Competency header row ───────────────────────────────────
+  &__competency-header {
+    background-color: $color-grey-lighter;
+
+    .evaluation__td--competence {
+      font-weight: 600;
+      font-family: $font-montserrat;
+      font-size: rem(13);
+    }
+  }
+
+  // ── Computed grade (read-only, on competency row) ───────────
+  &__computed-grade {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 32px;
+    font-family: $font-montserrat;
+    font-weight: 700;
+    font-size: rem(13);
+    border-radius: 4px;
+    color: $color-white;
+
+    &--A { background-color: #10b981; }
+    &--B { background-color: #3b82f6; }
+    &--C { background-color: #f59e0b; }
+    &--D { background-color: #f97316; }
+    &--E { background-color: #ef4444; }
+
+    &--empty {
+      background-color: transparent;
+      color: $color-grey;
+      border: 1px dashed $color-grey;
+    }
+  }
+
   // ── Grade tiles ───────────────────────────────────────────
   &__grade-tiles {
     display: flex;
@@ -211,6 +248,12 @@
         border-color: $color-grey-medium;
         background-color: $color-grey-light;
       }
+    }
+
+    &--sm {
+      width: 32px;
+      height: 28px;
+      font-size: rem(11);
     }
 
     &--selected {
@@ -246,6 +289,234 @@
       border-color: $color-green;
       background-color: $color-white;
     }
+  }
+
+  // ── Criterion sub-rows ──────────────────────────────────────
+  &__criterion-row {
+    background-color: $color-white;
+  }
+
+  &__criterion-name {
+    padding-left: 36px !important;
+    font-size: rem(12);
+    font-weight: 400;
+    color: $color-grey-medium;
+  }
+
+  &__criterion-grade {
+    font-size: rem(12);
+  }
+
+  &__criterion-comment {
+    font-size: rem(12);
+  }
+
+  &__criterion-comment-input {
+    width: 100%;
+    padding: 4px 8px;
+    font-family: $font-karla;
+    font-size: rem(12);
+    border: 1px solid $color-border;
+    border-radius: 4px;
+    background-color: $color-grey-lighter;
+    color: $color-text;
+    transition: border-color 0.15s ease;
+
+    &::placeholder {
+      color: $color-grey;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $color-green;
+      background-color: $color-white;
+    }
+  }
+
+  // ── Preview button ──────────────────────────────────────────
+  &__preview-btn {
+    padding: 8px 16px;
+    font-family: $font-montserrat;
+    font-weight: 600;
+    font-size: rem(13);
+    color: $color-green-dark;
+    background-color: $color-green-light;
+    border: 1px solid $color-green;
+    border-radius: $common-border-radius;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: darken($color-green-light, 5%);
+      }
+    }
+  }
+
+  // ── Preview modal content ──────────────────────────────────
+  &__preview {
+    padding: 8px 0;
+  }
+
+  &__preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 16px;
+  }
+
+  &__preview-title {
+    font-family: $font-montserrat;
+    font-weight: 700;
+    font-size: rem(20);
+    color: $color-text;
+    margin: 0;
+  }
+
+  &__preview-average {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $common-border-radius;
+    padding: 8px 16px;
+  }
+
+  &__preview-comp {
+    margin-bottom: 28px;
+  }
+
+  &__preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    border: 1px solid $color-border;
+    border-radius: $common-border-radius;
+    overflow: hidden;
+  }
+
+  &__preview-th {
+    padding: 10px 12px;
+    font-family: $font-montserrat;
+    font-weight: 700;
+    font-size: rem(13);
+    text-align: center;
+    border: 1px solid $color-border;
+    background-color: $color-grey-lighter;
+    color: $color-text;
+
+    &--label {
+      text-align: left;
+      width: 22%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    &--A { color: #10b981; }
+    &--B { color: #3b82f6; }
+    &--C { color: #f59e0b; }
+    &--D { color: #f97316; }
+    &--E { color: #ef4444; }
+
+    &--comment {
+      text-align: left;
+      width: 18%;
+      font-size: rem(11);
+      color: $color-grey-medium;
+    }
+  }
+
+  &__preview-td {
+    padding: 10px 12px;
+    font-size: rem(12);
+    text-align: center;
+    vertical-align: top;
+    border: 1px solid $color-border;
+    color: $color-text;
+
+    &--label {
+      text-align: left;
+      font-weight: 500;
+      font-size: rem(13);
+      vertical-align: middle;
+    }
+
+    &--comment {
+      text-align: left;
+      font-size: rem(12);
+      color: $color-grey-medium;
+      vertical-align: middle;
+      font-style: italic;
+    }
+
+    &--summary {
+      font-family: $font-montserrat;
+      font-weight: 700;
+      font-size: rem(14);
+      vertical-align: middle;
+      text-align: center;
+    }
+  }
+
+  &__preview-desc {
+    font-size: rem(11);
+    color: $color-grey-medium;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  &__preview-pts {
+    font-family: $font-montserrat;
+    font-weight: 600;
+    font-size: rem(11);
+    color: $color-grey;
+  }
+
+  &__preview-summary {
+    background-color: $color-grey-lighter;
+  }
+
+  // ── Selected cell highlight ────────────────────────────────
+  &__preview-cell--selected {
+    font-weight: 600;
+    border-width: 2px;
+
+    .evaluation__preview-desc {
+      color: $color-white;
+    }
+
+    .evaluation__preview-pts {
+      color: rgba(255, 255, 255, 0.85);
+    }
+  }
+
+  &__preview-cell--A {
+    background-color: #10b981;
+    color: $color-white;
+    border-color: #059669;
+  }
+  &__preview-cell--B {
+    background-color: #3b82f6;
+    color: $color-white;
+    border-color: #2563eb;
+  }
+  &__preview-cell--C {
+    background-color: #f59e0b;
+    color: $color-white;
+    border-color: #d97706;
+  }
+  &__preview-cell--D {
+    background-color: #f97316;
+    color: $color-white;
+    border-color: #ea580c;
+  }
+  &__preview-cell--E {
+    background-color: #ef4444;
+    color: $color-white;
+    border-color: #dc2626;
   }
 
   // ── Empty state ───────────────────────────────────────────
