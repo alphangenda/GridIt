@@ -2,7 +2,16 @@
   <div class="exam-detail">
     <div class="exam-detail__header">
       <div>
-        <h1 class="exam-detail__title">{{ exam?.name ?? t("navigation.exam") }}</h1>
+        <div class="exam-detail__back">
+          <router-link
+            :to="{ name: 'classes.detail', params: { classId: route.params.classId } }"
+            class="exam-detail__back-link"
+            aria-label="Retour"
+          >
+            &lt;
+          </router-link>
+          <h1 class="exam-detail__title">{{ exam?.name ?? t("navigation.exam") }}</h1>
+        </div>
         <p class="exam-detail__hint">{{ t("navigation.examDetailPlaceholder") }}</p>
       </div>
 
@@ -519,6 +528,34 @@ const progress = computed(() => {
 </script>
 
 <style scoped>
+/* =========================
+BOUTON RETOUR
+========================= */
+
+.exam-detail__back {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.exam-detail__back-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.5);
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.exam-detail__back-link:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.8);
+}
+
 /* =========================
 MODAL / TITRES
 ========================= */

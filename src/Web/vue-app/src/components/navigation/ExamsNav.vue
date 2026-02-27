@@ -14,37 +14,24 @@
           </RouterLink>
         </li>
       </ul>
-      <div class="side-nav__footer">
-        <button type="button" class="side-nav__add-btn" @click="onAddExam">
-          {{ t("navigation.addExam") }}
-        </button>
-      </div>
     </template>
     <p v-else class="side-nav__empty">{{ t("navigation.selectClass") }}</p>
-
-    <CreateExamPopup v-if="showCreatePopup && classId" :class-id="classId" @close="showCreatePopup = false" />
   </nav>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
-import CreateExamPopup from "@/components/popups/CreateExamPopup.vue";
 
 const { t } = useI18n();
 const route = useRoute();
 const classesStore = useClassesStore();
-const showCreatePopup = ref(false);
 
 const classId = computed(() => route.params.classId as string | undefined);
 const exams = computed(() =>
   classId.value ? classesStore.getExamsForClass(classId.value) : []
 );
 
-function onAddExam() {
-  if (!classId.value) return;
-  showCreatePopup.value = true;
-}
 </script>
