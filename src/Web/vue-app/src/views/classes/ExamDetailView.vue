@@ -149,7 +149,7 @@
 
                         <button
                           class="criterion-x"
-                          @click="removeCriterion(c.id)"
+                          @click="removeCriterion(activeSkillId, c.id)"
                         >
                           ✕
                         </button>
@@ -175,7 +175,6 @@
                           type="number"
                           class="weight-value"
                           :min="0"
-                          :max="c.totalValue - sumOtherWeights(c, e)"
                           :placeholder="e.value === 0 ? 'Valeur du poids' : ''"
                           :disabled="!e.enabled || !c.totalValue"
                           @input="clampWeightValue(c, e)"
@@ -266,7 +265,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted , ref, watch } from "vue";
+import { computed, onMounted , ref, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
@@ -281,6 +280,7 @@ function normalizeSkill(s: any): Skill {
   return {
     id: String(rawId),
     label: String(s?.label ?? s?.Label ?? ""),
+    examSkillId: String(s?.examSkillId ?? s?.ExamSkillId ?? ""),
   };
 }
 
@@ -342,7 +342,7 @@ function dashOffset(skillId: string) {
   return -(offsetPercent / 100) * CIRCUMFERENCE;
 }
 
-type Skill = { id: string; label: string };
+type Skill = { id: string; label: string; examSkillId: string };
 
 const WEIGHTS = ["A", "B", "C", "D", "E"] as const;
 type WeightKey = typeof WEIGHTS[number];
@@ -361,12 +361,6 @@ type Criterion = {
   evaluations: WeightEvaluation[];
 };
 
-function sumOtherWeights(c: Criterion, current: WeightEvaluation) {
-  return c.evaluations
-    .filter(e => e !== current && e.enabled)
-    .reduce((sum, e) => sum + e.value, 0);
-}
-
 function clampWeightValue(c: Criterion, e: WeightEvaluation) {
   if (!c.totalValue) {
     e.value = 0;
@@ -374,12 +368,7 @@ function clampWeightValue(c: Criterion, e: WeightEvaluation) {
   }
 
   if (e.value < 0) e.value = 0;
-
-  const maxAllowed = c.totalValue - sumOtherWeights(c, e);
-
-  if (e.value > maxAllowed) {
-    e.value = Math.max(0, maxAllowed);
-  }
+  if (e.value > c.totalValue) e.value = c.totalValue;
 }
 
 function weightPercentage(c: Criterion, e: WeightEvaluation) {
@@ -498,10 +487,6 @@ function addCriterion() {
   });
 }
 
-function removeCriterion(id: string) {
-  if (!activeSkillId.value) return;
-  criteria.value[activeSkillId.value] = criteria.value[activeSkillId.value].filter(c => c.id !== id);
-}
 
 const progress = computed(() => {
   if (!activeSkillId.value) return 0;
@@ -510,6 +495,122 @@ const progress = computed(() => {
   const filled = list.filter(c => c.text.trim().length > 0).length;
   return Math.round((filled / list.length) * 100);
 });
+
+async function saveCriteria(skillId: string) {
+  console.log("Sauvegarde critère pour", skillId);
+
+  if (!exam.value) return;
+  if (!criteria.value[skillId]) return;
+
+  const examSkill = selectedSkills.value.find(s => s.id === skillId);
+  if (!examSkill) return;
+
+  await fetch(
+    `/api/exams/${exam.value.id}/skills/${skillId}/criteria`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        examSkillId: examSkill.examSkillId || skillId,
+        criteria: criteria.value[skillId]
+          .filter(c => c.text.trim() && c.totalValue > 0)
+          .map((c, i) => ({
+            label: c.text,
+            totalValue: c.totalValue,
+            position: i,
+            weights: c.evaluations
+              .filter(e => e.enabled && e.value > 0)
+              .map(e => ({
+                weight: e.weight,
+                value: e.value,
+                description: e.description,
+                isEnabled: true,
+              })),
+          })),
+      }),
+    }
+  );
+}
+
+async function removeCriterion(skillId: string, criterionId: string) {
+  if (!exam.value || !skillId) return;
+
+   if (saveTimeout) {
+    clearTimeout(saveTimeout);
+    saveTimeout = undefined;
+  }
+
+  const list = criteria.value[skillId];
+  if (!list) return;
+
+  criteria.value[skillId] = list.filter(c => c.id !== criterionId);
+
+  await fetch(
+    `/api/exams/${exam.value.id}/skills/${skillId}/criteria/${criterionId}`,
+    { method: "DELETE" }
+  );
+
+  await reloadCriteria(skillId);
+}
+
+let isReloading = false;
+
+async function reloadCriteria(skillId: string) {
+  if (!exam.value) return;
+  isReloading = true;
+
+  const res = await fetch(`/api/exams/${exam.value.id}/skills/${skillId}/criteria`);
+  const data = await res.json();
+
+  criteria.value[skillId] = data.map((c: any) => ({
+    id: c.id,
+    text: c.label,
+    totalValue: c.totalValue,
+    valuePreset: c.totalValue,
+    evaluations: WEIGHTS.map(w => {
+      const found = c.weights.find((x: any) => x.weight === w);
+      return {
+        weight: w,
+        value: found?.value ?? 0,
+        description: found?.description ?? "",
+        enabled: found?.isEnabled ?? (w === "A"),
+      };
+    }),
+  }));
+  await nextTick();
+  await nextTick();
+  isReloading = false;
+}
+
+
+
+let saveTimeout: number | undefined;
+
+function debounceSave(skillId: string) {
+  if (saveTimeout) {
+    clearTimeout(saveTimeout);
+  }
+
+  saveTimeout = window.setTimeout(() => {
+    saveCriteria(skillId);
+  }, 600);
+}
+
+watch(
+  criteria,
+  () => {
+    if (isReloading) return;
+    if (!activeSkillId.value) return;
+    debounceSave(activeSkillId.value);
+  },
+  { deep: true }
+);
+
+watch(activeSkillId, (skillId) => {
+  if (skillId) reloadCriteria(skillId);
+});
+
+
 </script>
 
 <style scoped>
