@@ -19,4 +19,6 @@ public interface IUserRepository : IDisposable
     Task<IdentityResult> CreateUserPassword(User user, string password);
     Task<IdentityResult> ResetUserPassword(User user, string password, string resetPasswordToken);
     Task<IdentityResult> UpdateUserPassword(User user, string currentPassword, string newPassword);
+    Task<string> GetEmailConfirmationTokenForUser(User user);
+    Task<IdentityResult> ConfirmUserEmail(User user, string token);
 }
