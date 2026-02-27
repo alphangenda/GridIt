@@ -5,7 +5,8 @@
       "Bash(dir:*)",
       "Bash(dotnet run:*)",
       "Bash(taskkill:*)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(dotnet build:*)"
     ]
   }
 }

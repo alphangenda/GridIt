@@ -14,9 +14,6 @@
       </li>
     </ul>
     <div class="side-nav__footer">
-      <RouterLink :to="{ name: 'evaluation' }" class="side-nav__add-btn side-nav__add-btn--eval">
-        {{ t("evaluation.openEvaluation") }}
-      </RouterLink>
       <button type="button" class="side-nav__add-btn" @click="onAddClass">
         {{ t("navigation.addClass") }}
       </button>

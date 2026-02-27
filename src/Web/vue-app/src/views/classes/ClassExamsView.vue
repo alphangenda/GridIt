@@ -51,7 +51,7 @@ const classItem = computed(() =>
 
 const examHeaders: Header[] = [
   { text: t("navigation.examName"), value: "name", sortable: true },
-  { text: t("global.table.actions"), value: "actions", width: 120 },
+  { text: t("global.table.actions"), value: "actions", width: 160 },
 ];
 
 const examItems = computed(() =>
@@ -61,6 +61,10 @@ const examItems = computed(() =>
     actions: {
       view: {
         name: "classes.examDetail",
+        params: { classId: classId.value, examId: e.id },
+      },
+      evaluate: {
+        name: "evaluation",
         params: { classId: classId.value, examId: e.id },
       },
       delete: true,

@@ -10,6 +10,12 @@
         <button type="button" class="btn btn--secondary" @click="showInfo = true">
           Infos
         </button>
+        <router-link
+          :to="{ name: 'evaluation', params: { classId: route.params.classId, examId: route.params.examId } }"
+          class="btn"
+        >
+          {{ t("evaluation.evaluate") }}
+        </router-link>
       </div>
     </div>
 

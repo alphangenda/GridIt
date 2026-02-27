@@ -89,7 +89,11 @@
     "average": "Moyenne",
     "selectStudent": "Sélectionnez un étudiant dans la liste.",
     "commentPlaceholder": "Commentaire...",
-    "openEvaluation": "Évaluation"
+    "openEvaluation": "Évaluation",
+    "evaluate": "Évaluer",
+    "loading": "Chargement...",
+    "noStudents": "Aucun étudiant dans cette classe.",
+    "noSkills": "Aucune compétence pour cet examen."
   },
   "navigation": {
     "classes": "Cours",

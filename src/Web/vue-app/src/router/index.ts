@@ -159,10 +159,11 @@ const router = createRouter({
       ]
     },
     {
-      path: i18n.t("routes.evaluation.path"),
-      alias: getLocalizedRoutes("routes.evaluation.path"),
+      path: i18n.t("routes.evaluation.path") + "/:classId/:examId",
+      alias: getLocalizedRoutes("routes.evaluation.path").map((p: string) => p + "/:classId/:examId"),
       name: "evaluation",
       component: EvaluationView,
+      props: true,
       meta: {
         requiredRole: [Role.Member, Role.Admin],
         title: "routes.evaluation.name"
