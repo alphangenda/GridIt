@@ -114,6 +114,8 @@
     "selectMultipleClasses": "Hold Ctrl (or Cmd on Mac) to select multiple classes",
     "addClassToSession": "Add classes to session",
     "selectSession": "Select a session",
+    "allSessions": "All courses",
+    "removeClassFromSessionConfirm": "Are you sure you want to remove this class from this session?",
     "myAccount": "My account",
     "logout": "Log out",
     "importStudents": "Import students",

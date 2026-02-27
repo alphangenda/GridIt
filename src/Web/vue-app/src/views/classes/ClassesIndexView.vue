@@ -24,6 +24,7 @@ import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
+import { useSessionsStore } from "@/stores/sessionsStore";
 import Card from "@/components/layouts/items/Card.vue";
 import DataTable from "@/components/layouts/items/DataTable.vue";
 import CreateClassPopup from "@/components/popups/CreateClassPopup.vue";
@@ -32,6 +33,7 @@ import type { Header } from "vue3-easy-data-table";
 const { t } = useI18n();
 const router = useRouter();
 const classesStore = useClassesStore();
+const sessionsStore = useSessionsStore();
 const showCreatePopup = ref(false);
 
 onMounted(() => {
@@ -43,8 +45,25 @@ const classHeaders: Header[] = [
   { text: t("global.table.actions"), value: "actions", width: 120 },
 ];
 
+const filteredClasses = computed(() => {
+  const selectedId = sessionsStore.getSelectedSessionId;
+  if (!selectedId) {
+    return classesStore.getClasses;
+  }
+
+  const selectedSession = sessionsStore.getSelectedSession;
+  const classIds = selectedSession?.classIds ?? [];
+  if (!classIds.length) {
+    return [];
+  }
+
+  return classesStore.getClasses.filter(
+    (c) => c.id && classIds.includes(c.id)
+  );
+});
+
 const classItems = computed(() =>
-  classesStore.getClasses.map((c) => ({
+  filteredClasses.value.map((c) => ({
     id: c.id,
     name: c.name,
     actions: {
