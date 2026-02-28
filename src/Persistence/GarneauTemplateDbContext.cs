@@ -45,6 +45,8 @@ public class GarneauTemplateDbContext : IdentityDbContext<User, Role, Guid,
     public DbSet<Class> Classes { get; set; } = null!;
     public DbSet<Exam> Exams { get; set; } = null!;
     public DbSet<Student> Students { get; set; } = null!;
+    public DbSet<Skill> Skills { get; set; } = null!;
+    public DbSet<ExamSkill> ExamSkills { get; set; } = null!;
     public DbSet<Session> Sessions { get; set; } = null!;
     public DbSet<SessionClass> SessionClasses { get; set; } = null!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
@@ -85,6 +87,18 @@ public class GarneauTemplateDbContext : IdentityDbContext<User, Role, Guid,
             .HasOne<Class>()
             .WithMany()
             .HasForeignKey(s => s.ClassId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<ExamSkill>()
+            .HasOne<Exam>()
+            .WithMany()
+            .HasForeignKey(es => es.ExamId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<ExamSkill>()
+            .HasOne<Skill>()
+            .WithMany()
+            .HasForeignKey(es => es.SkillId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<Session>()

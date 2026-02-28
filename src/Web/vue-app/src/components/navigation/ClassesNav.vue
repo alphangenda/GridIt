@@ -13,30 +13,18 @@
         </RouterLink>
       </li>
     </ul>
-    <div class="side-nav__footer">
-      <RouterLink :to="{ name: 'evaluation' }" class="side-nav__add-btn side-nav__add-btn--eval">
-        {{ t("evaluation.openEvaluation") }}
-      </RouterLink>
-      <button type="button" class="side-nav__add-btn" @click="onAddClass">
-        {{ t("navigation.addClass") }}
-      </button>
-    </div>
-
-    <CreateClassPopup v-if="showCreatePopup" @close="showCreatePopup = false" />
   </nav>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
 import { useSessionsStore } from "@/stores/sessionsStore";
-import CreateClassPopup from "@/components/popups/CreateClassPopup.vue";
 
 const { t } = useI18n();
 const classesStore = useClassesStore();
 const sessionsStore = useSessionsStore();
-const showCreatePopup = ref(false);
 
 const filteredClasses = computed(() => {
   const selectedId = sessionsStore.getSelectedSessionId;
@@ -55,7 +43,4 @@ const filteredClasses = computed(() => {
   );
 });
 
-function onAddClass() {
-  showCreatePopup.value = true;
-}
 </script>

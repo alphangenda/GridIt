@@ -32,6 +32,14 @@
           <IconView class="icon icon--black"/>
         </router-link>
         <router-link
+            v-if="item.actions.evaluate"
+            v-tippy="t(`evaluation.evaluate`)"
+            :to="item.actions.evaluate"
+            class="vue3-easy-data-table__action"
+        >
+          <IconClipboard class="icon icon--black"/>
+        </router-link>
+        <router-link
             v-if="item.actions.edit"
             v-tippy="t(`global.actions.update`)"
             :to="item.actions.edit"
@@ -57,6 +65,7 @@
 <script lang="ts" setup>
 import type {FilterOption, Header, Item} from "vue3-easy-data-table"
 import {useI18n} from "vue3-i18n"
+import IconClipboard from "@/assets/icons/icon__clipboard.svg"
 import IconEdit from "@/assets/icons/icon__edit.svg"
 import IconDelete from "@/assets/icons/icon__delete.svg"
 import IconView from "@/assets/icons/icon__view.svg"

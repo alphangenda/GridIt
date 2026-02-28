@@ -17,6 +17,34 @@
     grid-column: span 2;
   }
 
+  &__back {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h1 {
+      display: inline;
+    }
+  }
+
+  &__back-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    font-size: 20px;
+    color: $color-grey-medium;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.08);
+      color: $color-grey-dark;
+    }
+  }
+
   &__text {
     @include text--body-small;
     color: $color-grey-medium;

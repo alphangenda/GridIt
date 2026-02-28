@@ -1,7 +1,12 @@
 <template>
   <div class="content-grid">
     <div class="content-grid__header">
-      <h1>{{ classItem?.name ?? t("navigation.classes") }}</h1>
+      <div class="content-grid__back">
+        <router-link :to="{ name: 'classes.index' }" class="content-grid__back-link" aria-label="Retour">
+          &lt;
+        </router-link>
+        <h1>{{ classItem?.name ?? t("navigation.classes") }}</h1>
+      </div>
       <div class="content-grid__actions">
         <button type="button" class="btn" @click="onAddExam">
           {{ t("navigation.addExam") }}
@@ -51,7 +56,7 @@ const classItem = computed(() =>
 
 const examHeaders: Header[] = [
   { text: t("navigation.examName"), value: "name", sortable: true },
-  { text: t("global.table.actions"), value: "actions", width: 120 },
+  { text: t("global.table.actions"), value: "actions", width: 160 },
 ];
 
 const examItems = computed(() =>
@@ -61,6 +66,10 @@ const examItems = computed(() =>
     actions: {
       view: {
         name: "classes.examDetail",
+        params: { classId: classId.value, examId: e.id },
+      },
+      evaluate: {
+        name: "evaluation",
         params: { classId: classId.value, examId: e.id },
       },
       delete: true,

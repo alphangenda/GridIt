@@ -89,7 +89,14 @@
     "average": "Average",
     "selectStudent": "Select a student from the list.",
     "commentPlaceholder": "Comment...",
-    "openEvaluation": "Evaluation"
+    "openEvaluation": "Evaluation",
+    "evaluate": "Evaluate",
+    "loading": "Loading...",
+    "noStudents": "No students in this class.",
+    "noSkills": "No skills for this exam.",
+    "preview": "Preview",
+    "competencyGrade": "Competency grade",
+    "comments": "Comments"
   },
   "navigation": {
     "classes": "Classes",
