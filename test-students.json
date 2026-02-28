@@ -1,0 +1,7 @@
+[
+  { "number": "10001", "firstName": "Jean", "lastName": "Dupont" },
+  { "number": "10002", "firstName": "Marie", "lastName": "Tremblay" },
+  { "number": "10003", "firstName": "Alexandre", "lastName": "Gagnon" },
+  { "number": "10004", "firstName": "Sophie", "lastName": "Roy" },
+  { "number": "10005", "firstName": "Mathieu", "lastName": "Bouchard" }
+]

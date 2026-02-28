@@ -79,7 +79,27 @@
       "fullPath": "/cours",
       "name": "Cours",
       "examDetail": "Détail de l'examen"
+    },
+    "evaluation": {
+      "path": "/evaluation",
+      "fullPath": "/evaluation",
+      "name": "Évaluation"
+    },
+    "sessions": {
+      "path": "/sessions",
+      "fullPath": "/sessions",
+      "name": "Sessions"
     }
+  },
+  "evaluation": {
+    "students": "Étudiants",
+    "competence": "Compétence",
+    "grade": "Note",
+    "difficulties": "Difficultés",
+    "average": "Moyenne",
+    "selectStudent": "Sélectionnez un étudiant dans la liste.",
+    "commentPlaceholder": "Commentaire...",
+    "openEvaluation": "Évaluation"
   },
   "navigation": {
     "classes": "Cours",
@@ -96,8 +116,24 @@
     "examName": "Nom de l'examen",
     "deleteClassConfirm": "Êtes-vous sûr de vouloir supprimer cette classe ?",
     "deleteExamConfirm": "Êtes-vous sûr de vouloir supprimer cet examen ?",
+    "sessions": "Sessions",
+    "addSession": "Ajouter une session",
+    "sessionName": "Nom de la session",
+    "noClass": "Aucun cours",
+    "deleteSessionConfirm": "Êtes-vous sûr de vouloir supprimer cette session ?",
+    "selectMultipleClasses": "Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs cours",
+    "addClassToSession": "Ajouter des cours à la session",
+    "selectSession": "Sélectionnez une session",
+    "allSessions": "Afficher tout les cours",
+    "removeClassFromSessionConfirm": "Voulez-vous vraiment supprimer le cours de cette session ?",
     "myAccount": "Mon compte",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "importStudents": "Import étudiant",
+    "studentsImported": "{count} étudiant(s) importé(s)",
+    "importStudentsFormatError": "Fichier JSON invalide. Format attendu: [{\"number\": \"...\", \"firstName\": \"...\", \"lastName\": \"...\"}]",
+    "studentNumber": "Numéro",
+    "studentFirstName": "Prénom",
+    "studentLastName": "Nom"
   },
   "pages": {
     "register": {
@@ -116,6 +152,12 @@
     },
     "classes": {
       "addError": "Impossible d'ajouter la classe. Veuillez réessayer."
+    },
+    "sessions": {
+      "homeTitle": "Page d'accueil",
+      "addError": "Impossible d'ajouter la session. Veuillez réessayer.",
+      "sessionNotFound": "Session introuvable.",
+      "classesAdded": "Cours ajoutés avec succès à la session."
     },
     "login": {
       "username": "Nom d'utilisateur",

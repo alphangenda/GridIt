@@ -55,19 +55,6 @@ const userIsLoading = ref(true);
 const hasClassSelected = computed(() => !!route.params.classId);
 
 onMounted(async () => {
-  // #region agent log
-  fetch("http://127.0.0.1:7246/ingest/30a6a8d6-c62f-4864-9278-26401a3dafa6", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      location: "DashboardLayout.vue:onMounted:start",
-      message: "DashboardLayout onMounted",
-      data: { routeName: route.name },
-      timestamp: Date.now(),
-      hypothesisId: "H3",
-    }),
-  }).catch(() => {});
-  // #endregion
   userIsLoading.value = true;
   if (userStore.hasRole(Role.Member)) {
     const member = (await memberService.getAuthenticated()) as Member;
@@ -83,12 +70,5 @@ onMounted(async () => {
   if (route.name === "classes" || route.name === "classes.index" || (typeof route.name === "string" && route.name.startsWith("classes."))) {
     await classesStore.fetchClasses();
   }
-  // #region agent log
-  fetch("http://127.0.0.1:7246/ingest/30a6a8d6-c62f-4864-9278-26401a3dafa6", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ location: "DashboardLayout.vue:onMounted:end", message: "DashboardLayout onMounted end", timestamp: Date.now(), hypothesisId: "H3" }),
-  }).catch(() => {});
-  // #endregion
 });
 </script>

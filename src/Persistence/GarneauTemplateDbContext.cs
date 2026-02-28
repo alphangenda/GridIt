@@ -5,6 +5,7 @@ using Domain.Entities.Authentication;
 using Domain.Entities.Books;
 using Domain.Entities.Classes;
 using Domain.Entities.Identity;
+using Domain.Entities.Sessions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +44,9 @@ public class GarneauTemplateDbContext : IdentityDbContext<User, Role, Guid,
     public DbSet<Book> Books { get; set; } = null!;
     public DbSet<Class> Classes { get; set; } = null!;
     public DbSet<Exam> Exams { get; set; } = null!;
+    public DbSet<Student> Students { get; set; } = null!;
+    public DbSet<Session> Sessions { get; set; } = null!;
+    public DbSet<SessionClass> SessionClasses { get; set; } = null!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
     public GarneauTemplateDbContext()
@@ -76,6 +80,27 @@ public class GarneauTemplateDbContext : IdentityDbContext<User, Role, Guid,
             .WithMany()
             .HasForeignKey(e => e.ClassId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Student>()
+            .HasOne<Class>()
+            .WithMany()
+            .HasForeignKey(s => s.ClassId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Session>()
+            .HasMany(s => s.Classes)
+            .WithMany()
+            .UsingEntity<SessionClass>(
+                j => j
+                    .HasOne<Class>()
+                    .WithMany()
+                    .HasForeignKey(sc => sc.ClassId)
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j
+                    .HasOne<Session>()
+                    .WithMany()
+                    .HasForeignKey(sc => sc.SessionId)
+                    .OnDelete(DeleteBehavior.Cascade));
 
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }

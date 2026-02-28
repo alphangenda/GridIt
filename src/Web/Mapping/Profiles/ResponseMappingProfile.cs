@@ -1,13 +1,15 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Domain.Common;
 using Domain.Entities;
 using Domain.Entities.Books;
 using Domain.Entities.Classes;
 using Domain.Entities.Identity;
+using Domain.Entities.Sessions;
 using Microsoft.AspNetCore.Identity;
 using Web.Dtos;
 using Web.Features.Members.Books;
 using Web.Features.Members.Classes;
+using Web.Features.Members.Sessions;
 using GetMeMemberResponse = Web.Features.Members.Me.GetMe.GetMeResponse;
 using GetMeAdminResponse = Web.Features.Admins.Me.GetMe.GetMeResponse;
 
@@ -49,5 +51,7 @@ public class ResponseMappingProfile : Profile
 
         CreateMap<Class, ClassDto>();
         CreateMap<Exam, ExamDto>();
+        CreateMap<Session, SessionDto>()
+            .ForMember(dto => dto.ClassIds, opt => opt.MapFrom(s => s.Classes.Select(c => c.Id).ToList()));
     }
 }

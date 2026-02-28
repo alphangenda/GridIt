@@ -81,6 +81,21 @@
         background-color: rgba($color-white, 0.12);
       }
     }
+
+    &--eval {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      background-color: rgba($color-green, 0.25);
+      color: $color-green-light;
+      margin-bottom: 8px;
+
+      @media (hover: hover) {
+        &:hover {
+          background-color: rgba($color-green, 0.35);
+        }
+      }
+    }
   }
 
   &__empty {
