@@ -1,32 +1,34 @@
 <template>
-  <Card :title="t('routes.login.name')"
-        class="form"
-        :is-authentication="true"
-        @keyup.enter="sendLoginRequest">
-    <Loader v-if="preventMultipleSubmit" />
-    <FormInput :ref="addFormInputRef"
-               v-model="loginRequest.username"
-               :label="t('global.username')"
-               :rules="[required]"
-               name="username"
-               type="email"
-               @validated="handleValidation"/>
-    <FormInput :ref="addFormInputRef"
-               v-model="loginRequest.password"
-               :label="t('global.password')"
-               :rules="[required]"
-               name="password"
-               type="password"
-               @validated="handleValidation">
-      <template v-slot:to-label-right>
-        <TextLink :path="{path: t('routes.forgotPassword.path') }"
-                  :text="t('pages.login.forgotPassword')"/>
-      </template>
-    </FormInput>
-    <button class="btn btn--full btn--purple btn--big" @click="sendLoginRequest" :disabled="preventMultipleSubmit">
-      {{ t('pages.login.submit') }}
-    </button>
-  </Card>
+    <Card :title="t('routes.login.name')"
+          class="form"
+          :is-authentication="true"
+          @keyup.enter="sendLoginRequest">
+        <Loader v-if="preventMultipleSubmit" />
+        <FormInput :ref="addFormInputRef"
+                   v-model="loginRequest.username"
+                   :label="t('global.username')"
+                   :rules="[required]"
+                   name="username"
+                   type="email"
+                   @validated="handleValidation" />
+        <FormInput :ref="addFormInputRef"
+                   v-model="loginRequest.password"
+                   :label="t('global.password')"
+                   :rules="[required]"
+                   name="password"
+                   type="password"
+                   @validated="handleValidation">
+            <template v-slot:to-label-right>
+                <TextLink :path="{path: t('routes.forgotPassword.path') }"
+                          :text="t('pages.login.forgotPassword')" />
+            </template>
+        </FormInput>
+        <button class="btn btn--full btn--purple btn--big" @click="sendLoginRequest" :disabled="preventMultipleSubmit">
+            {{ t('pages.login.submit') }}
+        </button>
+        <TextLink :path="{path: t('routes.register.path') }"
+                  :text="t('pages.login.registerLink')" />
+    </Card>
 </template>
 <script lang="ts" setup>
 import { ref } from "vue"

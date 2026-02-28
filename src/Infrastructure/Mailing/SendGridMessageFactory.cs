@@ -35,9 +35,9 @@ public class SendGridMessageFactory : ISendGridMessageFactory
 
         if (_webHostEnvironment.IsProduction())
             msg.AddTo(model.Destination);
-        else if (_webHostEnvironment.IsDevelopment())
+        else
             msg.AddTo(_mailingSettings.ToAddressForDevelopment);
-
+        Console.WriteLine($"Sending email to: {_mailingSettings.ToAddressForDevelopment}");
         return msg;
     }
 }

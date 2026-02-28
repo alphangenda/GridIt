@@ -5,7 +5,9 @@ import {
   IForgotPasswordRequest,
   ILoginRequest,
   IResetPasswordRequest,
-  ITwoFactorRequest
+  ITwoFactorRequest,
+  IRegisterRequest,
+  IConfirmEmailRequest
 } from "@/types/requests"
 import {PaginatedResponse, SucceededOrNotResponse} from "@/types/responses"
 import {Administrator, Book, ClassItem, ExamItem, Member, SessionItem, User} from "@/types/entities"
@@ -32,6 +34,10 @@ export interface IAuthenticationService {
   forgotPassword(request: IForgotPasswordRequest): Promise<SucceededOrNotResponse>
 
   resetPassword(request: IResetPasswordRequest): Promise<SucceededOrNotResponse>
+
+  register(request: IRegisterRequest): Promise<SucceededOrNotResponse>;
+
+  confirmEmail(request: IConfirmEmailRequest): Promise<SucceededOrNotResponse>;
 
   logout(): Promise<SucceededOrNotResponse>
 }

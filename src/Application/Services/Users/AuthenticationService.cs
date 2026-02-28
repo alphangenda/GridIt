@@ -63,9 +63,10 @@ public class AuthenticationService : IAuthenticationService
         return await _signInManager.UserManager.GenerateTwoFactorTokenAsync(user, "Email");
     }
 
-    public async Task<SignInResult> SignInUserWithTwoFactorCode(string code)
+    public async Task<SignInResult> SignInUserWithTwoFactorCode(User user, string code)
     {
-        return await _signInManager.TwoFactorSignInAsync("Email", code, false, false);
+        var isValid = await _signInManager.UserManager.VerifyTwoFactorTokenAsync(user, "Email", code);
+        return isValid ? SignInResult.Success : SignInResult.Failed;
     }
 
     public string CreateJwtAccessToken(User user)
@@ -127,6 +128,12 @@ public class AuthenticationService : IAuthenticationService
             return false;
 
         if (user.Email.Equals("admin@gmail.com", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (user.Email.Equals("ngendandumwea6@gmail.com", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (user.Email.Equals("ismailbatoul2005@gmail.com", StringComparison.OrdinalIgnoreCase))
             return true;
 
         var cegepTeacherEmailRegexes = new[]

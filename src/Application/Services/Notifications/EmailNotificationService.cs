@@ -37,4 +37,13 @@ public class EmailNotificationService : INotificationService
 
         return await _emailSender.SendAsync(model);
     }
+
+    public async Task<SucceededOrNotResponse> SendRegisterConfirmationNotification(User user, string link)
+    {
+        var model = new RegisterConfirmationNotificationModel(
+            user.Email!,
+            EMAIL_DEFAULT_CULTURE,
+            link);
+        return await _emailSender.SendAsync(model);
+    }
 }

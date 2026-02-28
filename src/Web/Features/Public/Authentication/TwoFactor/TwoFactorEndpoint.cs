@@ -41,7 +41,7 @@ public class TwoFactorEndpoint : EndpointWithSanitizedRequest<TwoFactorRequest, 
             return;
         }
 
-        var result = await _authenticationService.SignInUserWithTwoFactorCode(req.Code);
+        var result = await _authenticationService.SignInUserWithTwoFactorCode(user, req.Code);
         if (!result.Succeeded)
         {
             await Send.OkAsync(new SucceededOrNotResponse(false), ct);
@@ -57,7 +57,6 @@ public class TwoFactorEndpoint : EndpointWithSanitizedRequest<TwoFactorRequest, 
             _cookieSettings.Domain,
             _cookieSettings.Secure,
             false);
-
         HttpContext.Response.SetCookieValue(
             CookieName.REFRESH,
             await _authenticationService.CreateRefreshToken(user),

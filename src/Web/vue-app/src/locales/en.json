@@ -1,5 +1,15 @@
 {
   "routes": {
+    "register": {
+      "path": "/register",
+      "fullPath": "/register",
+      "name": "Register"
+    },
+    "confirmEmail": {
+      "path": "/confirm-email",
+      "fullPath": "/confirm-email",
+      "name": "Confirm email"
+    },
     "login": {
       "path": "/login",
       "fullPath": "/login",
@@ -133,6 +143,20 @@
     "studentLastName": "Last name"
   },
   "pages": {
+    "register": {
+      "submit": "Register",
+      "loginLink": "You already have an account? Login",
+      "success": "Account created! Please check your email to confirm your account.",
+      "validation": {
+        "sendGridError": "An error occurred while sending the email.",
+        "errorOccured": "An error occured during registration.",
+        "forbidden": "You must be a teacher from a public cegep to register."
+      }
+    },
+    "confirmEmail": {
+      "success": "Your email has been confirmed. You can now go to the login page.",
+      "error": "An error occured while confirming your email. Please try again."
+    },
     "classes": {
       "addError": "Failed to add class. Please try again."
     },
@@ -145,6 +169,7 @@
     "login": {
       "submit": "Log in",
       "forgotPassword": "Forgot password?",
+      "registerLink": "No account yet? Register",
       "validation": {
         "invalidUsername": "The username is not valid.",
         "memberApprobationRevoked": "Your approbation was revoked.",
@@ -152,6 +177,7 @@
       }
     },
     "twoFactor": {
+      "loginLink": "Back to login",
       "code": "Code",
       "submit": "Log in",
       "tooltip": "A code was sent by email. Please check your email and paste the code here.",

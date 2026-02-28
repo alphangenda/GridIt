@@ -138,6 +138,16 @@ public class UserRepository : IUserRepository
         return await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
     }
 
+    public async Task<string> GetEmailConfirmationTokenForUser(User user)
+    {
+        return await _userManager.GenerateEmailConfirmationTokenAsync(user);
+    }
+
+    public async Task<IdentityResult> ConfirmUserEmail(User user, string token)
+    {
+        return await _userManager.ConfirmEmailAsync(user, token);
+    }
+
     public void Dispose()
     {
         _userManager.Dispose();

@@ -1,23 +1,25 @@
 <template>
-  <Card :title="t('routes.twoFactor.name')" 
-        class="form"
-        :is-authentication="true"
-        @keyup.enter="sendTwoFactorAuthenticationRequest">
-    <Loader v-if="preventMultipleSubmit" />
-    <FormTooltip>
-      <p v-html="t('pages.twoFactor.tooltip')"></p>
-    </FormTooltip>
-    <FormInput :ref="addFormInputRef"
-               v-model="code"
-               :label="t('pages.twoFactor.code')"
-               :rules="[required]"
-               name="code"
-               type="text"
-               @validated="handleValidation"/>
-    <button class="btn btn--full btn--purple btn--big" @click="sendTwoFactorAuthenticationRequest" :disabled="preventMultipleSubmit">
-      {{ t('pages.twoFactor.submit') }}
-    </button>
-  </Card>
+    <Card :title="t('routes.twoFactor.name')"
+          class="form"
+          :is-authentication="true"
+          @keyup.enter="sendTwoFactorAuthenticationRequest">
+        <Loader v-if="preventMultipleSubmit" />
+        <FormTooltip>
+            <p v-html="t('pages.twoFactor.tooltip')"></p>
+        </FormTooltip>
+        <FormInput :ref="addFormInputRef"
+                   v-model="code"
+                   :label="t('pages.twoFactor.code')"
+                   :rules="[required]"
+                   name="code"
+                   type="text"
+                   @validated="handleValidation" />
+        <button class="btn btn--full btn--purple btn--big" @click="sendTwoFactorAuthenticationRequest" :disabled="preventMultipleSubmit">
+            {{ t('pages.twoFactor.submit') }}
+        </button>
+        <TextLink :path="{path: t('routes.login.path') }"
+                  :text="t('pages.twoFactor.loginLink')" />
+    </Card>
 </template>
 <script lang="ts" setup>
 import {ref} from "vue"
@@ -26,7 +28,8 @@ import {required} from "@/validation/rules"
 import {useRouter} from "vue-router";
 import {useAuthenticationService, useUserService} from "@/inversify.config";
 import {notifyError} from "@/notify";
-import {useUserStore} from "@/stores/userStore";
+    import { useUserStore } from "@/stores/userStore";
+    import TextLink from "@/components/layouts/items/TextLink.vue";
 
 import {Status} from "@/validation";
 import {ITwoFactorRequest} from "@/types/requests/twoFactorRequest";

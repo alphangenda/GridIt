@@ -6,7 +6,9 @@ import {AxiosError, AxiosResponse} from "axios";
 import {ILoginRequest} from "@/types/requests/loginRequest";
 import {ITwoFactorRequest} from "@/types/requests/twoFactorRequest";
 import {IForgotPasswordRequest} from "@/types/requests/forgotPasswordRequest";
-import {IResetPasswordRequest} from "@/types/requests";
+import { IResetPasswordRequest } from "@/types/requests";
+import { IRegisterRequest } from "@/types/requests/IRegisterRequest";
+import { IConfirmEmailRequest } from "@/types/requests/IConfirmEmailRequest";
 
 @injectable()
 export class AuthenticationService extends ApiService implements IAuthenticationService {
@@ -76,4 +78,32 @@ export class AuthenticationService extends ApiService implements IAuthentication
     const succeededOrNotResponse = response.data as SucceededOrNotResponse
     return new SucceededOrNotResponse(succeededOrNotResponse.succeeded, succeededOrNotResponse.errors)
   }
+
+    public async register(request: IRegisterRequest): Promise<SucceededOrNotResponse> {
+        const response = await this
+            ._httpClient
+            .post<IRegisterRequest, AxiosResponse<SucceededOrNotResponse>>(
+                `${import.meta.env.VITE_API_BASE_URL}/authentication/register`,
+                request,
+                this.headersWithJsonContentType())
+            .catch(function (error: AxiosError): AxiosResponse<SucceededOrNotResponse> {
+                return error.response as AxiosResponse<SucceededOrNotResponse>
+            })
+        const succeededOrNotResponse = response.data as SucceededOrNotResponse
+        return new SucceededOrNotResponse(succeededOrNotResponse.succeeded, succeededOrNotResponse.errors)
+    }
+
+    public async confirmEmail(request: IConfirmEmailRequest): Promise<SucceededOrNotResponse> {
+        const response = await this
+            ._httpClient
+            .post<IConfirmEmailRequest, AxiosResponse<SucceededOrNotResponse>>(
+                `${import.meta.env.VITE_API_BASE_URL}/authentication/confirm-email`,
+                request,
+                this.headersWithJsonContentType())
+            .catch(function (error: AxiosError): AxiosResponse<SucceededOrNotResponse> {
+                return error.response as AxiosResponse<SucceededOrNotResponse>
+            })
+        const succeededOrNotResponse = response.data as SucceededOrNotResponse
+        return new SucceededOrNotResponse(succeededOrNotResponse.succeeded, succeededOrNotResponse.errors)
+    }
 }
