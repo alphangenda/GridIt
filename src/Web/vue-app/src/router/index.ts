@@ -24,7 +24,10 @@ import ClassExamsView from "@/views/classes/ClassExamsView.vue";
 import ExamDetailView from "@/views/classes/ExamDetailView.vue";
 
 import {getLocalizedRoutes} from "@/locales/helpers";
-import {useUserStore} from "@/stores/userStore";
+import { useUserStore } from "@/stores/userStore";
+
+import Register from "@/views/Register.vue";
+import ConfirmEmail from "@/views/ConfirmEmail.vue";
 
 const router = createRouter({
   // eslint-disable-next-line
@@ -42,6 +45,24 @@ const router = createRouter({
       meta: {
         title: "routes.login.name"
       }
+    },
+    {
+        path: i18n.t("routes.register.path"),
+        alias: getLocalizedRoutes("routes.register.path"),
+        name: "register",
+        component: Register,
+        meta: {
+            title: "routes.register.name"
+        }
+    },
+    {
+        path: i18n.t("routes.confirmEmail.path"),
+        alias: getLocalizedRoutes("routes.confirmEmail.path"),
+        name: "confirmEmail",
+        component: ConfirmEmail,
+        meta: {
+            title: "routes.confirmEmail.name"
+        }
     },
     {
       path: i18n.t("routes.twoFactor.path"),

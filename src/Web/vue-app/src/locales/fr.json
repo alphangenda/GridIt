@@ -1,5 +1,15 @@
 {
   "routes": {
+    "register": {
+      "path": "/inscription",
+      "fullPath": "/inscription",
+      "name": "Inscription"
+    },
+    "confirmEmail": {
+      "path": "/confirmer-courriel",
+      "fullPath": "/confirmer-courriel",
+      "name": "Confirmer le courriel"
+    },
     "login": {
       "path": "/connexion",
       "fullPath": "/connexion",
@@ -90,6 +100,20 @@
     "logout": "Déconnexion"
   },
   "pages": {
+    "register": {
+      "submit": "S'inscrire",
+      "loginLink": "Déjà un compte ? Se connecter",
+      "success": "Compte créé! Veuillez vérifier votre courriel pour confirmer votre compte.",
+      "validation": {
+        "sendGridError": "Une erreur est survenue lors de l'envoi de l'email.",
+        "errorOccured": "Une erreur est survenue lors de l'inscription.",
+        "forbidden": "Vous devez être un professeur pour vous inscrire."
+      }
+    },
+    "confirmEmail": {
+      "success": "Votre courriel a été confirmé. Vous pouvez vous redirigé à la page de connexion.",
+      "error": "Une erreur est survenue lors de la confirmation de votre courriel. Veuillez réessayer."
+    },
     "classes": {
       "addError": "Impossible d'ajouter la classe. Veuillez réessayer."
     },
@@ -99,6 +123,7 @@
       "passwordConfirmation": "Confirmation du mot de passe",
       "submit": "Se connecter",
       "forgotPassword": "Mot de passe oublié ?",
+      "registerLink": "Pas encore de compte ? S'inscrire",
       "validation": {
         "invalidUsername": "Le nom d'utilisateur est invalide.",
         "memberApprobationRevoked": "Votre approbation a été révoquée.",
@@ -106,6 +131,7 @@
       }
     },
     "twoFactor": {
+      "loginLink": "Retourner à la connexion",
       "code": "Code",
       "submit": "Se connecter",
       "tooltip": "Un code a été envoyé par email. Veuillez vérifier votre boîte de courriel et coller le code ici.",

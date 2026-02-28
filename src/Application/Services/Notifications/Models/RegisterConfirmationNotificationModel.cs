@@ -13,15 +13,15 @@ public class RegisterConfirmationNotificationModel : NotificationModel
     public override string TemplateId()
     {
         if (Locale == "fr")
-            return "d-ccea0bf1594048259d41fb52c2c23614";
-        return "d-6bceb5f892064a7b95cc03fe16b45943";
+            return "d-c41370e579eb471c8088ce1a00d4e6b4";
+        return "d-d97cfe7e5a0e45c595f6097aa454f2d5";
     }
 
     public override object TemplateData()
     {
         return new
         {
-            ButtonUrl = Link
+            lien_activation = Link
         };
     }
 }

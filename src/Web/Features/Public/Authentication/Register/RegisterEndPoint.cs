@@ -57,8 +57,16 @@ public class RegisterEndpoint : EndpointWithSanitizedRequest<RegisterRequest, Su
         }
 
         var user = new User { Email = req.Email, UserName = req.Email };
+        user.AddRole(new Role { Name = Domain.Constants.User.Roles.MEMBER });
         await _userRepository.CreateUser(user);
-        await _userRepository.CreateUserPassword(user, req.Password);
+        var passwordResult = await _userRepository.CreateUserPassword(user, req.Password);
+        if (!passwordResult.Succeeded)
+        {
+            _logger.LogError("Could not create password for user {email}. Errors: {errors}",
+                req.Email, string.Join(", ", passwordResult.Errors.Select(x => x.Description)));
+            await Send.OkAsync(new SucceededOrNotResponse(false), ct);
+            return;
+        }
 
         var token = await _userRepository.GetEmailConfirmationTokenForUser(user);
         var link = $"{_baseUrl}{req.ConfirmEmailRelativeUrl}?userId={user.Id}&token={token.Base64UrlEncode()}";
