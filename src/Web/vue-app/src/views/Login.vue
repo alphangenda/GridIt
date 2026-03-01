@@ -4,10 +4,6 @@
           :is-authentication="true"
           @keyup.enter="sendLoginRequest">
 
-        <h1 class="gridit-title">
-          <span class="grid">Grid</span><span class="it">It</span>
-        </h1>
-
         <Loader v-if="preventMultipleSubmit" />
         <FormInput :ref="addFormInputRef"
                    v-model="loginRequest.username"
@@ -117,22 +113,4 @@ async function sendLoginRequest() {
 }
 </script>
 
-<style lang="scss" scoped>
-.gridit-title {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    font-size: 2.4rem;
-    letter-spacing: -0.02em;
-}
-
-.gridit-title .grid {
-    font-weight: 400;
-    color: #000;
-}
-
-.gridit-title .it {
-    font-weight: 700;
-    color: #000;
-}
-</style>
 

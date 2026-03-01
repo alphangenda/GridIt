@@ -10,10 +10,10 @@
   }
 
   &__logo {
-    display: flex;
-    margin: 0 auto 48px;
+    display: block;
+    margin: 0 auto 0;
     width: 100%;
-    max-width: 180px;
+    max-width: 380px;
     height: auto;
   }
 
@@ -29,7 +29,7 @@
 
   &,
   &__bg-waves {
-    background-color: $color-grey-darker;
+    background-color: #f5ede6;
   }
 
   &__bg-waves-container {
