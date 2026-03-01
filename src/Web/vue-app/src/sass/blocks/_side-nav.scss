@@ -7,6 +7,7 @@
   min-height: 0;
 
   &__title {
+    display: block;
     font-weight: 600;
     font-family: $font-montserrat;
     font-size: rem(12);
@@ -17,6 +18,18 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     border-bottom: 1px solid rgba($color-white, 0.08);
+
+    &--link {
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.15s ease;
+
+      @media (hover: hover) {
+        &:hover {
+          color: rgba($color-white, 0.8);
+        }
+      }
+    }
   }
 
   &__list {

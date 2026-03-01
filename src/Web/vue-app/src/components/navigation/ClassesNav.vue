@@ -1,6 +1,8 @@
 <template>
   <nav class="side-nav side-nav--classes">
-    <h2 class="side-nav__title">{{ t("navigation.classes") }}</h2>
+    <RouterLink :to="{ name: 'classes.index' }" class="side-nav__title side-nav__title--link">
+      {{ t("navigation.classes") }}
+    </RouterLink>
     <ul class="side-nav__list">
       <li v-for="cours in filteredClasses" :key="cours.id">
         <RouterLink
