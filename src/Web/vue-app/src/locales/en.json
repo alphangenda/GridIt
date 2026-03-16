@@ -109,6 +109,13 @@
     "sessions": "Sessions",
     "addSession": "Add a session",
     "sessionName": "Session name",
+    "sessionYear": "Year",
+    "sessionSeason": "Session",
+    "seasons": {
+      "winter": "Winter",
+      "summer": "Summer",
+      "fall": "Fall"
+    },
     "noClass": "No class",
     "deleteSessionConfirm": "Are you sure you want to delete this session?",
     "selectMultipleClasses": "Hold Ctrl (or Cmd on Mac) to select multiple classes",

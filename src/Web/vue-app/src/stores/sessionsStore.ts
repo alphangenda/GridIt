@@ -41,6 +41,7 @@ export const useSessionsStore = defineStore("sessions", {
       const sessionService = useSessionService();
       const created = await sessionService.createSession(name, classIds);
       this.sessions.push(created);
+      return created;
     },
     selectSession(sessionId: string | null) {
       this.selectedSessionId = sessionId;
