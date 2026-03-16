@@ -9,7 +9,7 @@
         <div class="popup__content">
           <div class="popup__block">
             <div class="form__group">
-              <p class="form__label">{{ t("navigation.sessionSeason") }}</p>
+              <label class="form__label">{{ t("navigation.sessionSeason") }}</label>
               <div class="season-grid">
                 <label class="season-option" :class="{ 'season-option--selected': season === 'Winter' }">
                   <input type="radio" name="session-season" value="Winter" v-model="season" />
