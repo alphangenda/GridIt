@@ -38,7 +38,7 @@
                 required
               />
             </div>
-            <div class="form__group">
+            <div v-if="classes.length" class="form__group">
               <label class="form__label" for="session-classes">{{ t("navigation.classes") }}</label>
               <select
                 id="session-classes"

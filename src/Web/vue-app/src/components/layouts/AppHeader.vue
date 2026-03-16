@@ -3,10 +3,15 @@
     <div class="app-header__left">
       <LangSwitcher v-if="!isMobile" class="app-header__lang" />
       <div v-if="!isMobile" class="app-header__session">
-        <label class="app-header__session-label" for="header-session-select">
+        <label
+          v-if="sessions.length"
+          class="app-header__session-label"
+          for="header-session-select"
+        >
           {{ t("navigation.sessions") }}
         </label>
         <select
+          v-if="sessions.length"
           id="header-session-select"
           v-model="selectedSessionId"
           class="app-header__session-select"
