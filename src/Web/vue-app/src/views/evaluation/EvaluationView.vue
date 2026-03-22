@@ -121,12 +121,12 @@
                     {{ crit.label }}
                   </td>
                   <td class="evaluation__td evaluation__criterion-grade">
-                    <div class="evaluation__grade-tiles">
+                    <div class="evaluation__grade-tiles evaluation__grade-tiles--descriptive">
                       <button
                         v-for="grade in crit.options"
                         :key="grade"
                         type="button"
-                        class="evaluation__grade-btn evaluation__grade-btn--sm"
+                        class="evaluation__grade-btn evaluation__grade-btn--tile"
                         :class="{
                           'evaluation__grade-btn--selected': getCriterionGrade(crit.id) === grade,
                           [`evaluation__grade-btn--${grade}`]: true,
@@ -134,7 +134,10 @@
                         :title="criterionTooltip(crit, grade)"
                         @click="setCriterionGrade(crit.id, grade)"
                       >
-                        {{ grade }}
+                        <span class="evaluation__grade-btn-letter">{{ grade }}</span>
+                        <span v-if="crit.descriptions[grade]" class="evaluation__grade-btn-desc">
+                          {{ crit.descriptions[grade] }}
+                        </span>
                       </button>
                     </div>
                   </td>
