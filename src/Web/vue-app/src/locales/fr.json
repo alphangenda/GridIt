@@ -89,6 +89,11 @@
       "path": "/sessions",
       "fullPath": "/sessions",
       "name": "Sessions"
+    },
+    "grids": {
+      "path": "/grilles",
+      "fullPath": "/grilles",
+      "name": "Mes grilles"
     }
   },
   "evaluation": {
@@ -107,6 +112,24 @@
     "preview": "Aperçu",
     "competencyGrade": "Note compétence",
     "comments": "Commentaires"
+  },
+  "grids": {
+    "title": "Mes grilles",
+    "publicTab": "Grilles publiques",
+    "myGridsTab": "Mes grilles",
+    "columns": {
+      "name": "Nom de la grille",
+      "course": "Cours",
+      "session": "Session",
+      "status": "Statut",
+      "creator": "Créateur",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "statusPrivate": "Privé",
+    "statusPublic": "Public",
+    "empty": "Aucune grille trouvée.",
+    "loading": "Chargement des grilles..."
   },
   "navigation": {
     "classes": "Cours",
