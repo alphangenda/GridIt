@@ -26,7 +26,7 @@
         </ul>
       </aside>
 
-      <!-- Right panel: grading table -->
+      <!-- Right panel: grading grid -->
       <section class="evaluation__grading" v-if="selectedStudent">
         <div class="evaluation__grading-header">
           <h2 class="evaluation__grading-title">{{ selectedStudent.name }}</h2>
@@ -56,89 +56,47 @@
         </p>
 
         <div class="evaluation__table-wrapper" v-if="competencies.length > 0">
-          <table class="evaluation__table">
-            <thead>
-              <tr>
-                <th class="evaluation__th evaluation__th--competence">{{ t("evaluation.competence") }}</th>
-                <th class="evaluation__th evaluation__th--grade">{{ t("evaluation.grade") }}</th>
-                <th class="evaluation__th evaluation__th--comment">{{ t("evaluation.comments") }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <template v-for="comp in competencies" :key="comp.id">
-                <!-- Competency header row -->
-                <tr class="evaluation__competency-header">
-                  <td class="evaluation__td evaluation__td--competence">
+          <div v-for="comp in competencies" :key="comp.id" class="evaluation__comp-block">
+            <table class="evaluation__grid-table">
+              <thead>
+                <tr>
+                  <th class="grid-th grid-th--element">
                     <span class="evaluation__color-dot" :style="{ backgroundColor: comp.color }"></span>
                     {{ comp.name }}
-                  </td>
-                  <td class="evaluation__td evaluation__td--grade">
-                    <!-- If competency has criteria: show auto-computed grade -->
-                    <template v-if="comp.criteria.length > 0">
-                      <span
-                        v-if="getGrade(comp.id)"
-                        class="evaluation__computed-grade"
-                        :class="`evaluation__computed-grade--${getGrade(comp.id)}`"
-                      >
-                        {{ getGrade(comp.id) }}
-                      </span>
-                      <span v-else class="evaluation__computed-grade evaluation__computed-grade--empty">—</span>
-                    </template>
-                    <!-- If no criteria: manual grade buttons (old behavior) -->
-                    <div v-else class="evaluation__grade-tiles">
-                      <button
-                        v-for="grade in ALL_GRADES"
-                        :key="grade"
-                        type="button"
-                        class="evaluation__grade-btn"
-                        :class="{
-                          'evaluation__grade-btn--selected': getGrade(comp.id) === grade,
-                          [`evaluation__grade-btn--${grade}`]: true,
-                        }"
-                        @click="setGrade(comp.id, grade)"
-                      >
-                        {{ grade }}
-                      </button>
-                    </div>
-                  </td>
-                  <td class="evaluation__td evaluation__td--comment">
-                    <input
-                      type="text"
-                      class="evaluation__comment-input"
-                      :value="getComment(comp.id)"
-                      :placeholder="t('evaluation.commentPlaceholder')"
-                      @input="setComment(comp.id, ($event.target as HTMLInputElement).value)"
-                    />
-                  </td>
+                  </th>
+                  <th
+                    v-for="grade in GRADES_DISPLAY"
+                    :key="grade"
+                    class="grid-th grade-header"
+                    :class="grade"
+                  >
+                    {{ grade }}
+                  </th>
+                  <th class="grid-th grid-th--note">Note</th>
+                  <th class="grid-th grid-th--valeur">Valeur</th>
+                  <th class="grid-th grid-th--comment">{{ t("evaluation.comments") }}</th>
                 </tr>
-                <!-- Criterion rows: each with its own grade buttons -->
-                <tr
-                  v-for="crit in comp.criteria"
-                  :key="crit.id"
-                  class="evaluation__criterion-row"
-                >
-                  <td class="evaluation__td evaluation__criterion-name">
-                    {{ crit.label }}
+              </thead>
+              <tbody>
+                <!-- Criterion rows -->
+                <tr v-for="crit in comp.criteria" :key="crit.id" class="grid-criterion-row">
+                  <td class="grid-td grid-td--element">{{ crit.label }}</td>
+                  <td
+                    v-for="grade in GRADES_DISPLAY"
+                    :key="grade"
+                    class="grade-cell"
+                    :class="{
+                      'grade-selected': getCriterionGrade(crit.id) === grade,
+                      'grade-cell--disabled': !crit.options.includes(grade),
+                    }"
+                    @click="crit.options.includes(grade) ? setCriterionGrade(crit.id, grade) : undefined"
+                  >
+                    <span v-if="crit.descriptions[grade]" class="grade-cell-desc">{{ crit.descriptions[grade] }}</span>
+                    <span v-if="crit.weights[grade] != null" class="grade-cell-pct">{{ crit.weights[grade] }}%</span>
                   </td>
-                  <td class="evaluation__td evaluation__criterion-grade">
-                    <div class="evaluation__grade-tiles">
-                      <button
-                        v-for="grade in crit.options"
-                        :key="grade"
-                        type="button"
-                        class="evaluation__grade-btn evaluation__grade-btn--sm"
-                        :class="{
-                          'evaluation__grade-btn--selected': getCriterionGrade(crit.id) === grade,
-                          [`evaluation__grade-btn--${grade}`]: true,
-                        }"
-                        :title="criterionTooltip(crit, grade)"
-                        @click="setCriterionGrade(crit.id, grade)"
-                      >
-                        {{ grade }}
-                      </button>
-                    </div>
-                  </td>
-                  <td class="evaluation__td evaluation__criterion-comment">
+                  <td class="grid-td grid-td--note">{{ criterionNoteDisplay(crit) }}</td>
+                  <td class="grid-td grid-td--valeur">{{ crit.totalValue > 0 ? crit.totalValue : '' }}</td>
+                  <td class="grid-td grid-td--comment">
                     <input
                       type="text"
                       class="evaluation__criterion-comment-input"
@@ -148,9 +106,56 @@
                     />
                   </td>
                 </tr>
-              </template>
-            </tbody>
-          </table>
+                <!-- Note compétence row (when criteria exist) -->
+                <tr v-if="comp.criteria.length > 0" class="grid-competency-note-row">
+                  <td class="grid-td grid-td--element">{{ t("evaluation.competencyGrade") }}</td>
+                  <td
+                    v-for="grade in GRADES_DISPLAY"
+                    :key="grade"
+                    class="grade-cell grade-cell--summary"
+                    :class="{ 'grade-selected': getGrade(comp.id) === grade }"
+                  >
+                    <span v-if="getGrade(comp.id) === grade">{{ grade }}</span>
+                  </td>
+                  <td class="grid-td grid-td--note">{{ compNoteDisplay(comp) }}</td>
+                  <td class="grid-td grid-td--valeur">{{ compTotalValue(comp) > 0 ? compTotalValue(comp) : '' }}</td>
+                  <td class="grid-td grid-td--comment">
+                    <input
+                      type="text"
+                      class="evaluation__comment-input"
+                      :value="getComment(comp.id)"
+                      :placeholder="t('evaluation.commentPlaceholder')"
+                      @input="setComment(comp.id, ($event.target as HTMLInputElement).value)"
+                    />
+                  </td>
+                </tr>
+                <!-- Manual grade row (when no criteria) -->
+                <tr v-if="comp.criteria.length === 0" class="grid-manual-row">
+                  <td class="grid-td grid-td--element">{{ t("evaluation.grade") }}</td>
+                  <td
+                    v-for="grade in GRADES_DISPLAY"
+                    :key="grade"
+                    class="grade-cell"
+                    :class="{ 'grade-selected': getGrade(comp.id) === grade }"
+                    @click="setGrade(comp.id, grade)"
+                  >
+                    <span class="grade-cell-letter">{{ grade }}</span>
+                  </td>
+                  <td class="grid-td grid-td--note"></td>
+                  <td class="grid-td grid-td--valeur"></td>
+                  <td class="grid-td grid-td--comment">
+                    <input
+                      type="text"
+                      class="evaluation__comment-input"
+                      :value="getComment(comp.id)"
+                      :placeholder="t('evaluation.commentPlaceholder')"
+                      @input="setComment(comp.id, ($event.target as HTMLInputElement).value)"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -275,6 +280,9 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
+// E → A (left to right), matching cégep grille convention
+const GRADES_DISPLAY = ALL_GRADES.slice().reverse() as GradeLetter[];
+
 // ── Interfaces ───────────────────────────────────────────────
 
 interface Student {
@@ -286,9 +294,11 @@ interface CriterionInfo {
   id: string;
   label: string;
   options: GradeLetter[];
-  weights: Record<string, number>;
+  weights: Record<string, number>;      // percentage per grade
+  rawWeights: Record<string, number>;   // raw value per grade
   descriptions: Record<string, string>;
   competencyId: string;
+  totalValue: number;
 }
 
 interface Competency {
@@ -338,12 +348,14 @@ onMounted(async () => {
         const criteria: CriterionInfo[] = criteriaData.map((c: any) => {
           const enabledLetters = new Set<string>();
           const weightPercents: Record<string, number> = {};
+          const rawValues: Record<string, number> = {};
           const descriptions: Record<string, string> = {};
           const totalValue = c.totalValue ?? 0;
 
           for (const w of c.weights ?? []) {
             if (w.isEnabled) {
               enabledLetters.add(w.weight);
+              rawValues[w.weight] = w.value ?? 0;
               weightPercents[w.weight] = totalValue > 0
                 ? Math.round((w.value / totalValue) * 100)
                 : 0;
@@ -362,8 +374,10 @@ onMounted(async () => {
             label: c.label,
             options,
             weights: weightPercents,
+            rawWeights: rawValues,
             descriptions,
             competencyId: sk.skillId,
+            totalValue,
           };
         });
 
@@ -481,7 +495,6 @@ function autoGradeFromCriteria(studentId: string, critId: string) {
   );
   if (!comp || comp.criteria.length === 0) return;
 
-  // Collect numeric values of all graded criteria
   const grades: number[] = [];
   for (const crit of comp.criteria) {
     const g = criterionEvals[studentId]?.[crit.id]?.grade;
@@ -516,15 +529,35 @@ function setCriterionComment(critId: string, value: string) {
   criterionEvals[sid][critId].comment = value;
 }
 
-// ── Tooltip helper ───────────────────────────────────────────
+// ── Note / Valeur display helpers ────────────────────────────
 
-function criterionTooltip(crit: CriterionInfo, grade: GradeLetter): string {
-  const desc = crit.descriptions[grade];
-  const pct = crit.weights[grade];
-  if (desc && pct != null) return `${grade} (${pct}%) : ${desc}`;
-  if (desc) return `${grade} : ${desc}`;
-  if (pct != null) return `${grade} : ${pct}%`;
-  return grade;
+function criterionNoteDisplay(crit: CriterionInfo): string {
+  if (!crit.totalValue) return "";
+  const grade = getCriterionGrade(crit.id);
+  if (grade != null && crit.rawWeights[grade] != null) {
+    return `${crit.rawWeights[grade]} / ${crit.totalValue}`;
+  }
+  return `— / ${crit.totalValue}`;
+}
+
+function compTotalValue(comp: Competency): number {
+  return comp.criteria.reduce((sum, c) => sum + (c.totalValue ?? 0), 0);
+}
+
+function compNoteDisplay(comp: Competency): string {
+  const max = compTotalValue(comp);
+  if (!max) return "";
+  const sid = selectedStudentId.value;
+  if (!sid) return `— / ${max}`;
+  ensureCriterionEval(sid);
+  let obtained = 0;
+  for (const crit of comp.criteria) {
+    const grade = criterionEvals[sid]?.[crit.id]?.grade;
+    if (grade != null && crit.rawWeights[grade] != null) {
+      obtained += crit.rawWeights[grade];
+    }
+  }
+  return `${obtained} / ${max}`;
 }
 
 // ── Preview modal ────────────────────────────────────────────
@@ -549,3 +582,146 @@ const averageLetter = computed<GradeLetter | null>(() => {
   return numericToLetter(averageNumeric.value);
 });
 </script>
+
+<style scoped>
+/* ── Grid table layout ──────────────────────────────────────── */
+
+.evaluation__comp-block {
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.evaluation__grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+/* Header cells */
+.grid-th {
+  padding: 8px 10px;
+  font-weight: 600;
+  text-align: center;
+  border: 1px solid #e0e0e0;
+  background-color: #f5f5f5;
+  white-space: nowrap;
+}
+
+.grid-th--element {
+  text-align: left;
+  min-width: 160px;
+  max-width: 220px;
+}
+
+.grid-th--note,
+.grid-th--valeur {
+  min-width: 80px;
+}
+
+.grid-th--comment {
+  min-width: 140px;
+}
+
+/* Grade column header colors */
+.grade-header.E { color: #e53935; }
+.grade-header.D { color: #fb8c00; }
+.grade-header.C { color: #f9a825; }
+.grade-header.B { color: #43a047; }
+.grade-header.A { color: #00acc1; }
+
+/* Body cells */
+.grid-td {
+  padding: 8px 10px;
+  border: 1px solid #e0e0e0;
+  vertical-align: middle;
+}
+
+.grid-td--element {
+  font-weight: 500;
+  min-width: 160px;
+  max-width: 220px;
+}
+
+.grid-td--note,
+.grid-td--valeur {
+  text-align: center;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  color: #555;
+}
+
+.grid-td--comment {
+  min-width: 140px;
+}
+
+/* Grade cells (clickable) */
+.grade-cell {
+  cursor: pointer;
+  padding: 8px 10px;
+  border: 1px solid #e0e0e0;
+  transition: background-color 0.15s;
+  vertical-align: top;
+  min-width: 150px;
+  max-width: 200px;
+}
+
+.grade-cell:hover:not(.grade-cell--disabled):not(.grade-cell--summary) {
+  background-color: #e8f5e9;
+}
+
+.grade-cell.grade-selected {
+  background-color: #4caf50;
+  color: white;
+  font-weight: 500;
+}
+
+.grade-cell--disabled {
+  cursor: default;
+  background-color: #fafafa;
+  color: #bbb;
+}
+
+.grade-cell--summary {
+  cursor: default;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.grade-cell-desc {
+  display: block;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.grade-cell-pct {
+  display: block;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  opacity: 0.75;
+}
+
+.grade-cell-letter {
+  display: block;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* Competency note row */
+.grid-competency-note-row td {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+/* Comment input */
+.evaluation__criterion-comment-input,
+.evaluation__comment-input {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+</style>
