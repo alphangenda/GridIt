@@ -3,15 +3,19 @@
     <div class="app-header__left">
       <LangSwitcher v-if="!isMobile" class="app-header__lang" />
       <div v-if="!isMobile" class="app-header__session">
-        <label class="app-header__session-label" for="header-session-select">
+        <label
+          v-if="sessions.length"
+          class="app-header__session-label"
+          for="header-session-select"
+        >
           {{ t("navigation.sessions") }}
         </label>
         <select
+          v-if="sessions.length"
           id="header-session-select"
           v-model="selectedSessionId"
           class="app-header__session-select"
         >
-          <option value="">{{ t("navigation.allSessions") }}</option>
           <option
             v-for="session in sessions"
             :key="session.id"
@@ -58,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import IconFaceMan from "vue-material-design-icons/FaceMan.vue";
@@ -88,9 +92,25 @@ const isMobile = computed(() => window.innerWidth < 768);
 const sessions = computed(() => sessionsStore.getSessions);
 
 const selectedSessionId = computed({
-  get: () => sessionsStore.getSelectedSessionId ?? "",
-  set: (value: string) => {
-    sessionsStore.selectSession(value || null);
+  get: () => sessionsStore.getSelectedSessionId ?? sessions.value[0]?.id ?? "",
+  set: async (value: string) => {
+    if (!value) {
+      return;
+    }
+
+    // sélectionner la session
+    sessionsStore.selectSession(value);
+
+    // trouver le premier cours lié à cette session
+    const session = sessions.value.find((s) => s.id === value);
+    const firstClassId = session?.classIds && session.classIds[0];
+
+    if (firstClassId) {
+      await router.push({
+        name: "classes.detail",
+        params: { classId: firstClassId },
+      });
+    }
   },
 });
 
@@ -122,6 +142,17 @@ onMounted(() => {
   document.addEventListener("click", handleClickOutside);
   sessionsStore.fetchSessions();
 });
+
+watch(
+  sessions,
+  (list) => {
+    const firstId = list[0]?.id ?? null;
+    if (!sessionsStore.getSelectedSessionId && firstId) {
+      sessionsStore.selectSession(firstId);
+    }
+  },
+  { immediate: true }
+);
 
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);

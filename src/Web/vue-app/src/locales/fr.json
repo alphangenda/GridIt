@@ -126,6 +126,13 @@
     "sessions": "Sessions",
     "addSession": "Ajouter une session",
     "sessionName": "Nom de la session",
+    "sessionYear": "Année",
+    "sessionSeason": "Session",
+    "seasons": {
+      "winter": "Hiver",
+      "summer": "Été",
+      "fall": "Automne"
+    },
     "noClass": "Aucun cours",
     "deleteSessionConfirm": "Êtes-vous sûr de vouloir supprimer cette session ?",
     "selectMultipleClasses": "Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs cours",
