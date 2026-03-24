@@ -1,10 +1,9 @@
 <template>
-  <div class="dashboard" :class="{ 'dashboard--with-exams': hasClassSelected }">
+  <div class="dashboard">
     <AppHeader />
 
     <div class="dashboard__body">
       <ClassesNav />
-      <ExamsNav v-if="hasClassSelected" />
       <main class="dashboard__content">
         <LogoutPopup />
         <Notifications />
@@ -23,12 +22,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useAdministratorService, useMemberService } from "@/inversify.config";
 import AppHeader from "@/components/layouts/AppHeader.vue";
 import ClassesNav from "@/components/navigation/ClassesNav.vue";
-import ExamsNav from "@/components/navigation/ExamsNav.vue";
 import LogoutPopup from "@/components/layouts/items/LogoutPopup.vue";
 import Notifications from "@/components/layouts/items/Notifications.vue";
 import Loader from "@/components/layouts/items/Loader.vue";
@@ -51,8 +49,6 @@ const memberService = useMemberService();
 const administratorService = useAdministratorService();
 
 const userIsLoading = ref(true);
-
-const hasClassSelected = computed(() => !!route.params.classId);
 
 onMounted(async () => {
   userIsLoading.value = true;
