@@ -11,7 +11,7 @@
           <input
             ref="fileInputRef"
             type="file"
-            accept=".json"
+            accept=".json,.csv,.xlsx,.xls"
             style="display: none"
             @change="handleFileSelected"
           />
@@ -69,6 +69,9 @@ import { ref, onMounted } from "vue";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
 import { notifyError } from "@/notify";
+import * as XLSX from "xlsx";
+
+type StudentRow = { number: string; firstName: string; lastName: string };
 
 const emit = defineEmits<{
   (event: "close"): void;
@@ -80,7 +83,7 @@ const classesStore = useClassesStore();
 const name = ref("");
 const inputRef = ref<HTMLInputElement | null>(null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
-const students = ref<{ number: string; firstName: string; lastName: string }[]>([]);
+const students = ref<StudentRow[]>([]);
 const expanded = ref(false);
 
 onMounted(() => {
@@ -91,38 +94,145 @@ function triggerFileInput() {
   fileInputRef.value?.click();
 }
 
+const CSV_HEADER_MAP: Record<string, keyof StudentRow> = {
+  "no de d.a.": "number",
+  "numero": "number",
+  "number": "number",
+  "nom de l'étudiant": "lastName",
+  "nom de l'etudiant": "lastName",
+  "nom": "lastName",
+  "lastname": "lastName",
+  "prénom de l'étudiant": "firstName",
+  "prenom de l'etudiant": "firstName",
+  "prénom": "firstName",
+  "prenom": "firstName",
+  "firstname": "firstName",
+};
+
+function normalizeHeader(h: string): string {
+  return h.trim().toLowerCase().replace(/\uFEFF/g, "");
+}
+
+function mapHeaders(rawHeaders: string[]): (keyof StudentRow | null)[] {
+  return rawHeaders.map((h) => CSV_HEADER_MAP[normalizeHeader(h)] ?? null);
+}
+
+function parseCSV(text: string): StudentRow[] {
+  const separator = text.includes(";") ? ";" : ",";
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) throw new Error("Empty CSV");
+
+  const headers = lines[0].split(separator);
+  const mapped = mapHeaders(headers);
+
+  if (!mapped.includes("number") || !mapped.includes("firstName") || !mapped.includes("lastName")) {
+    throw new Error("Missing required columns");
+  }
+
+  const result: StudentRow[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(separator);
+    if (cols.length < headers.length) continue;
+    const row: Partial<StudentRow> = {};
+    for (let j = 0; j < mapped.length; j++) {
+      const key = mapped[j];
+      if (key) row[key] = cols[j].trim();
+    }
+    if (row.number && row.firstName && row.lastName) {
+      result.push(row as StudentRow);
+    }
+  }
+  return result;
+}
+
+function parseJSON(text: string): StudentRow[] {
+  const parsed = JSON.parse(text);
+  if (!Array.isArray(parsed)) throw new Error("Not an array");
+  for (const item of parsed) {
+    if (
+      typeof item.number !== "string" ||
+      typeof item.firstName !== "string" ||
+      typeof item.lastName !== "string"
+    ) {
+      throw new Error("Invalid student object");
+    }
+  }
+  return parsed.map((item: StudentRow) => ({
+    number: item.number,
+    firstName: item.firstName,
+    lastName: item.lastName,
+  }));
+}
+
+function parseExcel(data: ArrayBuffer): StudentRow[] {
+  const workbook = XLSX.read(data, { type: "array" });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rows: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  if (rows.length < 2) throw new Error("Empty spreadsheet");
+
+  const headers = rows[0].map(String);
+  const mapped = mapHeaders(headers);
+
+  if (!mapped.includes("number") || !mapped.includes("firstName") || !mapped.includes("lastName")) {
+    throw new Error("Missing required columns");
+  }
+
+  const result: StudentRow[] = [];
+  for (let i = 1; i < rows.length; i++) {
+    const cols = rows[i];
+    if (!cols || cols.length < headers.length) continue;
+    const row: Partial<StudentRow> = {};
+    for (let j = 0; j < mapped.length; j++) {
+      const key = mapped[j];
+      if (key) row[key] = String(cols[j] ?? "").trim();
+    }
+    if (row.number && row.firstName && row.lastName) {
+      result.push(row as StudentRow);
+    }
+  }
+  return result;
+}
+
 function handleFileSelected(event: Event) {
   const input = event.target as HTMLInputElement;
   const file = input.files?.[0];
   if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const parsed = JSON.parse(e.target?.result as string);
-      if (!Array.isArray(parsed)) throw new Error();
-      for (const item of parsed) {
-        if (
-          typeof item.number !== "string" ||
-          typeof item.firstName !== "string" ||
-          typeof item.lastName !== "string"
-        ) {
-          throw new Error();
-        }
+  const ext = file.name.split(".").pop()?.toLowerCase();
+
+  if (ext === "xlsx" || ext === "xls") {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        students.value = parseExcel(e.target?.result as ArrayBuffer);
+        expanded.value = true;
+      } catch {
+        notifyError(t("navigation.importStudentsFormatError"));
+        students.value = [];
+        expanded.value = false;
       }
-      students.value = parsed.map((item: { number: string; firstName: string; lastName: string }) => ({
-        number: item.number,
-        firstName: item.firstName,
-        lastName: item.lastName,
-      }));
-      expanded.value = true;
-    } catch {
-      notifyError(t("navigation.importStudentsFormatError"));
-      students.value = [];
-      expanded.value = false;
-    }
-  };
-  reader.readAsText(file);
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string;
+        if (ext === "csv") {
+          students.value = parseCSV(text);
+        } else {
+          students.value = parseJSON(text);
+        }
+        expanded.value = true;
+      } catch {
+        notifyError(t("navigation.importStudentsFormatError"));
+        students.value = [];
+        expanded.value = false;
+      }
+    };
+    reader.readAsText(file);
+  }
+
   input.value = "";
 }
 
