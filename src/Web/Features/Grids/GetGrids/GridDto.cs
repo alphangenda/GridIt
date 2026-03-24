@@ -7,5 +7,7 @@ public record GridDto(
     string CourseCode,
     string SessionName,
     bool IsPublic,
+    bool IsOwner,
+    string CreatorEmail,
     DateTime CreatedAt
 );
