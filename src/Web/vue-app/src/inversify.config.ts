@@ -9,6 +9,7 @@ import {
   IAuthenticationService,
   IBookService,
   IClassService,
+  IGridService,
   IMemberService,
   ISessionService,
   IUserService
@@ -18,6 +19,7 @@ import {
   AuthenticationService,
   BookService,
   ClassService,
+  GridService,
   MemberService,
   SessionService,
   UserService
@@ -34,6 +36,7 @@ dependencyInjection.bind<IClassService>(TYPES.IClassService).to(ClassService).in
 dependencyInjection.bind<ISessionService>(TYPES.ISessionService).to(SessionService).inSingletonScope()
 dependencyInjection.bind<IMemberService>(TYPES.IMemberService).to(MemberService).inSingletonScope()
 dependencyInjection.bind<IUserService>(TYPES.IUserService).to(UserService).inSingletonScope()
+dependencyInjection.bind<IGridService>(TYPES.IGridService).to(GridService).inSingletonScope()
 
 function useAdministratorService() {
   return dependencyInjection.get<IAdministratorService>(TYPES.IAdministratorService);
@@ -63,6 +66,10 @@ function useUserService() {
   return dependencyInjection.get<IUserService>(TYPES.IUserService);
 }
 
+function useGridService() {
+  return dependencyInjection.get<IGridService>(TYPES.IGridService);
+}
+
 
 export {
   dependencyInjection,
@@ -72,5 +79,6 @@ export {
   useClassService,
   useSessionService,
   useMemberService,
-  useUserService
+  useUserService,
+  useGridService
 };

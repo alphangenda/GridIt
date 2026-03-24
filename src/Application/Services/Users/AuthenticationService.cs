@@ -57,8 +57,8 @@ public class AuthenticationService : IAuthenticationService
         if (result == SignInResult.Failed || result == SignInResult.LockedOut || result == SignInResult.NotAllowed)
             throw new TwoFactorAuthenticationException($"Could not get 2fa code for user with email {user.Email}.");
 
-        //if (result == SignInResult.Success || result == SignInResult.TwoFactorRequired && twoFactorAuthDoneRecently)
-        //    return null;
+        if (result == SignInResult.Success || result == SignInResult.TwoFactorRequired && twoFactorAuthDoneRecently)
+            return null;
 
         return await _signInManager.UserManager.GenerateTwoFactorTokenAsync(user, "Email");
     }
@@ -144,10 +144,10 @@ public class AuthenticationService : IAuthenticationService
 
         var cegepTeacherEmailRegexes = new[]
         {
-            @"^[a-zA-Z]+@csfoy\.ca$",                        // Cégep Ste-Foy (profs = lettres seulement avant le @)
-            @"^[a-zA-Z0-9._%+-]+@cegepgarneau\.ca$",         // Cégep Garneau (profs = domaine sans "edu.")
-            @"^[a-zA-Z0-9._%+-]+@cegep-limoilou\.qc\.ca$",   // Cégep Limoilou (à confirmer)
-            @"^[a-zA-Z0-9._%+-]+@slc\.qc\.ca$"               // Cégep St-Lawrence (à confirmer)
+            @"^[a-zA-Z]+@csfoy\.ca$",                        // Cï¿½gep Ste-Foy (profs = lettres seulement avant le @)
+            @"^[a-zA-Z0-9._%+-]+@cegepgarneau\.ca$",         // Cï¿½gep Garneau (profs = domaine sans "edu.")
+            @"^[a-zA-Z0-9._%+-]+@cegep-limoilou\.qc\.ca$",   // Cï¿½gep Limoilou (ï¿½ confirmer)
+            @"^[a-zA-Z0-9._%+-]+@slc\.qc\.ca$"               // Cï¿½gep St-Lawrence (ï¿½ confirmer)
         };
 
         return cegepTeacherEmailRegexes.Any(pattern =>

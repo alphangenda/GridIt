@@ -25,6 +25,7 @@ import ExamDetailView from "@/views/classes/ExamDetailView.vue";
 
 import EvaluationView from "@/views/evaluation/EvaluationView.vue";
 import SessionsView from "@/views/sessions/SessionsView.vue";
+import GridHistoryView from "@/views/grid/GridHistoryView.vue";
 import SessionsIndexView from "@/views/sessions/SessionsIndexView.vue";
 import SessionDetailView from "@/views/sessions/SessionDetailView.vue";
 
@@ -222,6 +223,16 @@ const router = createRouter({
           meta: { title: "routes.classes.examDetail" }
         }
       ]
+    },
+    {
+      path: i18n.t("routes.grids.path"),
+      alias: getLocalizedRoutes("routes.grids.path"),
+      name: "grids",
+      component: GridHistoryView,
+      meta: {
+        requiredRole: [Role.Member, Role.Admin],
+        title: "routes.grids.name"
+      }
     },
     {
       path: i18n.t("routes.sessions.path"),
