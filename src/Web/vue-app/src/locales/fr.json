@@ -203,7 +203,8 @@
       "validation": {
         "sendGridError": "Une erreur est survenue lors de l'envoi de l'email.",
         "errorOccured": "Une erreur est survenue lors de l'inscription.",
-        "forbidden": "Vous devez être un professeur pour vous inscrire."
+        "forbidden": "Vous devez être un professeur pour vous inscrire.",
+        "createUserFailed": "Une erreur est survenue lors de la création du compte. Veuillez réessayer."
       }
     },
     "navigation": {
@@ -541,4 +542,5 @@
             }
         }
     }
+  }
 }
