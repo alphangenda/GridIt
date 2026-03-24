@@ -92,21 +92,120 @@
         }
     },
     "evaluation": {
-        "students": "Étudiants",
-        "competence": "Compétence",
-        "grade": "Note",
-        "difficulties": "Difficultés",
-        "average": "Moyenne",
-        "selectStudent": "Sélectionnez un étudiant dans la liste.",
-        "commentPlaceholder": "Commentaire...",
-        "openEvaluation": "Évaluation",
-        "evaluate": "Évaluer",
-        "loading": "Chargement...",
-        "noStudents": "Aucun étudiant dans cette classe.",
-        "noSkills": "Aucune compétence pour cet examen.",
-        "preview": "Aperçu",
-        "competencyGrade": "Note compétence",
-        "comments": "Commentaires"
+      "path": "/evaluation",
+      "fullPath": "/evaluation",
+      "name": "Évaluation"
+    },
+    "sessions": {
+      "path": "/sessions",
+      "fullPath": "/sessions",
+      "name": "Sessions"
+    },
+    "grids": {
+      "path": "/grilles",
+      "fullPath": "/grilles",
+      "name": "Mes grilles"
+    }
+  },
+  "evaluation": {
+    "students": "Étudiants",
+    "competence": "Compétence",
+    "grade": "Note",
+    "difficulties": "Difficultés",
+    "average": "Moyenne",
+    "selectStudent": "Sélectionnez un étudiant dans la liste.",
+    "commentPlaceholder": "Commentaire...",
+    "openEvaluation": "Évaluation",
+    "evaluate": "Évaluer",
+    "loading": "Chargement...",
+    "noStudents": "Aucun étudiant dans cette classe.",
+    "noSkills": "Aucune compétence pour cet examen.",
+    "preview": "Aperçu",
+    "competencyGrade": "Note compétence",
+    "comments": "Commentaires"
+  },
+  "grids": {
+    "title": "Grilles d'évaluation",
+    "publicTab": "Grilles publiques",
+    "myGridsTab": "Mes grilles",
+    "allGridsTab": "Toutes les grilles",
+    "columns": {
+      "name": "Nom de la grille",
+      "course": "Cours",
+      "session": "Session",
+      "status": "Statut",
+      "creator": "Professeur",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "statusPrivate": "Privé",
+    "statusPublic": "Public",
+    "empty": "Aucune grille trouvée.",
+    "loading": "Chargement des grilles...",
+    "filters": {
+      "session": "Session",
+      "course": "Cours",
+      "professor": "Professeur",
+      "group": "Groupe",
+      "allSessions": "Toutes les sessions",
+      "allCourses": "Tous les cours",
+      "allProfessors": "Tous les professeurs",
+      "groupComingSoon": "Groupe — bientôt disponible"
+    },
+    "togglePublic": "Rendre publique",
+    "togglePrivate": "Rendre privée"
+  },
+  "navigation": {
+    "classes": "Cours",
+    "exams": "Examens",
+    "addClass": "Ajouter une classe",
+    "addExam": "Ajouter un examen",
+    "selectClass": "Sélectionnez un cours dans la liste.",
+    "examsOfCourse": "Examens de ce cours",
+    "exam": "Examen",
+    "examDetailPlaceholder": "Détail de l'examen.",
+    "noClasses": "Aucune classe pour l'instant. Ajoutez-en une pour commencer.",
+    "noExams": "Aucun examen pour cette classe.",
+    "className": "Nom de la classe",
+    "examName": "Nom de l'examen",
+    "deleteClassConfirm": "Êtes-vous sûr de vouloir supprimer cette classe ?",
+    "deleteExamConfirm": "Êtes-vous sûr de vouloir supprimer cet examen ?",
+    "sessions": "Sessions",
+    "addSession": "Ajouter une session",
+    "sessionName": "Nom de la session",
+    "sessionYear": "Année",
+    "sessionSeason": "Session",
+    "seasons": {
+      "winter": "Hiver",
+      "summer": "Été",
+      "fall": "Automne"
+    },
+    "noClass": "Aucun cours",
+    "deleteSessionConfirm": "Êtes-vous sûr de vouloir supprimer cette session ?",
+    "selectMultipleClasses": "Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs cours",
+    "addClassToSession": "Ajouter des cours à la session",
+    "selectSession": "Sélectionnez une session",
+    "allSessions": "Afficher tout les cours",
+    "removeClassFromSessionConfirm": "Voulez-vous vraiment supprimer le cours de cette session ?",
+    "myAccount": "Mon compte",
+    "logout": "Déconnexion",
+    "importStudents": "Import étudiant",
+    "studentsImported": "{count} étudiant(s) importé(s)",
+    "importStudentsFormatError": "Fichier JSON invalide. Format attendu: [{\"number\": \"...\", \"firstName\": \"...\", \"lastName\": \"...\"}]",
+    "studentNumber": "Numéro",
+    "studentFirstName": "Prénom",
+    "studentLastName": "Nom"
+  },
+  "pages": {
+    "register": {
+      "submit": "S'inscrire",
+      "loginLink": "Déjà un compte ? Se connecter",
+      "success": "Compte créé! Veuillez vérifier votre courriel pour confirmer votre compte.",
+      "validation": {
+        "sendGridError": "Une erreur est survenue lors de l'envoi de l'email.",
+        "errorOccured": "Une erreur est survenue lors de l'inscription.",
+        "forbidden": "Vous devez être un professeur pour vous inscrire."
+      }
     },
     "navigation": {
         "classes": "Cours",

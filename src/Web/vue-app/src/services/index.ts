@@ -5,3 +5,4 @@ export * from './memberService';
 export * from './classService';
 export * from './sessionService';
 export * from './userService';
+export * from './gridService';

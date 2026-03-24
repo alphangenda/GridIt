@@ -158,9 +158,9 @@
     border-bottom: 2px solid $color-border;
     white-space: nowrap;
 
-    &--competence { width: 35%; }
-    &--grade { width: 28%; }
-    &--comment { width: 37%; }
+    &--competence { width: 30%; }
+    &--grade { width: 40%; }
+    &--comment { width: 30%; }
   }
 
   &__td {
@@ -225,6 +225,11 @@
   &__grade-tiles {
     display: flex;
     gap: 4px;
+
+    &--descriptive {
+      flex-direction: column;
+      gap: 6px;
+    }
   }
 
   &__grade-btn {
@@ -256,6 +261,26 @@
       font-size: rem(11);
     }
 
+    // ── Tile variant: full-width with description text ─────
+    &--tile {
+      width: 100%;
+      height: auto;
+      min-height: 36px;
+      padding: 7px 12px;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 10px;
+      font-weight: 400;
+      text-align: left;
+
+      @media (hover: hover) {
+        &:hover {
+          border-color: $color-grey-medium;
+          background-color: $color-grey-light;
+        }
+      }
+    }
+
     &--selected {
       color: $color-white;
       border-color: transparent;
@@ -265,6 +290,61 @@
       &.evaluation__grade-btn--C { background-color: #f59e0b; }
       &.evaluation__grade-btn--D { background-color: #f97316; }
       &.evaluation__grade-btn--E { background-color: #ef4444; }
+    }
+  }
+
+  // ── Inner elements of tile buttons ────────────────────────
+  &__grade-btn-letter {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: $font-montserrat;
+    font-weight: 700;
+    font-size: rem(11);
+    background-color: $color-grey-light;
+    color: $color-text;
+
+    .evaluation__grade-btn--A:not(.evaluation__grade-btn--selected) & {
+      background-color: rgba(#10b981, 0.12);
+      color: #10b981;
+    }
+    .evaluation__grade-btn--B:not(.evaluation__grade-btn--selected) & {
+      background-color: rgba(#3b82f6, 0.12);
+      color: #3b82f6;
+    }
+    .evaluation__grade-btn--C:not(.evaluation__grade-btn--selected) & {
+      background-color: rgba(#f59e0b, 0.12);
+      color: #f59e0b;
+    }
+    .evaluation__grade-btn--D:not(.evaluation__grade-btn--selected) & {
+      background-color: rgba(#f97316, 0.12);
+      color: #f97316;
+    }
+    .evaluation__grade-btn--E:not(.evaluation__grade-btn--selected) & {
+      background-color: rgba(#ef4444, 0.12);
+      color: #ef4444;
+    }
+
+    .evaluation__grade-btn--selected & {
+      background-color: rgba(255, 255, 255, 0.25);
+      color: $color-white;
+    }
+  }
+
+  &__grade-btn-desc {
+    font-family: $font-karla;
+    font-size: rem(12);
+    font-weight: 400;
+    line-height: 1.35;
+    color: $color-grey-medium;
+    text-align: left;
+
+    .evaluation__grade-btn--selected & {
+      color: $color-white;
     }
   }
 
@@ -305,6 +385,9 @@
 
   &__criterion-grade {
     font-size: rem(12);
+    vertical-align: top;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
   }
 
   &__criterion-comment {
