@@ -136,6 +136,12 @@ public class AuthenticationService : IAuthenticationService
         if (user.Email.Equals("ismailbatoul2005@gmail.com", StringComparison.OrdinalIgnoreCase))
             return true;
 
+        if (user.Email.Equals("isbat001@edu.cegepgarneau.ca", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (user.Email.Equals("alnge001@edu.cegepgarneau.ca", StringComparison.OrdinalIgnoreCase))
+            return true;
+
         var cegepTeacherEmailRegexes = new[]
         {
             @"^[a-zA-Z]+@csfoy\.ca$",                        // C�gep Ste-Foy (profs = lettres seulement avant le @)

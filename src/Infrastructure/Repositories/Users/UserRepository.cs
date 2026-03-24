@@ -109,6 +109,13 @@ public class UserRepository : IUserRepository
         return await _userManager.UpdateAsync(user);
     }
 
+    public async Task HardDeleteUser(User user)
+    {
+        var existing = await _userManager.FindByIdAsync(user.Id.ToString());
+        if (existing != null)
+            await _userManager.DeleteAsync(existing);
+    }
+
     public async Task<IdentityResult> DeleteUserWithId(Guid id)
     {
         var user = await _userManager.FindByIdAsync(id.ToString());
