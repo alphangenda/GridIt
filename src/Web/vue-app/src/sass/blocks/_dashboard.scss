@@ -36,10 +36,5 @@
       padding-top: 40px;
     }
 
-    &--with-exams {
-      .dashboard__body {
-        grid-template-columns: 240px 240px 1fr;
-      }
-    }
   }
 }
