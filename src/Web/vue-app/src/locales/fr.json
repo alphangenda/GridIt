@@ -89,6 +89,11 @@
       "path": "/sessions",
       "fullPath": "/sessions",
       "name": "Sessions"
+    },
+    "grids": {
+      "path": "/grilles",
+      "fullPath": "/grilles",
+      "name": "Mes grilles"
     }
   },
   "evaluation": {
@@ -107,6 +112,37 @@
     "preview": "Aperçu",
     "competencyGrade": "Note compétence",
     "comments": "Commentaires"
+  },
+  "grids": {
+    "title": "Grilles d'évaluation",
+    "publicTab": "Grilles publiques",
+    "myGridsTab": "Mes grilles",
+    "allGridsTab": "Toutes les grilles",
+    "columns": {
+      "name": "Nom de la grille",
+      "course": "Cours",
+      "session": "Session",
+      "status": "Statut",
+      "creator": "Professeur",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "statusPrivate": "Privé",
+    "statusPublic": "Public",
+    "empty": "Aucune grille trouvée.",
+    "loading": "Chargement des grilles...",
+    "filters": {
+      "session": "Session",
+      "course": "Cours",
+      "professor": "Professeur",
+      "group": "Groupe",
+      "allSessions": "Toutes les sessions",
+      "allCourses": "Tous les cours",
+      "allProfessors": "Tous les professeurs",
+      "groupComingSoon": "Groupe — bientôt disponible"
+    },
+    "togglePublic": "Rendre publique",
+    "togglePrivate": "Rendre privée"
   },
   "navigation": {
     "classes": "Cours",

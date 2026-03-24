@@ -89,6 +89,11 @@
       "path": "/sessions",
       "fullPath": "/sessions",
       "name": "Sessions"
+    },
+    "grids": {
+      "path": "/grids",
+      "fullPath": "/grids",
+      "name": "My grids"
     }
   },
   "evaluation": {
@@ -107,6 +112,37 @@
     "preview": "Preview",
     "competencyGrade": "Competency grade",
     "comments": "Comments"
+  },
+  "grids": {
+    "title": "Evaluation Grids",
+    "publicTab": "Public grids",
+    "myGridsTab": "My grids",
+    "allGridsTab": "All grids",
+    "columns": {
+      "name": "Grid name",
+      "course": "Course",
+      "session": "Session",
+      "status": "Status",
+      "creator": "Professor",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "statusPrivate": "Private",
+    "statusPublic": "Public",
+    "empty": "No grids found.",
+    "loading": "Loading grids...",
+    "filters": {
+      "session": "Session",
+      "course": "Course",
+      "professor": "Professor",
+      "group": "Group",
+      "allSessions": "All sessions",
+      "allCourses": "All courses",
+      "allProfessors": "All professors",
+      "groupComingSoon": "Group — coming soon"
+    },
+    "togglePublic": "Make public",
+    "togglePrivate": "Make private"
   },
   "navigation": {
     "classes": "Classes",

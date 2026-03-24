@@ -32,6 +32,14 @@
           {{ t("navigation.addSession") }}
         </button>
       </div>
+      <button
+        v-if="!isMobile"
+        type="button"
+        class="app-header__grids-btn"
+        @click="goToGrids"
+      >
+        {{ t("routes.grids.name") }}
+      </button>
     </div>
 
     <div class="app-header__right">
@@ -161,6 +169,10 @@ onUnmounted(() => {
 async function goToSessions() {
   await router.push({ name: "sessions.index" });
 }
+
+async function goToGrids() {
+  await router.push({ name: "grids" });
+}
 </script>
 
 <style scoped lang="scss">
@@ -204,5 +216,21 @@ async function goToSessions() {
 
 .app-header__session-add-btn:hover {
   background-color: #3b8156;
+}
+
+.app-header__grids-btn {
+  padding: 0.35rem 0.8rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background-color: transparent;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.app-header__grids-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
 }
 </style>

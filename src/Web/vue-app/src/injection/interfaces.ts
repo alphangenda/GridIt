@@ -98,3 +98,9 @@ export interface ISessionService {
 export interface IUserService {
   getCurrentUser(): Promise<User>
 }
+
+export interface IGridService {
+  getAllGrids(): Promise<any[]>
+
+  toggleVisibility(examId: string, isPublic: boolean): Promise<boolean>
+}
