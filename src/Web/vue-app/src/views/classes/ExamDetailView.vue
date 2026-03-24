@@ -54,15 +54,41 @@
             <h2 class="info-modal__section-title">Compétences</h2>
 
             <div class="skills-grid">
-              <button
-                type="button"
-                class="skill-card skill-card--add"
-                @click="showPicker = !showPicker"
-              >
-                <span class="skill-card__plus">+</span>
-                <span class="skill-card__label">Choisissez des compétences</span>
-              </button>
+              <div class="skills-picker">
+                <button
+                  type="button"
+                  class="skill-card skill-card--add"
+                  @click="showPicker = !showPicker"
+                >
+                  <span class="skill-card__plus">+</span>
+                  <span class="skill-card__label">Choisissez des compétences</span>
+                </button>
 
+                <div
+                  v-if="showPicker"
+                  class="picker"
+                  @mouseleave="showPicker = false"
+                >
+                  <div class="picker__title">Sélectionner</div>
+                  <div class="picker__list">
+                    <label
+                      v-for="s in allSkills"
+                      :key="s.id"
+                      class="picker__item"
+                    >
+                      <input
+                        type="checkbox"
+                        :checked="isSelected(s.id)"
+                        @change="toggleSkill(s)"
+                      />
+                      <span>{{ s.label }}</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="skills-list">
               <button
                 v-for="s in selectedSkills"
                 :key="s.id"
@@ -76,156 +102,140 @@
               </button>
             </div>
 
-            <div v-if="showPicker" class="picker">
-              <div class="picker__title">Sélectionner</div>
-              <div class="picker__list">
-                <label
-                  v-for="s in allSkills"
-                  :key="s.id"
-                  class="picker__item"
-                >
-                  <input
-                    type="checkbox"
-                    :checked="isSelected(s.id)"
-                    @change="toggleSkill(s)"
-                  />
-                  <span>{{ s.label }}</span>
-                </label>
-              </div>
-            </div>
+            <div class="description-section">
+              <h2 class="info-modal__section-title">Description</h2>
 
-            <h2 class="info-modal__section-title">Description</h2>
+              <Card class="description-card">
+                <div class="description-card__content">
 
-            <Card class="description-card">
-              <div class="description-card__content">
+                  <div class="description-left">
+                    <h3 class="description-title">
+                      {{ activeSkill?.label ?? "Aucune compétence sélectionnée" }}
+                    </h3>
 
-                <div class="description-left">
-                  <h3 class="description-title">
-                    {{ activeSkill?.label ?? "Aucune compétence sélectionnée" }}
-                  </h3>
+                    <div class="criteria-header">
+                      <div class="criteria-title">Critères</div>
+                      <button
+                        type="button"
+                        class="btn btn--secondary"
+                        :disabled="!activeSkill"
+                        @click="addCriterion"
+                      >
+                        + Ajouter
+                      </button>
+                    </div>
 
-                  <div class="criteria-header">
-                    <div class="criteria-title">Critères</div>
-                    <button
-                      type="button"
-                      class="btn btn--secondary"
-                      :disabled="!activeSkill"
-                      @click="addCriterion"
-                    >
-                      + Ajouter
-                    </button>
-                  </div>
+                    <div v-if="!activeSkill" class="hint">
+                      Choisis une compétence pour ajouter des critères.
+                    </div>
 
-                  <div v-if="!activeSkill" class="hint">
-                    Choisis une compétence pour ajouter des critères.
-                  </div>
+                    <div v-else class="criteria-list">
+                      <div
+                        v-for="c in (criteria[activeSkillId] ?? [])"
+                        :key="c.id"
+                        class="criterion-block"
+                      >
+                        <div class="criterion-main">
 
-                  <div v-else class="criteria-list">
-                    <div
-                      v-for="c in (criteria[activeSkillId] ?? [])"
-                      :key="c.id"
-                      class="criterion-block"
-                    >
-                      <div class="criterion-main">
-
-                        <select
-                          v-model="c.valuePreset"
-                          class="criterion-total"
-                          @change="
-                            c.valuePreset !== 'other'
-                              ? (c.totalValue = Number(c.valuePreset))
-                              : (c.totalValue = 0)
-                          "
-                        >
-                          <option disabled value="0">Valeur du critère</option>
-                          <option
-                            v-for="v in [5,10,15,20,25,30]"
-                            :key="v"
-                            :value="v"
+                          <select
+                            v-model="c.valuePreset"
+                            class="criterion-total"
+                            @change="
+                              c.valuePreset !== 'other'
+                                ? (c.totalValue = Number(c.valuePreset))
+                                : (c.totalValue = 0)
+                            "
                           >
-                            {{ v }}
-                          </option>
-                          <option value="other">Autre</option>
-                        </select>
+                            <option disabled value="0">Valeur du critère</option>
+                            <option
+                              v-for="v in [5,10,15,20,25,30]"
+                              :key="v"
+                              :value="v"
+                            >
+                              {{ v }}
+                            </option>
+                            <option value="other">Autre</option>
+                          </select>
 
-                        <input
-                          v-if="c.valuePreset === 'other'"
-                          v-model.number="c.totalValue"
-                          type="number"
-                          class="criterion-total"
-                          placeholder="Valeur personnalisée"
-                        />
+                          <input
+                            v-if="c.valuePreset === 'other'"
+                            v-model.number="c.totalValue"
+                            type="number"
+                            class="criterion-total"
+                            placeholder="Valeur personnalisée"
+                          />
 
-                        <input
-                          v-model="c.text"
-                          class="criterion-name"
-                          placeholder="Nom du critère"
-                        />
+                          <input
+                            v-model="c.text"
+                            class="criterion-name"
+                            placeholder="Nom du critère"
+                          />
 
-                        <button
-                          class="criterion-x"
-                          @click="removeCriterion(activeSkillId, c.id)"
+                          <button
+                            class="criterion-x"
+                            @click="removeCriterion(activeSkillId, c.id)"
+                          >
+                            ✕
+                          </button>
+                        </div>
+
+                        <div
+                          v-for="e in c.evaluations"
+                          :key="e.weight"
+                          class="criterion-weight-row"
+                          :class="{ 'criterion-weight-row--disabled': !e.enabled }"
                         >
-                          ✕
-                        </button>
+                          <label class="weight-letter">
+                            <input
+                              type="checkbox"
+                              v-model="e.enabled"
+                              :disabled="e.weight === 'A'"
+                            />
+                            {{ e.weight }}
+                          </label>
+
+                          <input
+                            v-model.number="e.value"
+                            type="number"
+                            class="weight-value"
+                            :min="0"
+                            :placeholder="e.value === 0 ? 'Valeur du poids' : ''"
+                            :disabled="!e.enabled || !c.totalValue"
+                            @input="clampWeightValue(c, e)"
+                          />
+
+                          <input
+                            v-model="e.description"
+                            class="weight-description"
+                            placeholder="Description"
+                            :disabled="!e.enabled"
+                          />
+
+                          <div class="weight-percent">
+                            {{ weightPercentage(c, e) }}%
+                          </div>
+                        </div>
                       </div>
 
                       <div
-                        v-for="e in c.evaluations"
-                        :key="e.weight"
-                        class="criterion-weight-row"
-                        :class="{ 'criterion-weight-row--disabled': !e.enabled }"
+                        v-if="(criteria[activeSkillId] ?? []).length === 0"
+                        class="hint"
                       >
-                        <label class="weight-letter">
-                          <input
-                            type="checkbox"
-                            v-model="e.enabled"
-                            :disabled="e.weight === 'A'"
-                          />
-                          {{ e.weight }}
-                        </label>
-
-                        <input
-                          v-model.number="e.value"
-                          type="number"
-                          class="weight-value"
-                          :min="0"
-                          :placeholder="e.value === 0 ? 'Valeur du poids' : ''"
-                          :disabled="!e.enabled || !c.totalValue"
-                          @input="clampWeightValue(c, e)"
-                        />
-
-                        <input
-                          v-model="e.description"
-                          class="weight-description"
-                          placeholder="Description"
-                          :disabled="!e.enabled"
-                        />
-
-                        <div class="weight-percent">
-                          {{ weightPercentage(c, e) }}%
-                        </div>
+                        Aucun critère pour cette compétence.
                       </div>
                     </div>
+                  </div>
 
-                    <div
-                      v-if="(criteria[activeSkillId] ?? []).length === 0"
-                      class="hint"
-                    >
-                      Aucun critère pour cette compétence.
+                  <div class="description-right">
+                    <div class="donut" :style="{ '--p': progress }">
+                      <div class="donut__inner">{{ progress }}%</div>
                     </div>
+                    <div class="donut-hint">Complétion</div>
                   </div>
-                </div>
 
-                <div class="description-right">
-                  <div class="donut" :style="{ '--p': progress }">
-                    <div class="donut__inner">{{ progress }}%</div>
-                  </div>
-                  <div class="donut-hint">Complétion</div>
                 </div>
-
-              </div>
-            </Card>
+              </Card>
+            </div>
           </div>
 
           <!-- =========================
@@ -663,6 +673,9 @@ MODAL / TITRES
 
 .info-modal {
   padding: 24px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .info-modal__section-title {
@@ -691,11 +704,14 @@ LAYOUT PRINCIPAL
   display: flex;
   align-items: stretch;
   gap: 16px;
+  flex: 1;
 }
 
 .info-modal__main {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .info-modal__side {
@@ -731,10 +747,29 @@ COMPÉTENCES
 ========================= */
 
 .skills-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 12px;
+}
+
+.skills-picker {
+  position: relative;
+}
+
+.skills-picker .picker {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+}
+
+.skills-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 40px;
 }
 
 .skill-card {
@@ -770,6 +805,8 @@ COMPÉTENCES
 .skill-card--add {
   align-items: center;
   gap: 12px;
+  width: 100%;
+  justify-content: center;
 }
 
 .skill-card__plus {
@@ -845,7 +882,8 @@ PICKER COMPÉTENCES
   padding: 14px;
   border-radius: 14px;
   border: 2px solid rgba(0, 0, 0, 0.12);
-  background: rgba(0, 0, 0, 0.04);
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
 }
 
 .picker__title {
@@ -874,6 +912,10 @@ DESCRIPTION
 .description-card__content {
   display: flex;
   gap: 18px;
+}
+
+.description-section {
+  margin-top: auto;
 }
 
 .description-left {
