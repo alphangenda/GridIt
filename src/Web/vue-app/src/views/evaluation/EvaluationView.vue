@@ -8,6 +8,12 @@
     <template v-else>
       <!-- Left panel: student list -->
       <aside class="evaluation__students">
+        <router-link
+          :to="{ name: 'classes.examDetail', params: { classId: props.classId, examId: props.examId } }"
+          class="back-link evaluation__back-link"
+        >
+          &lt; Retour
+        </router-link>
         <h2 class="evaluation__students-title">{{ t("evaluation.students") }}</h2>
         <p v-if="students.length === 0" class="evaluation__empty-msg">
           {{ t("evaluation.noStudents") }}
