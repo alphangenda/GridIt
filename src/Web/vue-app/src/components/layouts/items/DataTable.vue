@@ -31,6 +31,7 @@
             v-tippy="t(`evaluation.evaluate`)"
             :to="item.actions.evaluate"
             class="vue3-easy-data-table__action"
+            @click.stop
         >
           <IconClipboard class="icon icon--black"/>
         </router-link>
@@ -39,6 +40,7 @@
             v-tippy="t(`global.actions.update`)"
             :to="item.actions.edit"
             class="vue3-easy-data-table__action"
+            @click.stop
         >
           <IconEdit class="icon icon--black"/>
         </router-link>
@@ -47,7 +49,7 @@
             v-tippy="t(`global.actions.delete`)"
             class="vue3-easy-data-table__action red-bg"
             type="button"
-            @click="handleDelete(item)"
+            @click.stop="handleDelete(item)"
         >
           <IconDelete class="icon icon--black"/>
         </button>

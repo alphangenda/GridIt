@@ -56,7 +56,7 @@
               v-if="item.rawIsOwner"
               type="button"
               class="btn-toggle"
-              @click="onToggleVisibility(item)"
+              @click.stop="onToggleVisibility(item)"
             >
               {{ item.rawIsPublic ? t("grids.togglePrivate") : t("grids.togglePublic") }}
             </button>
