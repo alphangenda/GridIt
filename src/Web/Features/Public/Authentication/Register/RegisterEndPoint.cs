@@ -41,37 +41,108 @@ public class RegisterEndpoint : EndpointWithSanitizedRequest<RegisterRequest, Su
 
     public override async Task HandleAsync(RegisterRequest req, CancellationToken ct)
     {
+        if (!IsValidEmail(req.Email))
+        {
+            await Send.OkAsync(
+                new SucceededOrNotResponse(false,
+                    new Error("InvalidEmail", "The email format is invalid.")
+                ), ct);
+            return;
+        }
+
         var tempUser = new User { Email = req.Email, UserName = req.Email };
         if (!_authenticationService.IsTeacherFromPublicCegep(tempUser))
         {
-            var forbiddenError = new Error("Forbidden", "You must be a teacher from a public cegep to register.");
-            await Send.OkAsync(new SucceededOrNotResponse(false, forbiddenError), ct);
+            await Send.OkAsync(
+                new SucceededOrNotResponse(false,
+                    new Error("Forbidden", "You must be a teacher from a public cegep to register.")
+                ), ct);
             return;
         }
 
         if (_userRepository.UserWithEmailExists(req.Email))
         {
-            _logger.LogInformation("Could not register since a user with email {email} already exists.", req.Email);
-            await Send.OkAsync(new SucceededOrNotResponse(false, new Error("EmailAlreadyExists", "A user with this email already exists.")), ct);
+            await Send.OkAsync(
+                new SucceededOrNotResponse(false,
+                    new Error("EmailAlreadyExists", "A user with this email already exists.")
+                ), ct);
             return;
         }
 
-        var user = new User { Email = req.Email, UserName = req.Email };
-        user.AddRole(new Role { Name = Domain.Constants.User.Roles.MEMBER });
-        await _userRepository.CreateUser(user);
-        var passwordResult = await _userRepository.CreateUserPassword(user, req.Password);
-        if (!passwordResult.Succeeded)
+        if (!IsValidPassword(req.Password))
         {
-            _logger.LogError("Could not create password for user {email}. Errors: {errors}",
-                req.Email, string.Join(", ", passwordResult.Errors.Select(x => x.Description)));
-            await Send.OkAsync(new SucceededOrNotResponse(false), ct);
+            await Send.OkAsync(
+                new SucceededOrNotResponse(false,
+                    new Error("InvalidPassword",
+                        "The password must contain at least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special character.")
+                ), ct);
             return;
         }
 
-        var token = await _userRepository.GetEmailConfirmationTokenForUser(user);
-        var link = $"{_baseUrl}{req.ConfirmEmailRelativeUrl}?userId={user.Id}&token={token.Base64UrlEncode()}";
-        var response = await _notificationService.SendRegisterConfirmationNotification(user, link);
+        var user = new User { Email = req.Email, UserName = req.Email, TwoFactorEnabled = true };
+        user.AddRole(new Role { Name = Domain.Constants.User.Roles.MEMBER });
 
-        await Send.OkAsync(new SucceededOrNotResponse(response.Succeeded, response.Errors), ct);
+        User createdUser;
+        try
+        {
+            createdUser = await _userRepository.CreateUser(user);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create user with email {Email}", req.Email);
+            await Send.OkAsync(new SucceededOrNotResponse(false, new Error("CreateUserFailed", "An error occurred while creating the account. Please try again.")), ct);
+            return;
+        }
+
+        var passwordCreated = await _userRepository.CreateUserPassword(createdUser, req.Password);
+        if (!passwordCreated.Succeeded)
+        {
+            await _userRepository.HardDeleteUser(createdUser);
+            var errors = passwordCreated.Errors.Select(e => new Error(e.Code ?? "InvalidPassword", e.Description ?? "The password is not valid."));
+            await Send.OkAsync(new SucceededOrNotResponse(false, errors), ct);
+            return;
+        }
+
+        var token = await _userRepository.GetEmailConfirmationTokenForUser(createdUser);
+        var link = $"{_baseUrl}{req.ConfirmEmailRelativeUrl}?userId={createdUser.Id}&token={token.Base64UrlEncode()}";
+        var response = await _notificationService.SendRegisterConfirmationNotification(createdUser, link);
+
+        if (!response.Succeeded)
+        {
+            await _userRepository.HardDeleteUser(createdUser);
+            await Send.OkAsync(new SucceededOrNotResponse(false, response.Errors), ct);
+            return;
+        }
+
+        await Send.OkAsync(new SucceededOrNotResponse(true), ct);
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private bool IsValidPassword(string password)
+    {
+        if (string.IsNullOrWhiteSpace(password))
+            return false;
+
+        if (password.Length < 8)
+            return false;
+
+        bool hasUpper = password.Any(char.IsUpper);
+        bool hasLower = password.Any(char.IsLower);
+        bool hasDigit = password.Any(char.IsDigit);
+        bool hasSpecial = password.Any(ch => !char.IsLetterOrDigit(ch));
+
+        return hasUpper && hasLower && hasDigit && hasSpecial;
     }
 }

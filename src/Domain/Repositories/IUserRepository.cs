@@ -15,6 +15,7 @@ public interface IUserRepository : IDisposable
     Task<IdentityResult> UpdateUserEmail(User user, string newEmail);
     Task<IdentityResult> DeleteUser(User user);
     Task<IdentityResult> DeleteUserWithId(Guid id);
+    Task HardDeleteUser(User user);
     Task<string> GetResetPasswordTokenForUser(User user);
     Task<IdentityResult> CreateUserPassword(User user, string password);
     Task<IdentityResult> ResetUserPassword(User user, string password, string resetPasswordToken);

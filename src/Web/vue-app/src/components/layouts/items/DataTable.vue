@@ -17,9 +17,11 @@
       theme-color="#528965"
   >
     <template #item-status="item">
-      <div class="tag">
-        <p>{{ item.status }}</p>
-      </div>
+      <slot name="item-status" v-bind="item">
+        <div class="tag">
+          <p>{{ item.status }}</p>
+        </div>
+      </slot>
     </template>
     <template #item-actions="item">
       <p v-if="item && item.actions" class="vue3-easy-data-table__actions">
