@@ -79,7 +79,7 @@ public class RegisterEndpoint : EndpointWithSanitizedRequest<RegisterRequest, Su
             return;
         }
 
-        var user = new User { Email = req.Email, UserName = req.Email };
+        var user = new User { Email = req.Email, UserName = req.Email, TwoFactorEnabled = true };
         user.AddRole(new Role { Name = Domain.Constants.User.Roles.MEMBER });
 
         User createdUser;
