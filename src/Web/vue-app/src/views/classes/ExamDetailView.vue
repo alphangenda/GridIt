@@ -4,7 +4,7 @@
       <div>
         <div class="exam-detail__back">
           <router-link
-            :to="{ name: 'classes.detail', params: { classId: route.params.classId } }"
+            :to="{ name: 'classes.examGroups', params: { classId: route.params.classId, examId: route.params.examId } }"
             class="exam-detail__back-link"
             aria-label="Retour"
           >
@@ -20,7 +20,7 @@
           Infos
         </button>
         <router-link
-          :to="{ name: 'evaluation', params: { classId: route.params.classId, examId: route.params.examId } }"
+          :to="{ name: 'evaluation', params: { classId: route.params.classId, examId: route.params.examId }, query: route.query.groupId ? { groupId: route.query.groupId } : {} }"
           class="btn"
         >
           {{ t("evaluation.evaluate") }}

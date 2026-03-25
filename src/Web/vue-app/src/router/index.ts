@@ -22,6 +22,7 @@ import ClassesView from "@/views/classes/ClassesView.vue";
 import ClassesIndexView from "@/views/classes/ClassesIndexView.vue";
 import ClassExamsView from "@/views/classes/ClassExamsView.vue";
 import ExamDetailView from "@/views/classes/ExamDetailView.vue";
+import ExamGroupsView from "@/views/classes/ExamGroupsView.vue";
 
 import EvaluationView from "@/views/evaluation/EvaluationView.vue";
 import SessionsView from "@/views/sessions/SessionsView.vue";
@@ -214,6 +215,13 @@ const router = createRouter({
           component: ClassExamsView,
           props: true,
           meta: { title: "routes.classes.name" }
+        },
+        {
+          path: ":classId/exams/:examId/groups",
+          name: "classes.examGroups",
+          component: ExamGroupsView,
+          props: true,
+          meta: { title: "routes.classes.examDetail" }
         },
         {
           path: ":classId/exams/:examId",
