@@ -239,17 +239,17 @@ async function handleSubmit() {
 
 <style scoped lang="scss">
 .popup__header {
-  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .btn--import {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
   font-size: 0.85rem;
   padding: 4px 10px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .students-accordion {
