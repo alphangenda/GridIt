@@ -17,7 +17,7 @@
 
       <div class="exam-detail__actions">
         <button type="button" class="btn btn--secondary" @click="showInfo = true">
-          Infos
+          Grille de compétences
         </button>
         <router-link
           :to="{ name: 'evaluation', params: { classId: route.params.classId, examId: route.params.examId } }"
@@ -35,6 +35,14 @@
       >
 
         <div class="info-modal__top-actions">
+          <button
+            type="button"
+            class="btn btn--reset"
+            :disabled="isResetting"
+            @click="resetDefaults"
+          >
+            {{ isResetting ? '...': 'Réinitialiser' }}
+          </button>
           <button
             type="button"
             class="btn btn--secondary"
@@ -301,14 +309,15 @@ const route = useRoute();
 const classesStore = useClassesStore();
 
 function normalizeSkill(s: any): Skill {
-  const rawId = s?.id ?? s?.Id ?? s?.skillId ?? s?.SkillId;
+  const rawExamSkillId = s?.examSkillId ?? s?.ExamSkillId ?? s?.id ?? s?.Id ?? "";
+  const rawId = s?.skillId ?? s?.SkillId ?? s?.id ?? s?.Id;
+
   return {
     id: String(rawId),
     label: String(s?.label ?? s?.Label ?? ""),
-    examSkillId: String(s?.examSkillId ?? s?.ExamSkillId ?? ""),
+    examSkillId: String(rawExamSkillId),
   };
 }
-
 const exam = computed(() => {
   const classId = route.params.classId as string;
   const examId = route.params.examId as string;
@@ -369,7 +378,47 @@ function dashOffset(skillId: string) {
 
 type Skill = { id: string; label: string; examSkillId: string };
 
-const WEIGHTS = ["A", "B", "C", "D", "E"] as const;
+const WEIGHTS = ["A", "B", "C", "D", "E", "F"] as const;
+
+type DefaultLetter = {
+  letter: WeightKey;
+  description: string;
+  defaultPercent: number;
+  isEnabled: boolean;
+};
+
+const defaultLetters = ref<DefaultLetter[]>([]);
+const defaultSelectedSkillIds = ref<string[]>([]);
+
+async function loadDefaultSelectedSkills() {
+  const res = await fetch("/api/default-selected-skills");
+  if (!res.ok) {
+    throw new Error("Impossible de charger les compétences par défaut");
+  }
+
+  const data = await res.json();
+  defaultSelectedSkillIds.value = (data as any[])
+    .filter(x => !!x.isSelected)
+    .map(x => String(x.skillId));
+}
+
+async function loadDefaultLetters() {
+  const res = await fetch("/api/default-criterion-letters");
+  if (!res.ok) {
+    throw new Error("Impossible de charger les lettres par défaut");
+  }
+
+  const data = await res.json();
+
+  defaultLetters.value = (data as any[]).map((x) => ({
+    letter: String(x.letter) as WeightKey,
+    description: String(x.description ?? ""),
+    defaultPercent: Number(x.defaultPercent ?? 0),
+    isEnabled: !!x.isEnabled,
+  }));
+}
+
+
 type WeightKey = typeof WEIGHTS[number];
 
 type WeightEvaluation = {
@@ -398,38 +447,104 @@ function clampWeightValue(c: Criterion, e: WeightEvaluation) {
 
 function weightPercentage(c: Criterion, e: WeightEvaluation) {
   if (!c.totalValue || !e.value) return 0;
-  return Math.round((e.value / c.totalValue) * 100);
+
+  const percent = (e.value / c.totalValue) * 100;
+
+  return Number(percent.toFixed(1));
+}
+
+function computeDefaultWeightValue(totalValue: number, percent: number) {
+  if (!totalValue || totalValue <= 0) return 0;
+
+  return Number(((percent / 100) * totalValue).toFixed(2));
+}
+
+function recalculateCriterionValues(c: Criterion) {
+  for (const e of c.evaluations) {
+    const def = defaultLetters.value.find(x => x.letter === e.weight);
+    const percent = def?.defaultPercent ?? 0;
+
+    if (!e.enabled || !c.totalValue) {
+      e.value = 0;
+      continue;
+    }
+
+    if (e.value === 0) {
+      e.value = computeDefaultWeightValue(c.totalValue, percent);
+    }
+  }
 }
 
 
 const showSidePanel = ref(false);
 
 const allSkills = ref<Skill[]>([]);
+const isResetting = ref(false);
 
+async function applyDefaultSkillsToExam() {
+  if (!exam.value) return;
+  if (defaultSelectedSkillIds.value.length === 0) return;
+
+  const defaultsToAdd = allSkills.value.filter(s =>
+    defaultSelectedSkillIds.value.includes(String(s.id))
+  );
+
+  for (const skill of defaultsToAdd) {
+    await fetch(`/api/exams/${exam.value.id}/skills`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ skillId: skill.id }),
+    });
+
+  }
+}
 
 onMounted(async () => {
   if (!exam.value) return;
 
-  const [skillsRes, examSkillsRes] = await Promise.all([
+  const [skillsRes, defaultSkillsRes, defaultLettersRes, examSkillsRes] = await Promise.all([
     fetch("/api/skills"),
+    fetch("/api/default-selected-skills"),
+    fetch("/api/default-criterion-letters"),
     fetch(`/api/exams/${exam.value.id}/skills`),
   ]);
 
-  const [skillsData, examSkillsData] = await Promise.all([
+  const [skillsData, defaultSkillsData, defaultLettersData, examSkillsData] = await Promise.all([
     skillsRes.json(),
+    defaultSkillsRes.json(),
+    defaultLettersRes.json(),
     examSkillsRes.json(),
   ]);
 
   allSkills.value = (skillsData as any[]).map(normalizeSkill);
 
+  defaultSelectedSkillIds.value = (defaultSkillsData as any[])
+    .filter(x => !!x.isSelected)
+    .map(x => String(x.skillId));
+
+  defaultLetters.value = (defaultLettersData as any[]).map((x) => ({
+    letter: String(x.letter) as WeightKey,
+    description: String(x.description ?? ""),
+    defaultPercent: Number(x.defaultPercent ?? 0),
+    isEnabled: !!x.isEnabled,
+  }));
+
+  let examSkillRows = (examSkillsData as any[]).map(normalizeSkill);
+
+  if (examSkillRows.length === 0 && defaultSelectedSkillIds.value.length > 0) {
+    await applyDefaultSkillsToExam();
+
+    const reloadExamSkillsRes = await fetch(`/api/exams/${exam.value.id}/skills`);
+    const reloadExamSkillsData = await reloadExamSkillsRes.json();
+    examSkillRows = (reloadExamSkillsData as any[]).map(normalizeSkill);
+  }
+
   const seen = new Set<string>();
-  selectedSkills.value = (examSkillsData as any[])
-    .map(normalizeSkill)
-    .filter(s => {
-      if (seen.has(s.id)) return false;
-      seen.add(s.id);
-      return true;
-    });
+  selectedSkills.value = examSkillRows.filter(s => {
+    if (seen.has(s.id)) return false;
+    seen.add(s.id);
+    return true;
+  });
 
   for (const s of selectedSkills.value) {
     criteria.value[s.id] ??= [];
@@ -493,22 +608,104 @@ async function toggleSkill(skill: Skill) {
   }
 }
 
+async function resetDefaults() {
+  if (!exam.value || isResetting.value) return;
+  isResetting.value = true;
+
+  try {
+    const [skillsRes, defaultSkillsRes, defaultLettersRes] = await Promise.all([
+      fetch("/api/skills"),
+      fetch("/api/default-selected-skills"),
+      fetch("/api/default-criterion-letters"),
+    ]);
+
+    const [skillsData, defaultSkillsData, defaultLettersData] = await Promise.all([
+      skillsRes.json(),
+      defaultSkillsRes.json(),
+      defaultLettersRes.json(),
+    ]);
+
+    allSkills.value = (skillsData as any[]).map(normalizeSkill);
+
+    defaultSelectedSkillIds.value = (defaultSkillsData as any[])
+      .filter((x: any) => !!x.isSelected)
+      .map((x: any) => String(x.skillId));
+
+    defaultLetters.value = (defaultLettersData as any[]).map((x: any) => ({
+      letter: String(x.letter) as WeightKey,
+      description: String(x.description ?? ""),
+      defaultPercent: Number(x.defaultPercent ?? 0),
+      isEnabled: !!x.isEnabled,
+    }));
+
+    const currentRes = await fetch(`/api/exams/${exam.value.id}/skills`);
+    const currentSkills = await currentRes.json();
+    for (const raw of currentSkills as any[]) {
+      const normalized = normalizeSkill(raw);
+      await fetch(
+        `/api/exams/${exam.value.id}/skills/${normalized.id}`,
+        { method: "DELETE" }
+      );
+    }
+
+    const defaultsToAdd = allSkills.value.filter((s) =>
+      defaultSelectedSkillIds.value.includes(String(s.id))
+    );
+
+    for (const skill of defaultsToAdd) {
+      await fetch(`/api/exams/${exam.value.id}/skills`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ skillId: skill.id }),
+      });
+    }
+
+    const afterRes = await fetch(`/api/exams/${exam.value.id}/skills`);
+    const afterSkillsData = await afterRes.json();
+
+    const seen = new Set<string>();
+    selectedSkills.value = (afterSkillsData as any[])
+      .map(normalizeSkill)
+      .filter((s: any) => {
+        if (seen.has(s.id)) return false;
+        seen.add(s.id);
+        return true;
+      });
+
+    criteria.value = {};
+    for (const s of selectedSkills.value) {
+      criteria.value[s.id] = [];
+    }
+
+    activeSkillId.value = selectedSkills.value[0]?.id ?? "";
+    showPicker.value = false;
+  } finally {
+    isResetting.value = false;
+  }
+}
+
 function addCriterion() {
   if (!activeSkillId.value) return;
 
   const id = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+
+  const evaluations = WEIGHTS.map((w) => {
+    const found = defaultLetters.value.find(x => x.letter === w);
+
+    return {
+      weight: w,
+      value: 0,
+      description: found?.description ?? "",
+      enabled: found?.isEnabled ?? (w === "A"),
+    };
+  });
 
   criteria.value[activeSkillId.value].push({
     id,
     text: "",
     totalValue: 0,
     valuePreset: 0,
-    evaluations: WEIGHTS.map(w => ({
-      weight: w,
-      value: 0,
-      description: "",
-      enabled: w === "A",
-    })),
+    evaluations,
   });
 }
 
@@ -591,14 +788,16 @@ async function reloadCriteria(skillId: string) {
     id: c.id,
     text: c.label,
     totalValue: c.totalValue,
-    valuePreset: c.totalValue,
+    valuePreset: [5, 10, 15, 20, 25, 30].includes(c.totalValue) ? c.totalValue : "other",
     evaluations: WEIGHTS.map(w => {
       const found = c.weights.find((x: any) => x.weight === w);
+      const def = defaultLetters.value.find(x => x.letter === w);
+
       return {
         weight: w,
         value: found?.value ?? 0,
-        description: found?.description ?? "",
-        enabled: found?.isEnabled ?? (w === "A"),
+        description: found?.description ?? def?.description ?? "",
+        enabled: found?.isEnabled ?? def?.isEnabled ?? (w === "A"),
       };
     }),
   }));
@@ -611,12 +810,22 @@ async function reloadCriteria(skillId: string) {
 
 let saveTimeout: number | undefined;
 
+function isCriterionPayloadReady(skillId: string) {
+  const list = criteria.value[skillId] ?? [];
+  return list.every((c) => {
+    const hasTotal = c.totalValue > 0;
+    const hasWeight = c.evaluations.some((e) => e.enabled && e.value > 0);
+    return hasTotal && hasWeight;
+  });
+}
+
 function debounceSave(skillId: string) {
   if (saveTimeout) {
     clearTimeout(saveTimeout);
   }
 
   saveTimeout = window.setTimeout(() => {
+    if (!isCriterionPayloadReady(skillId)) return;
     saveCriteria(skillId);
   }, 600);
 }
@@ -626,6 +835,12 @@ watch(
   () => {
     if (isReloading) return;
     if (!activeSkillId.value) return;
+
+    const list = criteria.value[activeSkillId.value] ?? [];
+    for (const c of list) {
+      recalculateCriterionValues(c);
+    }
+
     debounceSave(activeSkillId.value);
   },
   { deep: true }
@@ -673,9 +888,6 @@ MODAL / TITRES
 
 .info-modal {
   padding: 24px;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
 }
 
 .info-modal__section-title {
@@ -696,6 +908,23 @@ ACTION HAUT DROITE
   margin-bottom: 12px;
 }
 
+.btn--reset {
+  margin-right: 8px;
+  border: 2px solid #e53935;
+  color: #e53935;
+  background: transparent;
+  font-weight: 800;
+}
+
+.btn--reset:hover {
+  background: rgba(229, 57, 53, 0.08);
+}
+
+.btn--reset:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* =========================
 LAYOUT PRINCIPAL
 ========================= */
@@ -704,7 +933,6 @@ LAYOUT PRINCIPAL
   display: flex;
   align-items: stretch;
   gap: 16px;
-  flex: 1;
 }
 
 .info-modal__main {
@@ -786,7 +1014,7 @@ COMPÉTENCES
 
 .skill-card--active {
   border-color: rgba(70, 85, 160, 0.95);
-  box-shadow: 0 0 0 2px rgba(70, 85, 160, 0.2) inset;
+  box-shadow: rgba(70, 85, 160, 0.2) inset;
 }
 
 .skill-card__dot {
@@ -908,6 +1136,7 @@ PICKER COMPÉTENCES
 /* =========================
 DESCRIPTION
 ========================= */
+
 
 .description-card__content {
   display: flex;

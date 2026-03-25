@@ -2,6 +2,13 @@
   <div class="content-grid">
     <div class="content-grid__header">
       <h1>{{ t("navigation.classes") }}</h1>
+      <button
+        type="button"
+        class="btn btn--secondary"
+        @click="showDefaultSettings = true"
+      >
+        Paramètres par défaut
+      </button>
       <div class="content-grid__actions">
         <button type="button" class="btn" @click="onAddClass">
           {{ t("navigation.addClass") }}
@@ -17,6 +24,11 @@
     </Card>
 
     <CreateClassPopup v-if="showCreatePopup" @close="showCreatePopup = false" />
+
+    <DefaultSettingsModal
+      v-model="showDefaultSettings"
+      @saved="handleDefaultsSaved"
+    />
   </div>
 </template>
 <script setup lang="ts">
@@ -28,7 +40,14 @@ import { useSessionsStore } from "@/stores/sessionsStore";
 import Card from "@/components/layouts/items/Card.vue";
 import DataTable from "@/components/layouts/items/DataTable.vue";
 import CreateClassPopup from "@/components/popups/CreateClassPopup.vue";
+import DefaultSettingsModal from "@/components/popups/DefaultSettingsModal.vue";
 import type { Header } from "vue3-easy-data-table";
+
+const showDefaultSettings = ref(false);
+
+function handleDefaultsSaved() {
+  console.log("Paramètres par défaut sauvegardés");
+}
 
 const { t } = useI18n();
 const router = useRouter();

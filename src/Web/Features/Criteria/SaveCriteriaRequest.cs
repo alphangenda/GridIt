@@ -17,7 +17,7 @@ public class CriterionPayload
 public class CriterionWeightPayload
 {
     public string Weight { get; set; } = "";
-    public int Value { get; set; }
+    public decimal Value { get; set; }
     public string? Description { get; set; }
     public bool IsEnabled { get; set; }
 }
