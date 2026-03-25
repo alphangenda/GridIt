@@ -147,7 +147,7 @@
   "navigation": {
     "classes": "Cours",
     "exams": "Examens",
-    "addClass": "Ajouter une classe",
+    "addClass": "Ajouter un cours",
     "addExam": "Ajouter un examen",
     "selectClass": "Sélectionnez un cours dans la liste.",
     "examsOfCourse": "Examens de ce cours",
@@ -155,7 +155,7 @@
     "examDetailPlaceholder": "Détail de l'examen.",
     "noClasses": "Aucune classe pour l'instant. Ajoutez-en une pour commencer.",
     "noExams": "Aucun examen pour cette classe.",
-    "className": "Nom de la classe",
+    "className": "Nom du cours",
     "examName": "Nom de l'examen",
     "deleteClassConfirm": "Êtes-vous sûr de vouloir supprimer cette classe ?",
     "deleteExamConfirm": "Êtes-vous sûr de vouloir supprimer cet examen ?",
@@ -183,7 +183,13 @@
     "importStudentsFormatError": "Fichier JSON invalide. Format attendu: [{\"number\": \"...\", \"firstName\": \"...\", \"lastName\": \"...\"}]",
     "studentNumber": "Numéro",
     "studentFirstName": "Prénom",
-    "studentLastName": "Nom"
+    "studentLastName": "Nom",
+    "groups": "Groupes",
+    "groupName": "Nom du groupe",
+    "importGroup": "Importer un groupe",
+    "noGroups": "Aucun groupe pour l'instant. Importez-en un pour commencer.",
+    "deleteGroupConfirm": "Voulez-vous vraiment supprimer ce groupe ?",
+    "students": "étudiant(s)"
   },
   "products": {
     "form": {
@@ -249,6 +255,7 @@
     "download": "Télécharger",
     "add": "Ajouter",
     "cancel": "Annuler",
+    "loading": "Chargement...",
     "important": "Important",
     "addFile": "Ajouter un document",
     "addFiles": "Ajouter des documents",
