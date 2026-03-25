@@ -50,14 +50,18 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<string?> GetTwoFactorAuthenticationTokenCodeUserWithPassword(User user, string password)
     {
-        var twoFactorAuthDoneRecently =
-            user.LastTwoFactorAuthenticationWasLessThanGivenNumberOfDaysAgo(_twoFactorAuthenticationDayDelay);
         var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
 
         if (result == SignInResult.Failed || result == SignInResult.LockedOut || result == SignInResult.NotAllowed)
             throw new TwoFactorAuthenticationException($"Could not get 2fa code for user with email {user.Email}.");
 
-        if (result == SignInResult.Success || result == SignInResult.TwoFactorRequired && twoFactorAuthDoneRecently)
+        if (!user.TwoFactorEnabled)
+            return null;
+
+        var twoFactorAuthDoneRecently =
+            user.LastTwoFactorAuthenticationWasLessThanGivenNumberOfDaysAgo(_twoFactorAuthenticationDayDelay);
+
+        if (twoFactorAuthDoneRecently)
             return null;
 
         return await _signInManager.UserManager.GenerateTwoFactorTokenAsync(user, "Email");
