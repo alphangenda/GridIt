@@ -263,7 +263,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import {
@@ -399,6 +399,28 @@ onMounted(async () => {
     );
 
     competencies.value = skillsWithCriteria;
+
+    // Load persisted evaluations from DB
+    try {
+      const evalRes = await fetch(`/api/exams/${props.examId}/evaluations`);
+      if (evalRes.ok) {
+        const evalData = await evalRes.json();
+        for (const e of evalData.competencyEvaluations ?? []) {
+          if (!evaluations[e.studentId]) evaluations[e.studentId] = {};
+          evaluations[e.studentId][e.competencyId] = {
+            grade: (e.grade as GradeLetter) || null,
+            comment: e.comment ?? "",
+          };
+        }
+        for (const e of evalData.criterionEvaluations ?? []) {
+          if (!criterionEvals[e.studentId]) criterionEvals[e.studentId] = {};
+          criterionEvals[e.studentId][e.criterionId] = {
+            grade: (e.grade as GradeLetter) || null,
+            comment: e.comment ?? "",
+          };
+        }
+      }
+    } catch { /* silently ignore load errors */ }
   } finally {
     loading.value = false;
   }
@@ -444,6 +466,7 @@ function setGrade(compId: string, grade: GradeLetter) {
   if (!sid) return;
   ensureStudentEval(sid);
   evaluations[sid][compId].grade = evaluations[sid][compId].grade === grade ? null : grade;
+  triggerSave();
 }
 
 function getComment(compId: string): string {
@@ -458,6 +481,7 @@ function setComment(compId: string, value: string) {
   if (!sid) return;
   ensureStudentEval(sid);
   evaluations[sid][compId].comment = value;
+  triggerSave();
 }
 
 // ── State: criterion evaluations per student ─────────────────
@@ -495,6 +519,7 @@ function setCriterionGrade(critId: string, grade: GradeLetter) {
   criterionEvals[sid][critId].grade = criterionEvals[sid][critId].grade === grade ? null : grade;
   // Auto-compute competency grade from criteria
   autoGradeFromCriteria(sid, critId);
+  triggerSave();
 }
 
 function autoGradeFromCriteria(studentId: string, critId: string) {
@@ -535,6 +560,7 @@ function setCriterionComment(critId: string, value: string) {
     criterionEvals[sid][critId] = { grade: null, comment: "" };
   }
   criterionEvals[sid][critId].comment = value;
+  triggerSave();
 }
 
 // ── Note / Valeur display helpers ────────────────────────────
@@ -588,6 +614,45 @@ const averageNumeric = computed<number | null>(() => {
 const averageLetter = computed<GradeLetter | null>(() => {
   if (averageNumeric.value === null) return null;
   return numericToLetter(averageNumeric.value);
+});
+
+// ── Auto-save (debounced) ─────────────────────────────────────
+
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+const saveVersion = ref(0);
+
+function triggerSave() {
+  saveVersion.value++;
+}
+
+watch(saveVersion, () => {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    const compEvals: { studentId: string; competencyId: string; grade: string | null; comment: string }[] = [];
+    const critEvals: { studentId: string; criterionId: string; grade: string | null; comment: string }[] = [];
+
+    for (const [sid, comps] of Object.entries(evaluations)) {
+      for (const [compId, ev] of Object.entries(comps)) {
+        compEvals.push({ studentId: sid, competencyId: compId, grade: ev.grade, comment: ev.comment });
+      }
+    }
+    for (const [sid, crits] of Object.entries(criterionEvals)) {
+      for (const [critId, ev] of Object.entries(crits)) {
+        critEvals.push({ studentId: sid, criterionId: critId, grade: ev.grade, comment: ev.comment });
+      }
+    }
+
+    try {
+      await fetch(`/api/exams/${props.examId}/evaluations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          competencyEvaluations: compEvals,
+          criterionEvaluations: critEvals,
+        }),
+      });
+    } catch { /* silently ignore save errors */ }
+  }, 1500);
 });
 </script>
 

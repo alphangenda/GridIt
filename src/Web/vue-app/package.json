@@ -14,9 +14,11 @@
     "@kyvg/vue3-notification": "^3.4.0",
     "@vueup/vue-quill": "^1.2.0",
     "axios": "^1.7.0",
+    "file-saver": "^2.0.5",
     "inversify": "^6.2.0",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.0",
+    "jszip": "^3.10.1",
     "luxon": "^3.5.0",
     "pinia": "^2.3.0",
     "pinia-plugin-persistedstate": "^3.2.0",
@@ -34,6 +36,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.7",
     "@types/luxon": "^3.4.0",
     "@types/node": "^25.2.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
