@@ -8,6 +8,12 @@
     <template v-else>
       <!-- Left panel: student list -->
       <aside class="evaluation__students">
+        <router-link
+          :to="{ name: 'classes.examDetail', params: { classId: props.classId, examId: props.examId } }"
+          class="back-link evaluation__back-link"
+        >
+          &lt; Retour
+        </router-link>
         <h2 class="evaluation__students-title">{{ t("evaluation.students") }}</h2>
         <p v-if="students.length === 0" class="evaluation__empty-msg">
           {{ t("evaluation.noStudents") }}
@@ -439,7 +445,9 @@ const evaluations = reactive<Record<string, Record<string, CompEval>>>({});
 function ensureStudentEval(studentId: string) {
   if (!evaluations[studentId]) {
     evaluations[studentId] = {};
-    for (const comp of competencies.value) {
+  }
+  for (const comp of competencies.value) {
+    if (!evaluations[studentId][comp.id]) {
       evaluations[studentId][comp.id] = { grade: null, comment: "" };
     }
   }
@@ -458,7 +466,7 @@ function getGrade(compId: string): GradeLetter | null {
   const sid = selectedStudentId.value;
   if (!sid) return null;
   ensureStudentEval(sid);
-  return evaluations[sid][compId].grade;
+  return evaluations[sid][compId]?.grade ?? null;
 }
 
 function setGrade(compId: string, grade: GradeLetter) {
@@ -473,7 +481,7 @@ function getComment(compId: string): string {
   const sid = selectedStudentId.value;
   if (!sid) return "";
   ensureStudentEval(sid);
-  return evaluations[sid][compId].comment;
+  return evaluations[sid][compId]?.comment ?? "";
 }
 
 function setComment(compId: string, value: string) {
@@ -492,8 +500,10 @@ const criterionEvals = reactive<Record<string, Record<string, { grade: GradeLett
 function ensureCriterionEval(studentId: string) {
   if (!criterionEvals[studentId]) {
     criterionEvals[studentId] = {};
-    for (const comp of competencies.value) {
-      for (const crit of comp.criteria) {
+  }
+  for (const comp of competencies.value) {
+    for (const crit of comp.criteria) {
+      if (!criterionEvals[studentId][crit.id]) {
         criterionEvals[studentId][crit.id] = { grade: null, comment: "" };
       }
     }
@@ -605,9 +615,12 @@ const averageNumeric = computed<number | null>(() => {
   if (!sid) return null;
   ensureStudentEval(sid);
   const evals = evaluations[sid];
-  const graded = competencies.value.filter((c) => evals[c.id].grade !== null);
+  const graded = competencies.value.filter((c) => evals[c.id]?.grade != null);
   if (graded.length === 0) return null;
-  const sum = graded.reduce((acc, c) => acc + GRADE_VALUES[evals[c.id].grade!], 0);
+  const sum = graded.reduce((acc, c) => {
+    const grade = evals[c.id]?.grade;
+    return acc + (grade ? GRADE_VALUES[grade] : 0);
+  }, 0);
   return sum / graded.length;
 });
 

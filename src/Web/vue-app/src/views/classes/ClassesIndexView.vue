@@ -61,7 +61,7 @@ onMounted(() => {
 
 const classHeaders: Header[] = [
   { text: t("navigation.className"), value: "name", sortable: true },
-  { text: t("global.table.actions"), value: "actions", width: 120 },
+  { text: t("global.table.actions"), value: "actions", width: 60 },
 ];
 
 const filteredClasses = computed(() => {

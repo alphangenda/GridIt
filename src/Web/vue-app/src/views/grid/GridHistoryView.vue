@@ -31,10 +31,11 @@
           </select>
         </div>
 
-        <div class="grids-filters__field grids-filters__field--disabled">
+        <div class="grids-filters__field">
           <label>{{ t("grids.filters.group") }}</label>
-          <select disabled>
-            <option>{{ t("grids.filters.groupComingSoon") }}</option>
+          <select v-model="selectedGroup">
+            <option value="">{{ t("grids.filters.allGroups") }}</option>
+            <option v-for="g in availableGroups" :key="g" :value="g">{{ g }}</option>
           </select>
         </div>
       </div>
@@ -56,7 +57,7 @@
               v-if="item.rawIsOwner"
               type="button"
               class="btn-toggle"
-              @click="onToggleVisibility(item)"
+              @click.stop="onToggleVisibility(item)"
             >
               {{ item.rawIsPublic ? t("grids.togglePrivate") : t("grids.togglePublic") }}
             </button>
@@ -89,6 +90,7 @@ const grids = ref<GridItem[]>([]);
 const selectedSession = ref("");
 const selectedCourse = ref("");
 const selectedProfessor = ref("");
+const selectedGroup = ref("");
 
 onMounted(async () => {
   try {
@@ -125,6 +127,19 @@ const availableProfessors = computed(() => {
   return [...professors].sort();
 });
 
+// Groups cascaded from current filters
+const availableGroups = computed(() => {
+  let source = grids.value;
+  if (selectedSession.value) {
+    source = source.filter((g) => g.sessionName === selectedSession.value);
+  }
+  if (selectedCourse.value) {
+    source = source.filter((g) => g.courseCode === selectedCourse.value);
+  }
+  const groups = new Set(source.flatMap((g) => g.groupNames ?? []));
+  return [...groups].sort();
+});
+
 // Filtered grids
 const filteredGrids = computed(() => {
   let result = grids.value;
@@ -137,6 +152,9 @@ const filteredGrids = computed(() => {
   if (selectedProfessor.value) {
     result = result.filter((g) => g.creatorEmail === selectedProfessor.value);
   }
+  if (selectedGroup.value) {
+    result = result.filter((g) => (g.groupNames ?? []).includes(selectedGroup.value));
+  }
   return result;
 });
 
@@ -147,7 +165,6 @@ const headers: Header[] = [
   { text: t("grids.columns.creator"), value: "creatorEmail", sortable: true },
   { text: t("grids.columns.status"), value: "status" },
   { text: t("grids.columns.date"), value: "date", sortable: true },
-  { text: t("grids.columns.actions"), value: "actions", width: 100 },
 ];
 
 const tableItems = computed(() =>
@@ -210,13 +227,6 @@ async function onToggleVisibility(item: { id: string; rawIsPublic: boolean }) {
       background: #fff;
     }
 
-    &--disabled {
-      opacity: 0.5;
-
-      select {
-        cursor: not-allowed;
-      }
-    }
   }
 }
 

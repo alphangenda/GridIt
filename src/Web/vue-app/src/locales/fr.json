@@ -78,7 +78,7 @@
       "path": "/cours",
       "fullPath": "/cours",
       "name": "Cours",
-      "examDetail": "Détail de l'examen"
+      "examDetail": "Détail de l'évaluation"
     },
     "evaluation": {
       "path": "/evaluation",
@@ -108,7 +108,7 @@
     "evaluate": "Évaluer",
     "loading": "Chargement...",
     "noStudents": "Aucun étudiant dans cette classe.",
-    "noSkills": "Aucune compétence pour cet examen.",
+    "noSkills": "Aucune compétence pour cette évaluation.",
     "preview": "Aperçu",
     "competencyGrade": "Note compétence",
     "comments": "Commentaires"
@@ -139,26 +139,26 @@
       "allSessions": "Toutes les sessions",
       "allCourses": "Tous les cours",
       "allProfessors": "Tous les professeurs",
-      "groupComingSoon": "Groupe — bientôt disponible"
+      "allGroups": "Tous les groupes"
     },
     "togglePublic": "Rendre publique",
     "togglePrivate": "Rendre privée"
   },
   "navigation": {
     "classes": "Cours",
-    "exams": "Examens",
+    "exams": "Évaluations",
     "addClass": "Ajouter un cours",
-    "addExam": "Ajouter un examen",
+    "addExam": "Ajouter une évaluation",
     "selectClass": "Sélectionnez un cours dans la liste.",
-    "examsOfCourse": "Examens de ce cours",
-    "exam": "Examen",
-    "examDetailPlaceholder": "Détail de l'examen.",
+    "examsOfCourse": "Évaluations de ce cours",
+    "exam": "Évaluation",
+    "examDetailPlaceholder": "Détail de l'évaluation.",
     "noClasses": "Aucune classe pour l'instant. Ajoutez-en une pour commencer.",
-    "noExams": "Aucun examen pour cette classe.",
+    "noExams": "Aucune évaluation pour cette classe.",
     "className": "Nom du cours",
-    "examName": "Nom de l'examen",
+    "examName": "Nom de l'évaluation",
     "deleteClassConfirm": "Êtes-vous sûr de vouloir supprimer cette classe ?",
-    "deleteExamConfirm": "Êtes-vous sûr de vouloir supprimer cet examen ?",
+    "deleteExamConfirm": "Êtes-vous sûr de vouloir supprimer cette évaluation ?",
     "sessions": "Sessions",
     "addSession": "Ajouter une session",
     "sessionName": "Nom de la session",
