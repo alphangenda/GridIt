@@ -264,6 +264,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import {
   type GradeLetter,
@@ -279,6 +280,7 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n();
+const route = useRoute();
 
 // E → A (left to right), matching cégep grille convention
 const GRADES_DISPLAY = ALL_GRADES.slice().reverse() as GradeLetter[];
@@ -325,8 +327,14 @@ const competencies = ref<Competency[]>([]);
 
 onMounted(async () => {
   try {
+    const groupId = route.query.groupId as string | undefined;
+
+    const studentsUrl = groupId
+      ? `/api/exams/${props.examId}/groups/${groupId}/students`
+      : `/api/classes/${props.classId}/students`;
+
     const [studentsRes, skillsRes] = await Promise.all([
-      fetch(`/api/classes/${props.classId}/students`),
+      fetch(studentsUrl),
       fetch(`/api/exams/${props.examId}/skills`),
     ]);
 
