@@ -84,7 +84,7 @@ public class SaveCriteriaController : ControllerBase
                 c.Weights.Add(new CriterionWeightDto
                 {
                     Weight = reader.GetString(4),
-                    Value = reader.GetInt32(5),
+                    Value = reader.GetDecimal(5),
                     Description = reader.IsDBNull(6) ? "" : reader.GetString(6),
                     IsEnabled = reader.GetBoolean(7)
                 });
@@ -152,7 +152,7 @@ public async Task<IActionResult> Save(
         var examSkillIdObj = await getExamSkillId.ExecuteScalarAsync(ct);
 
         if (examSkillIdObj == null)
-            return BadRequest("ExamSkill not found.");
+            return BadRequest($"ExamSkill not found for examId={examId} and skillId={skillId}");
 
         var examSkillId = (Guid)examSkillIdObj;
 
@@ -197,7 +197,10 @@ public async Task<IActionResult> Save(
                 insertWeight.Parameters.AddWithValue("@id", Guid.NewGuid());
                 insertWeight.Parameters.AddWithValue("@cid", criterionId);
                 insertWeight.Parameters.AddWithValue("@w", w.Weight);
-                insertWeight.Parameters.AddWithValue("@val", w.Value);
+                var valueParam = insertWeight.Parameters.Add("@val", System.Data.SqlDbType.Decimal);
+                valueParam.Precision = 10;
+                valueParam.Scale = 2;
+                valueParam.Value = w.Value;
                 insertWeight.Parameters.AddWithValue("@desc", (object?)w.Description ?? DBNull.Value);
                 insertWeight.Parameters.AddWithValue("@en", true);
 

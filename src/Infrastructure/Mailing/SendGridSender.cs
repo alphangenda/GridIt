@@ -32,7 +32,8 @@ public class SendGridSender : IEmailSender
             return new SucceededOrNotResponse(response.IsSuccessStatusCode);
 
         var errors = await GetErrorListFromResponse(response);
-        _logger.LogError("Error occured while sending email. Errors : {errors}", JsonSerializer.Serialize(errors));
+        _logger.LogError("Error occured while sending email. Status: {status}. Errors : {errors}",
+            (int)response.StatusCode, JsonSerializer.Serialize(errors));
 
         return new SucceededOrNotResponse(response.IsSuccessStatusCode, errors);
     }

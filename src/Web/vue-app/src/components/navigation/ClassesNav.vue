@@ -25,7 +25,7 @@
               <li v-for="exam in getExams(cours.id!)" :key="exam.id">
                 <RouterLink
                   v-if="exam.id"
-                  :to="{ name: 'classes.examDetail', params: { classId: cours.id, examId: exam.id } }"
+                  :to="{ name: 'classes.examGroups', params: { classId: cours.id, examId: exam.id } }"
                   class="side-nav__sub-link"
                   active-class="side-nav__sub-link--active"
                 >

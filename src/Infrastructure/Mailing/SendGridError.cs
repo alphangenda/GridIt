@@ -1,8 +1,15 @@
-﻿namespace Infrastructure.Mailing;
+﻿using System.Text.Json.Serialization;
+
+namespace Infrastructure.Mailing;
 
 public class SendGridError
 {
-    public string Message { get; set; } = null!;
-    public string Field { get; set; } = null!;
-    public string Help { get; set; } = null!;
+    [JsonPropertyName("message")]
+    public string? Message { get; set; }
+
+    [JsonPropertyName("field")]
+    public string? Field { get; set; }
+
+    [JsonPropertyName("help")]
+    public string? Help { get; set; }
 }

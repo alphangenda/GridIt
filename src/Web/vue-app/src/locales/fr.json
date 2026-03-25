@@ -147,7 +147,7 @@
   "navigation": {
     "classes": "Cours",
     "exams": "Examens",
-    "addClass": "Ajouter une classe",
+    "addClass": "Ajouter un cours",
     "addExam": "Ajouter un examen",
     "selectClass": "Sélectionnez un cours dans la liste.",
     "examsOfCourse": "Examens de ce cours",
@@ -155,7 +155,7 @@
     "examDetailPlaceholder": "Détail de l'examen.",
     "noClasses": "Aucune classe pour l'instant. Ajoutez-en une pour commencer.",
     "noExams": "Aucun examen pour cette classe.",
-    "className": "Nom de la classe",
+    "className": "Nom du cours",
     "examName": "Nom de l'examen",
     "deleteClassConfirm": "Êtes-vous sûr de vouloir supprimer cette classe ?",
     "deleteExamConfirm": "Êtes-vous sûr de vouloir supprimer cet examen ?",
@@ -183,7 +183,175 @@
     "importStudentsFormatError": "Fichier JSON invalide. Format attendu: [{\"number\": \"...\", \"firstName\": \"...\", \"lastName\": \"...\"}]",
     "studentNumber": "Numéro",
     "studentFirstName": "Prénom",
-    "studentLastName": "Nom"
+    "studentLastName": "Nom",
+    "groups": "Groupes",
+    "groupName": "Nom du groupe",
+    "importGroup": "Importer un groupe",
+    "noGroups": "Aucun groupe pour l'instant. Importez-en un pour commencer.",
+    "deleteGroupConfirm": "Voulez-vous vraiment supprimer ce groupe ?",
+    "students": "étudiant(s)"
+  },
+  "products": {
+    "form": {
+      "image-card-tooltip": "Format recommandé : largeur supérieur à 700px (ratio 2:1)",
+      "image-page-tooltip": "Format recommandé : largeur supérieur à 700px (ratio 5:4).",
+      "image-card": "Image - Carte",
+      "image-page": "Image - Page",
+      "image-text-fr": "Bandeau sur l'image - FR",
+      "image-text-en": "Bandeau sur l'image - EN",
+      "description-fr": "Description - FR",
+      "description-en": "Description - EN",
+      "name-fr": "Nom - FR",
+      "name-en": "Nom - EN",
+      "price": "Prix",
+      "no-taxes": "(Hors taxes)",
+      "category": "Catégorie",
+      "fieldset-informations-book": "Informations sur le livre",
+      "fieldset-informations-default": "Informations sur le produit"
+    },
+    "book": "Livre"
+  },
+  "book": {
+    "info": "Informations du livre",
+    "title": "Titre",
+    "titleFr": "Titre - FR",
+    "titleEn": "Titre - EN",
+    "summary": "Résumé",
+    "summaryFr": "Résumé - FR",
+    "summaryEn": "Résumé - EN",
+    "isbn": "ISBN",
+    "author": "Auteur",
+    "editor": "Éditeur",
+    "yearOfPublication": "Année de publication",
+    "numberOfPages": "Nombre de pages"
+  },
+  "user": {
+    "roles": {
+      "admin": "Administrateur"
+    }
+  },
+  "global": {
+    "free": "Gratuit(e)",
+    "menu": "Menu",
+    "title": "Titre",
+    "date": "Date",
+    "at": "à",
+    "username": "Courriel",
+    "password": "Mot de passe",
+    "passwordConfirmation": "Confirmation du mot de passe",
+    "submit": "Soumettre",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "fullName": "Nom complet",
+    "email": "Courriel",
+    "phoneNumber": "Numéro de téléphone",
+    "phoneExtension": "Poste",
+    "apartment": "Numéro de bureau/suite",
+    "street": "Adresse",
+    "city": "Ville",
+    "zipCode": "Code postal",
+    "roles": "Rôles",
+    "name": "Nom",
+    "download": "Télécharger",
+    "add": "Ajouter",
+    "cancel": "Annuler",
+    "loading": "Chargement...",
+    "important": "Important",
+    "addFile": "Ajouter un document",
+    "addFiles": "Ajouter des documents",
+    "replaceFile": "Remplacer le document",
+    "replaceFiles": "Remplacer les documents",
+    "removeFile": "Retirer ce document",
+    "uploadZippedFolder-tooltip": "Si vous désirez transmettre plusieurs documents, veuillez uploader <strong>un dossier compressé.</strong>",
+    "update": "Modifier",
+    "delete": "Supprimer",
+    "deleted": "Supprimé(e)",
+    "save": "Sauvegarder",
+    "back": "Retour",
+    "yes": "Oui",
+    "no": "Non",
+    "search": "Rechercher",
+    "transfer": "Transférer",
+    "formErrorNotification": "Il y a des erreurs dans le formulaire.",
+    "quickLinks": "Liens rapides",
+    "undefined": "ND",
+    "logout": "Déconnexion",
+    "table": {
+      "of": "de",
+      "noData": "Aucune données disponibles",
+      "actions": "Actions"
+    },
+    "actions": {
+      "view": "Voir",
+      "download": "Télécharger",
+      "update": "Modifier",
+      "delete": "Supprimer"
+    },
+    "changeLanguage": "Changer de langue",
+    "phoneNumberFormat": "(XXX) XXX-XXXX"
+  },
+  "textEditorLinkPopup": {
+    "addLink": "Ajouter un lien",
+    "label": "Libellé",
+    "url": "Url",
+    "image": "Le lien sera ajouté sur l'image sélectionnée.",
+    "tooltip": "Pour éditer le lien sur une image, cliquer sur la bordure bleue autour de celle-ci."
+  },
+  "validation": {
+    "empty": "Veuillez renseigner ce champ.",
+    "email": "Veuillez entrer un adresse courriel valide.",
+    "min": "La valeur doit être d'au moins {min}.",
+    "max": "La valeur doit être plus petite ou égale à {max}.",
+    "fileMin": "Un minimum de {min} fichier{s} est requis.",
+    "fileMax": "Un maximum de {max} fichier{s} est permis.",
+    "fileType": "Les types de fichier permis sont: {type}",
+    "checked": "Veuillez cocher cette case.",
+    "select": "Veuillez sélectionner une option.",
+    "zipCode": "Le code postal doit respecter le format X0X X0X.",
+    "phoneNumber": "Le numéro de téléphone doit respecter le format 555-555-5555.",
+    "errorsInForm": "Il y a des erreurs dans le formulaire.",
+    "errorOccured": "Une erreur est survenue.",
+    "book": {
+      "add": {
+        "success": "Le livre a été créé avec succès.",
+        "errorOccured": "Une erreur est survenue lors de la création du livre.",
+        "bookNotFoundException": "Le livre n'a pu être trouvé.",
+        "bookWithIsbnAlreadyExistsException": "Un livre avec le même ISBN existe déjà.",
+        "invalidFrenchName": "Le titre du livre en français est manquant.",
+        "invalidEnglishName": "Le titre du livre en anglais est manquant.",
+        "invalidFrenchDescription": "La description du livre en français est manquante.",
+        "invalidEnglishDescription": "La description du livre en anglais est manquante.",
+        "invalidIsbn": "L'ISBN doit être de 17 caractères et contenir quatre tirets.",
+        "invalidAuthor": "L'auteur du livre est manquant.",
+        "invalidEditor": "L'éditeur du livre est manquant.",
+        "invalidYearOfPublication": "L'année de publication doit être plus grande que zéro.",
+        "invalidNumberOfPages": "Le nombre de pages doit être plus grand que zéro.",
+        "invalidPrice": "Le prix du livre doit être plus grand que zéro."
+      },
+      "edit": {
+        "success": "Le livre a été modifié avec succès.",
+        "errorOccured": "Une erreur est survenue lors de la modification du livre.",
+        "bookNotFoundException": "Le livre n'a pu être trouvé.",
+        "bookWithIsbnAlreadyExistsException": "Un autre livre avec le même ISBN existe déjà.",
+        "emptyBookId": "L'id du livre est manquant.",
+        "invalidFrenchName": "Le titre du livre en français est manquant.",
+        "invalidEnglishName": "Le titre du livre en anglais est manquant.",
+        "invalidFrenchDescription": "La description du livre en français est manquante.",
+        "invalidEnglishDescription": "La description du livre en anglais est manquante.",
+        "invalidIsbn": "L'ISBN doit être de 17 caractères et contenir quatre tirets.",
+        "invalidAuthor": "L'auteur du livre est manquant.",
+        "invalidEditor": "L'éditeur du livre est manquant.",
+        "invalidYearOfPublication": "L'année de publication doit être plus grande que zéro.",
+        "invalidNumberOfPages": "Le nombre de pages doit être plus grand que zéro.",
+        "invalidPrice": "Le prix du livre doit être plus grand que zéro."
+      },
+      "delete": {
+        "confirmation": "Êtes-vous sûr de vouloir supprimer ce livre ?",
+        "success": "Le livre a été supprimé avec succès.",
+        "errorOccured": "Une erreur est survenue lors de la suppression du livre.",
+        "bookNotFoundException": "Le livre n'a pu être trouvé."
+      }
+    }
   },
   "pages": {
     "register": {
@@ -192,22 +360,23 @@
       "success": "Compte créé! Veuillez vérifier votre courriel pour confirmer votre compte.",
       "validation": {
         "sendGridError": "Une erreur est survenue lors de l'envoi de l'email.",
+        "emailAlreadyExists": "Un utilisateur avec ce courriel existe déjà.",
+        "invalidEmail": "Le format du courriel est invalide.",
+        "invalidPassword": "Le mot de passe est invalide.",
+        "passwordTooShort": "Doit contenir au moins 10 caractères.",
+        "passwordRequiresNonAlphanumeric": "Doit contenir un caractère spécial.",
+        "passwordRequiresDigit": "Doit contenir un chiffre.",
+        "passwordRequiresUpper": "Doit contenir une majuscule.",
+        "passwordRequiresLower": "Doit contenir une minuscule.",
         "errorOccured": "Une erreur est survenue lors de l'inscription.",
-        "forbidden": "Vous devez être un professeur pour vous inscrire."
+        "forbidden": "Vous devez être un professeur pour vous inscrire.",
+        "createUserFailed": "Une erreur est survenue lors de la création du compte. Veuillez réessayer."
       }
     },
     "confirmEmail": {
       "success": "Votre courriel a été confirmé. Vous pouvez vous redirigé à la page de connexion.",
-      "error": "Une erreur est survenue lors de la confirmation de votre courriel. Veuillez réessayer."
-    },
-    "classes": {
-      "addError": "Impossible d'ajouter la classe. Veuillez réessayer."
-    },
-    "sessions": {
-      "homeTitle": "Page d'accueil",
-      "addError": "Impossible d'ajouter la session. Veuillez réessayer.",
-      "sessionNotFound": "Session introuvable.",
-      "classesAdded": "Cours ajoutés avec succès à la session."
+      "error": "Une erreur est survenue lors de la confirmation de votre courriel. Veuillez réessayer.",
+      "loginLink": "Se connecter"
     },
     "login": {
       "username": "Nom d'utilisateur",
@@ -280,7 +449,8 @@
           "invalidProvincialTaxNumberFormat": "Le format du numéro de TVQ est invalide.",
           "invalidFederalTaxNumberFormat": "Le format du numéro de TPS est invalide.",
           "memberNotFound": "Aucun membre avec le code de référence spécifié existe.",
-          "userWithEmailAlreadyExistsException": "Un utilisateur avec ce courriel existe déjà."
+          "userWithEmailAlreadyExistsException": "Un utilisateur avec ce courriel existe déjà.",
+          "memberNotFoundException": "No member with specified reference code was found."
         }
       },
       "update": {
@@ -316,165 +486,18 @@
           "memberNotFoundException": "Le membre n'a pas pu être trouvé."
         }
       }
-    }
-  },
-  "products": {
-    "form": {
-      "image-card-tooltip": "Format recommandé : largeur supérieur à 700px (ratio 2:1)",
-      "image-page-tooltip": "Format recommandé : largeur supérieur à 700px (ratio 5:4).",
-      "image-card": "Image - Carte",
-      "image-page": "Image - Page",
-      "image-text-fr": "Bandeau sur l'image - FR",
-      "image-text-en": "Bandeau sur l'image - EN",
-      "description-fr": "Description - FR",
-      "description-en": "Description - EN",
-      "name-fr": "Nom - FR",
-      "name-en": "Nom - EN",
-      "price": "Prix",
-      "no-taxes": "(Hors taxes)",
-      "category": "Catégorie",
-      "fieldset-informations-book": "Informations sur le livre",
-      "fieldset-informations-default": "Informations sur le produit"
     },
-    "book": "Livre"
-  },
-  "book": {
-    "info": "Informations du livre",
-    "title": "Titre",
-    "titleFr": "Titre - FR",
-    "titleEn": "Titre - EN",
-    "summary": "Résumé",
-    "summaryFr": "Résumé - FR",
-    "summaryEn": "Résumé - EN",
-    "isbn": "ISBN",
-    "author": "Auteur",
-    "editor": "Éditeur",
-    "yearOfPublication": "Année de publication",
-    "numberOfPages": "Nombre de pages"
-  },
-  "user": {
-    "roles": {
-      "admin": "Administrateur"
-    }
-  },
-  "global": {
-    "free": "Gratuit(e)",
-    "menu": "Menu",
-    "title": "Titre",
-    "date": "Date",
-    "at": "à",
-    "username": "Nom d'utilisateur",
-    "password": "Mot de passe",
-    "passwordConfirmation": "Confirmation du mot de passe",
-    "submit": "Soumettre",
-    "firstName": "Prénom",
-    "lastName": "Nom",
-    "fullName": "Nom complet",
-    "email": "Courriel",
-    "phoneNumber": "Numéro de téléphone",
-    "phoneExtension": "Poste",
-    "apartment": "Numéro de bureau/suite",
-    "street": "Adresse",
-    "city": "Ville",
-    "zipCode": "Code postal",
-    "roles": "Rôles",
-    "name": "Nom",
-    "download": "Télécharger",
-    "add": "Ajouter",
-    "cancel": "Annuler",
-    "important": "Important",
-    "addFile": "Ajouter un document",
-    "addFiles": "Ajouter des documents",
-    "replaceFile": "Remplacer le document",
-    "replaceFiles": "Remplacer les documents",
-    "removeFile": "Retirer ce document",
-    "uploadZippedFolder-tooltip": "Si vous désirez transmettre plusieurs documents, veuillez uploader <strong>un dossier compressé.</strong>",
-    "update": "Modifier",
-    "delete": "Supprimer",
-    "deleted": "Supprimé(e)",
-    "save": "Sauvegarder",
-    "back": "Retour",
-    "yes": "Oui",
-    "no": "Non",
-    "search": "Rechercher",
-    "transfer": "Transférer",
-    "formErrorNotification": "Il y a des erreurs dans le formulaire.",
-    "quickLinks": "Liens rapides",
-    "undefined": "ND",
-    "logout": "Déconnexion",
-    "table": {
-      "of": "de",
-      "noData": "Aucune données disponibles",
-      "actions": "Actions"
+    "classes": {
+      "addError": "Impossible d'ajouter la classe. Veuillez réessayer."
     },
-    "actions": {
-      "view": "Voir",
-      "download": "Télécharger",
-      "update": "Modifier",
-      "delete": "Supprimer"
-    }
-  },
-  "textEditorLinkPopup": {
-    "addLink": "Ajouter un lien",
-    "label": "Libellé",
-    "url": "Url",
-    "image": "Le lien sera ajouté sur l'image sélectionnée.",
-    "tooltip": "Pour éditer le lien sur une image, cliquer sur la bordure bleue autour de celle-ci."
-  },
-  "validation": {
-    "empty": "Veuillez renseigner ce champ.",
-    "email": "Veuillez entrer un adresse courriel valide.",
-    "min": "La valeur doit être d'au moins {min}.",
-    "max": "La valeur doit être plus petite ou égale à {max}.",
-    "fileMin": "Un minimum de {min} fichier{s} est requis.",
-    "fileMax": "Un maximum de {max} fichier{s} est permis.",
-    "fileType": "Les types de fichier permis sont: {type}",
-    "checked": "Veuillez cocher cette case.",
-    "select": "Veuillez sélectionner une option.",
-    "zipCode": "Le code postal doit respecter le format X0X X0X.",
-    "phoneNumber": "Le numéro de téléphone doit respecter le format 555-555-5555.",
-    "errorsInForm": "Il y a des erreurs dans le formulaire.",
-    "errorOccured": "Une erreur est survenue.",
-    "book": {
-      "add": {
-        "success": "Le livre a été créé avec succès.",
-        "errorOccured": "Une erreur est survenue lors de la création du livre.",
-        "bookNotFoundException": "Le livre n'a pu être trouvé.",
-        "bookWithIsbnAlreadyExistsException": "Un livre avec le même ISBN existe déjà.",
-        "invalidFrenchName": "Le titre du livre en français est manquant.",
-        "invalidEnglishName": "Le titre du livre en anglais est manquant.",
-        "invalidFrenchDescription": "La description du livre en français est manquante.",
-        "invalidEnglishDescription": "La description du livre en anglais est manquante.",
-        "invalidIsbn": "L'ISBN doit être de 17 caractères et contenir quatre tirets.",
-        "invalidAuthor": "L'auteur du livre est manquant.",
-        "invalidEditor": "L'éditeur du livre est manquant.",
-        "invalidYearOfPublication": "L'année de publication doit être plus grande que zéro.",
-        "invalidNumberOfPages": "Le nombre de pages doit être plus grand que zéro.",
-        "invalidPrice": "Le prix du livre doit être plus grand que zéro."
-      },
-      "edit": {
-        "success": "Le livre a été modifié avec succès.",
-        "errorOccured": "Une erreur est survenue lors de la modification du livre.",
-        "bookNotFoundException": "Le livre n'a pu être trouvé.",
-        "bookWithIsbnAlreadyExistsException": "Un autre livre avec le même ISBN existe déjà.",
-        "emptyBookId": "L'id du livre est manquant.",
-        "invalidFrenchName": "Le titre du livre en français est manquant.",
-        "invalidEnglishName": "Le titre du livre en anglais est manquant.",
-        "invalidFrenchDescription": "La description du livre en français est manquante.",
-        "invalidEnglishDescription": "La description du livre en anglais est manquante.",
-        "invalidIsbn": "L'ISBN doit être de 17 caractères et contenir quatre tirets.",
-        "invalidAuthor": "L'auteur du livre est manquant.",
-        "invalidEditor": "L'éditeur du livre est manquant.",
-        "invalidYearOfPublication": "L'année de publication doit être plus grande que zéro.",
-        "invalidNumberOfPages": "Le nombre de pages doit être plus grand que zéro.",
-        "invalidPrice": "Le prix du livre doit être plus grand que zéro."
-      },
-      "delete": {
-        "confirmation": "Êtes-vous sûr de vouloir supprimer ce livre ?",
-        "success": "Le livre a été supprimé avec succès.",
-        "errorOccured": "Une erreur est survenue lors de la suppression du livre.",
-        "bookNotFoundException": "Le livre n'a pu être trouvé."
-      }
+    "sessions": {
+      "homeTitle": "Page d'accueil",
+      "addError": "Impossible d'ajouter la session. Veuillez réessayer.",
+      "sessionNotFound": "Session introuvable.",
+      "classesAdded": "Cours ajoutés avec succès à la session."
+    },
+    "account": {
+      "loginInfos": "Informations de connexion"
     }
   }
 }
