@@ -27,15 +27,6 @@
     <template #item-actions="item">
       <p v-if="item && item.actions" class="vue3-easy-data-table__actions">
         <router-link
-            v-if="item.actions.evaluate"
-            v-tippy="t(`evaluation.evaluate`)"
-            :to="item.actions.evaluate"
-            class="vue3-easy-data-table__action"
-            @click.stop
-        >
-          <IconClipboard class="icon icon--black"/>
-        </router-link>
-        <router-link
             v-if="item.actions.edit"
             v-tippy="t(`global.actions.update`)"
             :to="item.actions.edit"
@@ -63,7 +54,6 @@
 import type {FilterOption, Header, Item} from "vue3-easy-data-table"
 import {useI18n} from "vue3-i18n"
 import {useRouter} from "vue-router"
-import IconClipboard from "@/assets/icons/icon__clipboard.svg"
 import IconEdit from "@/assets/icons/icon__edit.svg"
 import IconDelete from "@/assets/icons/icon__delete.svg"
 

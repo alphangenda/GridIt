@@ -68,10 +68,6 @@ const examItems = computed(() =>
         name: "classes.examDetail",
         params: { classId: classId.value, examId: e.id },
       },
-      evaluate: {
-        name: "evaluation",
-        params: { classId: classId.value, examId: e.id },
-      },
       delete: true,
     },
   }))
