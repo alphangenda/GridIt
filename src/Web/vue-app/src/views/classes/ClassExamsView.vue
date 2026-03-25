@@ -56,7 +56,7 @@ const classItem = computed(() =>
 
 const examHeaders: Header[] = [
   { text: t("navigation.examName"), value: "name", sortable: true },
-  { text: t("global.table.actions"), value: "actions", width: 160 },
+  { text: t("global.table.actions"), value: "actions", width: 120 },
 ];
 
 const examItems = computed(() =>

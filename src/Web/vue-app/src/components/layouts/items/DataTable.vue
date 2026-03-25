@@ -15,6 +15,7 @@
       buttons-pagination
       header-item-class-name="vue3-easy-data-table__header-item"
       theme-color="#528965"
+      @click-row="onClickRow"
   >
     <template #item-status="item">
       <slot name="item-status" v-bind="item">
@@ -25,14 +26,6 @@
     </template>
     <template #item-actions="item">
       <p v-if="item && item.actions" class="vue3-easy-data-table__actions">
-        <router-link
-            v-if="item.actions.view"
-            v-tippy="t(`global.actions.view`)"
-            :to="item.actions.view"
-            class="vue3-easy-data-table__action"
-        >
-          <IconView class="icon icon--black"/>
-        </router-link>
         <router-link
             v-if="item.actions.evaluate"
             v-tippy="t(`evaluation.evaluate`)"
@@ -67,10 +60,10 @@
 <script lang="ts" setup>
 import type {FilterOption, Header, Item} from "vue3-easy-data-table"
 import {useI18n} from "vue3-i18n"
+import {useRouter} from "vue-router"
 import IconClipboard from "@/assets/icons/icon__clipboard.svg"
 import IconEdit from "@/assets/icons/icon__edit.svg"
 import IconDelete from "@/assets/icons/icon__delete.svg"
-import IconView from "@/assets/icons/icon__view.svg"
 
 const {t} = useI18n()
 
@@ -88,6 +81,14 @@ defineProps<{
 const emit = defineEmits<{
   (event: "delete", item: any): void
 }>()
+
+const router = useRouter()
+
+function onClickRow(item: any) {
+  if (item?.actions?.view) {
+    router.push(item.actions.view)
+  }
+}
 
 function handleDelete(item: any) {
   emit("delete", item)

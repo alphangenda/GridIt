@@ -147,7 +147,6 @@ const headers: Header[] = [
   { text: t("grids.columns.creator"), value: "creatorEmail", sortable: true },
   { text: t("grids.columns.status"), value: "status" },
   { text: t("grids.columns.date"), value: "date", sortable: true },
-  { text: t("grids.columns.actions"), value: "actions", width: 100 },
 ];
 
 const tableItems = computed(() =>
