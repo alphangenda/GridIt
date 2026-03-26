@@ -491,6 +491,66 @@
     },
     "account": {
       "loginInfos": "Informations de connexion"
+    },
+    "classesIndex": {
+      "defaultSettings": "Paramètres par défaut",
+      "defaultSettingsSaved": "Paramètres par défaut sauvegardés"
+    },
+    "examDetail": {
+      "back": "Retour",
+      "titleFallback": "Examen",
+      "subtitle": "Détail de l'examen.",
+      "skillGrid": "Grille de compétences",
+      "evaluate": "Évaluer",
+      "reset": "Réinitialiser",
+      "resetting": "Réinitialisation...",
+      "openStats": "Ouvrir les statistiques",
+      "closeStats": "Fermer les statistiques",
+      "skills": "Compétences",
+      "chooseSkills": "Choisissez des compétences",
+      "pickerTitle": "Sélectionner",
+      "description": "Description",
+      "noSkillSelected": "Aucune compétence sélectionnée",
+      "criteria": "Critères",
+      "add": "Ajouter",
+      "chooseSkillHint": "Choisis une compétence pour ajouter des critères.",
+      "criterionValue": "Valeur du critère",
+      "criterionOther": "Autre",
+      "criterionCustomValue": "Valeur personnalisée",
+      "criterionName": "Nom du critère",
+      "weightValue": "Valeur du poids",
+      "weightDescription": "Description",
+      "noCriteria": "Aucun critère pour cette compétence.",
+      "completion": "Complétion",
+      "skillsDistribution": "Répartition des compétences",
+      "pointsUnit": "pts",
+      "percentUnit": "%"
+    },
+    "defaultSettingsModal": {
+      "title": "Paramètres par défaut",
+      "subtitle": "Choisis les compétences de base et configure les lettres A à F.",
+      "close": "Fermer",
+      "baseSkills": "Compétences de base",
+      "baseSkillsHelp": "Les compétences cochées seront sélectionnées par défaut dans les nouveaux examens.",
+      "defaultLetters": "Lettres par défaut",
+      "defaultLettersHelp": "Ces valeurs servent de base pour préremplir les nouveaux critères.",
+      "table": {
+        "letter": "Lettre",
+        "description": "Description",
+        "defaultPercent": "Pourcentage par défaut",
+        "isEnabled": "Activée"
+      },
+      "loading": "Chargement...",
+      "status": {
+        "saving": "Enregistrement...",
+        "saved": "Enregistré",
+        "error": "Erreur d’enregistrement"
+      },
+      "actions": {
+        "close": "Fermer",
+        "saveNow": "Enregistrer maintenant",
+        "saving": "Enregistrement..."
+      }
     }
   }
 }
