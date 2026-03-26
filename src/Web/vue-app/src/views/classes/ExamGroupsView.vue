@@ -1,0 +1,482 @@
+<template>
+  <div class="content-grid">
+    <div class="content-grid__header">
+      <div class="content-grid__back">
+        <router-link
+          :to="{ name: 'classes.detail', params: { classId } }"
+          class="content-grid__back-link"
+          aria-label="Retour"
+        >
+          &lt;
+        </router-link>
+        <h1>{{ exam?.name ?? t("navigation.exam") }}</h1>
+      </div>
+      <div class="content-grid__actions">
+        <button type="button" class="btn" @click="showImportPopup = true">
+          {{ t("navigation.importGroup") }}
+        </button>
+      </div>
+    </div>
+
+    <Card>
+      <div v-if="loading" class="groups-empty">{{ t("global.loading") }}</div>
+      <div v-else-if="groups.length === 0" class="groups-empty">
+        {{ t("navigation.noGroups") }}
+      </div>
+      <ul v-else class="groups-list">
+        <li v-for="group in groups" :key="group.id" class="groups-list__item">
+          <router-link
+            :to="{ name: 'classes.examDetail', params: { classId, examId }, query: { groupId: group.id } }"
+            class="groups-list__link"
+          >
+            <span class="groups-list__icon">&#128101;</span>
+            <div class="groups-list__info">
+              <span class="groups-list__name">{{ group.name }}</span>
+              <span class="groups-list__count">{{ group.studentCount }} {{ t("navigation.students") }}</span>
+            </div>
+            <span class="groups-list__arrow">&#8250;</span>
+          </router-link>
+          <button
+            type="button"
+            class="groups-list__export"
+            title="Export PDF"
+            @click="onExportPdf(group)"
+          >
+            PDF
+          </button>
+          <button
+            type="button"
+            class="groups-list__delete"
+            :title="t('navigation.deleteGroupConfirm')"
+            @click="onDeleteGroup(group)"
+          >
+            ✕
+          </button>
+        </li>
+      </ul>
+    </Card>
+
+    <ImportGroupPopup
+      v-if="showImportPopup"
+      :exam-id="examId"
+      :class-id="classId"
+      @close="onPopupClose"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
+import { useI18n } from "vue3-i18n";
+import { useClassesStore } from "@/stores/classesStore";
+import Card from "@/components/layouts/items/Card.vue";
+import ImportGroupPopup from "@/components/popups/ImportGroupPopup.vue";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
+import {
+  type GradeLetter,
+  ALL_GRADES,
+  GRADE_VALUES,
+  numericToLetter,
+} from "@/config/gradeConfig";
+
+const { t } = useI18n();
+const route = useRoute();
+const classesStore = useClassesStore();
+
+const classId = computed(() => route.params.classId as string);
+const examId = computed(() => route.params.examId as string);
+
+const groups = ref<{ id: string; name: string; studentCount: number }[]>([]);
+const loading = ref(true);
+const showImportPopup = ref(false);
+
+const exam = computed(() =>
+  classesStore.getExamsForClass(classId.value)?.find((e) => e.id === examId.value)
+);
+
+async function fetchGroups() {
+  loading.value = true;
+  try {
+    const res = await fetch(`/api/exams/${examId.value}/groups`);
+    if (!res.ok) {
+      console.error("fetchGroups error:", res.status, await res.text());
+      return;
+    }
+    const data = await res.json();
+    groups.value = data.map((g: any) => ({
+      id: String(g.id),
+      name: String(g.name),
+      studentCount: Number(g.studentCount ?? 0),
+    }));
+  } catch (e) {
+    console.error("fetchGroups exception:", e);
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function onPopupClose() {
+  showImportPopup.value = false;
+  await fetchGroups();
+}
+
+async function onDeleteGroup(group: { id: string; name: string }) {
+  if (!window.confirm(t("navigation.deleteGroupConfirm"))) return;
+  await fetch(`/api/exams/${examId.value}/groups/${group.id}`, { method: "DELETE" });
+  await fetchGroups();
+}
+
+async function onExportPdf(group: { id: string; name: string }) {
+  // 1. Fetch students, skills/criteria, and evaluations in parallel
+  const [studentsRes, skillsRes, evalsRes] = await Promise.all([
+    fetch(`/api/exams/${examId.value}/groups/${group.id}/students`),
+    fetch(`/api/exams/${examId.value}/skills`),
+    fetch(`/api/exams/${examId.value}/evaluations`),
+  ]);
+
+  const studentsData = await studentsRes.json();
+  const skillsData = await skillsRes.json();
+  const evalsData = await evalsRes.json();
+
+  // Sort students by D.A. number
+  const students = studentsData
+    .map((s: any) => ({
+      id: String(s.id),
+      number: String(s.number),
+      firstName: String(s.firstName),
+      lastName: String(s.lastName),
+    }))
+    .sort((a: any, b: any) => a.number.localeCompare(b.number));
+
+  // Build competencies with criteria
+  const competencies: {
+    id: string;
+    name: string;
+    criteria: {
+      id: string;
+      label: string;
+      totalValue: number;
+      weights: Record<string, number>;
+      rawWeights: Record<string, number>;
+      descriptions: Record<string, string>;
+      options: string[];
+    }[];
+  }[] = [];
+
+  for (const sk of skillsData) {
+    const criteriaRes = await fetch(
+      `/api/exams/${examId.value}/skills/${sk.skillId}/criteria`
+    );
+    const criteriaData = await criteriaRes.json();
+
+    const criteria = criteriaData.map((c: any) => {
+      const weights: Record<string, number> = {};
+      const rawWeights: Record<string, number> = {};
+      const descriptions: Record<string, string> = {};
+      const options: string[] = [];
+      const totalValue = c.totalValue ?? 0;
+
+      for (const w of c.weights ?? []) {
+        if (w.isEnabled) {
+          options.push(w.weight);
+          rawWeights[w.weight] = w.value ?? 0;
+          weights[w.weight] = totalValue > 0
+            ? Math.round((w.value / totalValue) * 100)
+            : 0;
+          if (w.description) descriptions[w.weight] = w.description;
+        }
+      }
+
+      return { id: c.id, label: c.label, totalValue, weights, rawWeights, descriptions, options };
+    });
+
+    competencies.push({ id: sk.skillId, name: sk.label, criteria });
+  }
+
+  // Build evaluation lookup maps (normalize IDs to lowercase for safe matching)
+  const norm = (id: string) => String(id).toLowerCase();
+
+  const compEvalMap: Record<string, Record<string, { grade: string | null; comment: string }>> = {};
+  for (const e of evalsData.competencyEvaluations ?? []) {
+    const sid = norm(e.studentId);
+    if (!compEvalMap[sid]) compEvalMap[sid] = {};
+    compEvalMap[sid][norm(e.competencyId)] = { grade: e.grade || null, comment: e.comment ?? "" };
+  }
+
+  const critEvalMap: Record<string, Record<string, { grade: string | null; comment: string }>> = {};
+  for (const e of evalsData.criterionEvaluations ?? []) {
+    const sid = norm(e.studentId);
+    if (!critEvalMap[sid]) critEvalMap[sid] = {};
+    critEvalMap[sid][norm(e.criterionId)] = { grade: e.grade || null, comment: e.comment ?? "" };
+  }
+
+  // 2. Generate one PDF per student, bundle into ZIP
+  const GRADES_DISPLAY = ALL_GRADES.slice().reverse() as GradeLetter[];
+  const examName = exam.value?.name ?? "Examen";
+  const zip = new JSZip();
+
+  for (const student of students) {
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "letter" });
+
+    // Header
+    doc.setFontSize(14);
+    doc.text(`${examName} - ${group.name}`, 14, 14);
+    doc.setFontSize(11);
+    doc.text(`${student.lastName}, ${student.firstName}  (D.A.: ${student.number})`, 14, 22);
+
+    let startY = 28;
+
+    for (const comp of competencies) {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text(comp.name, 14, startY);
+      startY += 2;
+
+      const headers = ["Critere", ...GRADES_DISPLAY, "Note attribuee", "Valeur", "Commentaire"];
+      const body: string[][] = [];
+
+      const sid = norm(student.id);
+      const compId = norm(comp.id);
+
+      if (comp.criteria.length > 0) {
+        // Has criteria — show each criterion row + summary
+        for (const crit of comp.criteria) {
+          const cid = norm(crit.id);
+          const critGrade = critEvalMap[sid]?.[cid]?.grade ?? null;
+          const critComment = critEvalMap[sid]?.[cid]?.comment ?? "";
+          const valueStr = critGrade && crit.rawWeights[critGrade] != null
+            ? `${crit.rawWeights[critGrade]}/${crit.totalValue}`
+            : "";
+
+          const row = [crit.label];
+          for (const g of GRADES_DISPLAY) {
+            if (critGrade === g) {
+              const pct = crit.weights[g] != null ? `${g} (${crit.weights[g]}%)` : g;
+              row.push(pct);
+            } else {
+              row.push("");
+            }
+          }
+          row.push(critGrade ?? "—", valueStr, critComment);
+          body.push(row);
+        }
+
+        const compGrade = compEvalMap[sid]?.[compId]?.grade ?? null;
+        const compComment = compEvalMap[sid]?.[compId]?.comment ?? "";
+        const totalMax = comp.criteria.reduce((s, c) => s + (c.totalValue ?? 0), 0);
+        let obtained = 0;
+        for (const crit of comp.criteria) {
+          const g = critEvalMap[sid]?.[norm(crit.id)]?.grade;
+          if (g && crit.rawWeights[g] != null) obtained += crit.rawWeights[g];
+        }
+        const valueStr = totalMax > 0 ? `${obtained}/${totalMax}` : "";
+        const summaryRow = [`RESULTAT: ${comp.name}`];
+        for (const g of GRADES_DISPLAY) {
+          summaryRow.push(compGrade === g ? g : "");
+        }
+        summaryRow.push(compGrade ?? "—", valueStr, compComment);
+        body.push(summaryRow);
+      } else {
+        // No criteria — show direct competency grade row
+        const compGrade = compEvalMap[sid]?.[compId]?.grade ?? null;
+        const compComment = compEvalMap[sid]?.[compId]?.comment ?? "";
+        const row = ["Note directe"];
+        for (const g of GRADES_DISPLAY) {
+          row.push(compGrade === g ? g : "");
+        }
+        row.push(compGrade ?? "—", "", compComment);
+        body.push(row);
+      }
+
+      const noteColIdx = GRADES_DISPLAY.length + 1; // "Note attribuee" column
+      const valueColIdx = GRADES_DISPLAY.length + 2; // "Valeur" column
+      const commentColIdx = GRADES_DISPLAY.length + 3; // "Commentaire" column
+
+      autoTable(doc, {
+        startY,
+        head: [headers],
+        body,
+        theme: "grid",
+        styles: { fontSize: 7, cellPadding: 1.5 },
+        headStyles: { fillColor: [45, 45, 68], textColor: 255, fontSize: 7 },
+        columnStyles: {
+          0: { cellWidth: 38 },
+          [noteColIdx]: { cellWidth: 16, halign: "center" as const, fontStyle: "bold" as const },
+          [valueColIdx]: { cellWidth: 16, halign: "center" as const },
+          [commentColIdx]: { cellWidth: 32 },
+        },
+        didParseCell: (data: any) => {
+          // Green background on selected grade cells
+          if (data.section === "body" && data.column.index >= 1 && data.column.index <= GRADES_DISPLAY.length) {
+            if (data.cell.raw && data.cell.raw !== "") {
+              data.cell.styles.fillColor = [76, 175, 80];
+              data.cell.styles.textColor = 255;
+              data.cell.styles.fontStyle = "bold";
+            }
+          }
+          // "Note attribuee" column — highlight with color per grade
+          if (data.section === "body" && data.column.index === noteColIdx) {
+            const val = String(data.cell.raw).trim();
+            if (val === "A") { data.cell.styles.fillColor = [0, 172, 193]; data.cell.styles.textColor = 255; }
+            else if (val === "B") { data.cell.styles.fillColor = [67, 160, 71]; data.cell.styles.textColor = 255; }
+            else if (val === "C") { data.cell.styles.fillColor = [249, 168, 37]; data.cell.styles.textColor = 255; }
+            else if (val === "D") { data.cell.styles.fillColor = [251, 140, 0]; data.cell.styles.textColor = 255; }
+            else if (val === "E") { data.cell.styles.fillColor = [229, 57, 53]; data.cell.styles.textColor = 255; }
+          }
+          // Summary row — bold with darker background
+          if (data.section === "body" && data.row.index === body.length - 1 && comp.criteria.length > 0) {
+            data.cell.styles.fillColor = data.cell.styles.fillColor ?? [220, 220, 220];
+            data.cell.styles.fontStyle = "bold";
+            data.cell.styles.fontSize = 8;
+          }
+        },
+      });
+
+      startY = (doc as any).lastAutoTable.finalY + 6;
+    }
+
+    // Average at bottom
+    const sid = norm(student.id);
+    const gradedComps = competencies.filter(
+      (c) => compEvalMap[sid]?.[norm(c.id)]?.grade
+    );
+    if (gradedComps.length > 0) {
+      const sum = gradedComps.reduce((acc, c) => {
+        const g = compEvalMap[sid][norm(c.id)].grade as GradeLetter;
+        return acc + GRADE_VALUES[g];
+      }, 0);
+      const avg = sum / gradedComps.length;
+      const letter = numericToLetter(avg);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text(`Moyenne: ${letter} (${avg.toFixed(1)}%)`, 14, startY);
+    }
+
+    // Add PDF to ZIP, named by D.A. number
+    const pdfBlob = doc.output("arraybuffer");
+    zip.file(`${student.number}_${student.lastName}_${student.firstName}.pdf`, pdfBlob);
+  }
+
+  // 3. Download ZIP
+  const zipBlob = await zip.generateAsync({ type: "blob" });
+  saveAs(zipBlob, `${examName}_${group.name}.zip`);
+}
+
+onMounted(async () => {
+  await classesStore.fetchExams(classId.value);
+  await fetchGroups();
+});
+
+watch(examId, async () => {
+  await fetchGroups();
+});
+</script>
+
+<style scoped>
+.groups-empty {
+  padding: 32px;
+  text-align: center;
+  opacity: 0.6;
+  font-weight: 600;
+}
+
+.groups-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.groups-list__item {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.groups-list__item:last-child {
+  border-bottom: none;
+}
+
+.groups-list__link {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.15s;
+}
+
+.groups-list__link:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.groups-list__icon {
+  font-size: 22px;
+}
+
+.groups-list__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.groups-list__name {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.groups-list__count {
+  font-size: 13px;
+  opacity: 0.55;
+  font-weight: 500;
+}
+
+.groups-list__arrow {
+  font-size: 22px;
+  opacity: 0.35;
+}
+
+.groups-list__export {
+  margin-right: 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #10b981;
+  background: transparent;
+  color: #10b981;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.groups-list__export:hover {
+  background-color: #10b981;
+  color: white;
+}
+
+.groups-list__delete {
+  margin-right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  opacity: 0.55;
+  transition: opacity 0.15s, background-color 0.15s;
+}
+
+.groups-list__delete:hover {
+  opacity: 1;
+  background-color: rgba(220, 50, 50, 0.15);
+}
+</style>

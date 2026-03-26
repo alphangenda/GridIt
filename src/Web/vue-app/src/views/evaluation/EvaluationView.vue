@@ -8,6 +8,12 @@
     <template v-else>
       <!-- Left panel: student list -->
       <aside class="evaluation__students">
+        <router-link
+          :to="{ name: 'classes.examDetail', params: { classId: props.classId, examId: props.examId } }"
+          class="back-link evaluation__back-link"
+        >
+          &lt; Retour
+        </router-link>
         <h2 class="evaluation__students-title">{{ t("evaluation.students") }}</h2>
         <p v-if="students.length === 0" class="evaluation__empty-msg">
           {{ t("evaluation.noStudents") }}
@@ -263,7 +269,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, watch } from "vue";
+import { useRoute } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import {
   type GradeLetter,
@@ -279,6 +286,7 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n();
+const route = useRoute();
 
 // E → A (left to right), matching cégep grille convention
 const GRADES_DISPLAY = ALL_GRADES.slice().reverse() as GradeLetter[];
@@ -325,8 +333,14 @@ const competencies = ref<Competency[]>([]);
 
 onMounted(async () => {
   try {
+    const groupId = route.query.groupId as string | undefined;
+
+    const studentsUrl = groupId
+      ? `/api/exams/${props.examId}/groups/${groupId}/students`
+      : `/api/classes/${props.classId}/students`;
+
     const [studentsRes, skillsRes] = await Promise.all([
-      fetch(`/api/classes/${props.classId}/students`),
+      fetch(studentsUrl),
       fetch(`/api/exams/${props.examId}/skills`),
     ]);
 
@@ -391,6 +405,28 @@ onMounted(async () => {
     );
 
     competencies.value = skillsWithCriteria;
+
+    // Load persisted evaluations from DB
+    try {
+      const evalRes = await fetch(`/api/exams/${props.examId}/evaluations`);
+      if (evalRes.ok) {
+        const evalData = await evalRes.json();
+        for (const e of evalData.competencyEvaluations ?? []) {
+          if (!evaluations[e.studentId]) evaluations[e.studentId] = {};
+          evaluations[e.studentId][e.competencyId] = {
+            grade: (e.grade as GradeLetter) || null,
+            comment: e.comment ?? "",
+          };
+        }
+        for (const e of evalData.criterionEvaluations ?? []) {
+          if (!criterionEvals[e.studentId]) criterionEvals[e.studentId] = {};
+          criterionEvals[e.studentId][e.criterionId] = {
+            grade: (e.grade as GradeLetter) || null,
+            comment: e.comment ?? "",
+          };
+        }
+      }
+    } catch { /* silently ignore load errors */ }
   } finally {
     loading.value = false;
   }
@@ -409,7 +445,9 @@ const evaluations = reactive<Record<string, Record<string, CompEval>>>({});
 function ensureStudentEval(studentId: string) {
   if (!evaluations[studentId]) {
     evaluations[studentId] = {};
-    for (const comp of competencies.value) {
+  }
+  for (const comp of competencies.value) {
+    if (!evaluations[studentId][comp.id]) {
       evaluations[studentId][comp.id] = { grade: null, comment: "" };
     }
   }
@@ -428,7 +466,7 @@ function getGrade(compId: string): GradeLetter | null {
   const sid = selectedStudentId.value;
   if (!sid) return null;
   ensureStudentEval(sid);
-  return evaluations[sid][compId].grade;
+  return evaluations[sid][compId]?.grade ?? null;
 }
 
 function setGrade(compId: string, grade: GradeLetter) {
@@ -436,13 +474,14 @@ function setGrade(compId: string, grade: GradeLetter) {
   if (!sid) return;
   ensureStudentEval(sid);
   evaluations[sid][compId].grade = evaluations[sid][compId].grade === grade ? null : grade;
+  triggerSave();
 }
 
 function getComment(compId: string): string {
   const sid = selectedStudentId.value;
   if (!sid) return "";
   ensureStudentEval(sid);
-  return evaluations[sid][compId].comment;
+  return evaluations[sid][compId]?.comment ?? "";
 }
 
 function setComment(compId: string, value: string) {
@@ -450,6 +489,7 @@ function setComment(compId: string, value: string) {
   if (!sid) return;
   ensureStudentEval(sid);
   evaluations[sid][compId].comment = value;
+  triggerSave();
 }
 
 // ── State: criterion evaluations per student ─────────────────
@@ -460,8 +500,10 @@ const criterionEvals = reactive<Record<string, Record<string, { grade: GradeLett
 function ensureCriterionEval(studentId: string) {
   if (!criterionEvals[studentId]) {
     criterionEvals[studentId] = {};
-    for (const comp of competencies.value) {
-      for (const crit of comp.criteria) {
+  }
+  for (const comp of competencies.value) {
+    for (const crit of comp.criteria) {
+      if (!criterionEvals[studentId][crit.id]) {
         criterionEvals[studentId][crit.id] = { grade: null, comment: "" };
       }
     }
@@ -487,6 +529,7 @@ function setCriterionGrade(critId: string, grade: GradeLetter) {
   criterionEvals[sid][critId].grade = criterionEvals[sid][critId].grade === grade ? null : grade;
   // Auto-compute competency grade from criteria
   autoGradeFromCriteria(sid, critId);
+  triggerSave();
 }
 
 function autoGradeFromCriteria(studentId: string, critId: string) {
@@ -527,6 +570,7 @@ function setCriterionComment(critId: string, value: string) {
     criterionEvals[sid][critId] = { grade: null, comment: "" };
   }
   criterionEvals[sid][critId].comment = value;
+  triggerSave();
 }
 
 // ── Note / Valeur display helpers ────────────────────────────
@@ -571,15 +615,57 @@ const averageNumeric = computed<number | null>(() => {
   if (!sid) return null;
   ensureStudentEval(sid);
   const evals = evaluations[sid];
-  const graded = competencies.value.filter((c) => evals[c.id].grade !== null);
+  const graded = competencies.value.filter((c) => evals[c.id]?.grade != null);
   if (graded.length === 0) return null;
-  const sum = graded.reduce((acc, c) => acc + GRADE_VALUES[evals[c.id].grade!], 0);
+  const sum = graded.reduce((acc, c) => {
+    const grade = evals[c.id]?.grade;
+    return acc + (grade ? GRADE_VALUES[grade] : 0);
+  }, 0);
   return sum / graded.length;
 });
 
 const averageLetter = computed<GradeLetter | null>(() => {
   if (averageNumeric.value === null) return null;
   return numericToLetter(averageNumeric.value);
+});
+
+// ── Auto-save (debounced) ─────────────────────────────────────
+
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+const saveVersion = ref(0);
+
+function triggerSave() {
+  saveVersion.value++;
+}
+
+watch(saveVersion, () => {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    const compEvals: { studentId: string; competencyId: string; grade: string | null; comment: string }[] = [];
+    const critEvals: { studentId: string; criterionId: string; grade: string | null; comment: string }[] = [];
+
+    for (const [sid, comps] of Object.entries(evaluations)) {
+      for (const [compId, ev] of Object.entries(comps)) {
+        compEvals.push({ studentId: sid, competencyId: compId, grade: ev.grade, comment: ev.comment });
+      }
+    }
+    for (const [sid, crits] of Object.entries(criterionEvals)) {
+      for (const [critId, ev] of Object.entries(crits)) {
+        critEvals.push({ studentId: sid, criterionId: critId, grade: ev.grade, comment: ev.comment });
+      }
+    }
+
+    try {
+      await fetch(`/api/exams/${props.examId}/evaluations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          competencyEvaluations: compEvals,
+          criterionEvaluations: critEvals,
+        }),
+      });
+    } catch { /* silently ignore save errors */ }
+  }, 1500);
 });
 </script>
 

@@ -9,5 +9,6 @@ public record GridDto(
     bool IsPublic,
     bool IsOwner,
     string CreatorEmail,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    List<string> GroupNames
 );

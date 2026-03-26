@@ -20,6 +20,11 @@
     flex-direction: column;
   }
 
+  &__back-link {
+    padding: 12px 20px;
+    border-bottom: 1px solid $color-border;
+  }
+
   &__students-title {
     font-weight: 600;
     font-family: $font-montserrat;

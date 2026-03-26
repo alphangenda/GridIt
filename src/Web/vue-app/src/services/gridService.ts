@@ -12,6 +12,7 @@ export interface GridItem {
   isOwner: boolean;
   creatorEmail: string;
   createdAt: string;
+  groupNames: string[];
 }
 
 @injectable()

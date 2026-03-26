@@ -207,6 +207,11 @@
     }
   }
 
+  //Clickable rows ----------------------
+  tr {
+    cursor: pointer;
+  }
+
   //Special hovers ----------------------
   @media(hover:hover){
     tr:hover {
