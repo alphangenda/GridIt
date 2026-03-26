@@ -498,6 +498,66 @@
     },
     "account": {
       "loginInfos": "Login information"
+    },
+    "classesIndex": {
+      "defaultSettings": "Default settings",
+      "defaultSettingsSaved": "Default settings saved"
+    },
+    "examDetail": {
+      "back": "Back",
+      "titleFallback": "Exam",
+      "subtitle": "Exam detail.",
+      "skillGrid": "Skill grid",
+      "evaluate": "Evaluate",
+      "reset": "Reset",
+      "resetting": "Resetting...",
+      "openStats": "Open statistics",
+      "closeStats": "Close statistics",
+      "skills": "Skills",
+      "chooseSkills": "Choose skills",
+      "pickerTitle": "Select",
+      "description": "Description",
+      "noSkillSelected": "No skill selected",
+      "criteria": "Criteria",
+      "add": "Add",
+      "chooseSkillHint": "Choose a skill to add criteria.",
+      "criterionValue": "Criterion value",
+      "criterionOther": "Other",
+      "criterionCustomValue": "Custom value",
+      "criterionName": "Criterion name",
+      "weightValue": "Weight value",
+      "weightDescription": "Description",
+      "noCriteria": "No criteria for this skill.",
+      "completion": "Completion",
+      "skillsDistribution": "Skills distribution",
+      "pointsUnit": "pts",
+      "percentUnit": "%"
+    },
+    "defaultSettingsModal": {
+      "title": "Default settings",
+      "subtitle": "Choose base skills and configure letters A to F.",
+      "close": "Close",
+      "baseSkills": "Base skills",
+      "baseSkillsHelp": "Checked skills will be selected by default in new exams.",
+      "defaultLetters": "Default letters",
+      "defaultLettersHelp": "These values are used to prefill new criteria.",
+      "table": {
+        "letter": "Letter",
+        "description": "Description",
+        "defaultPercent": "Default percent",
+        "isEnabled": "Enabled"
+      },
+      "loading": "Loading...",
+      "status": {
+        "saving": "Saving...",
+        "saved": "Saved",
+        "error": "Save error"
+      },
+      "actions": {
+        "close": "Close",
+        "saveNow": "Save now",
+        "saving": "Saving..."
+      }
     }
   }
 }

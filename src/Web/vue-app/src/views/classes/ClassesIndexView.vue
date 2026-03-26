@@ -7,7 +7,7 @@
         class="btn btn--secondary"
         @click="showDefaultSettings = true"
       >
-        Paramètres par défaut
+        {{ t("pages.classesIndex.defaultSettings") }}
       </button>
       <div class="content-grid__actions">
         <button type="button" class="btn" @click="onAddClass">
@@ -46,7 +46,7 @@ import type { Header } from "vue3-easy-data-table";
 const showDefaultSettings = ref(false);
 
 function handleDefaultsSaved() {
-  console.log("Paramètres par défaut sauvegardés");
+  console.log(t("pages.classesIndex.defaultSettingsSaved"));
 }
 
 const { t } = useI18n();

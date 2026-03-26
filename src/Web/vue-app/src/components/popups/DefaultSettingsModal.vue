@@ -11,9 +11,9 @@
       <div class="dsm-modal">
         <div class="dsm-header">
           <div>
-            <h2 class="dsm-title">Paramètres par défaut</h2>
+            <h2 class="dsm-title">{{ t("pages.defaultSettingsModal.title") }}</h2>
             <p class="dsm-subtitle">
-              Choisis les compétences de base et configure les lettres A à F.
+              {{ t("pages.defaultSettingsModal.subtitle") }}
             </p>
           </div>
 
@@ -23,9 +23,9 @@
         <div class="dsm-body" v-if="!isLoading">
           <section class="dsm-section">
             <div class="dsm-section-head">
-              <h3>Compétences de base</h3>
+              <h3>{{ t("pages.defaultSettingsModal.baseSkills") }}</h3>
               <p>
-                Les compétences cochées seront sélectionnées par défaut dans les nouveaux examens.
+                {{ t("pages.defaultSettingsModal.baseSkillsHelp") }}
               </p>
             </div>
 
@@ -47,9 +47,9 @@
 
           <section class="dsm-section">
             <div class="dsm-section-head">
-              <h3>Lettres par défaut</h3>
+              <h3>{{ t("pages.defaultSettingsModal.defaultLetters") }}</h3>
               <p>
-                Ces valeurs servent de base pour préremplir les nouveaux critères.
+                {{ t("pages.defaultSettingsModal.defaultLettersHelp") }}
               </p>
             </div>
 
@@ -57,10 +57,10 @@
               <table class="dsm-table">
                 <thead>
                   <tr>
-                    <th>Letter</th>
-                    <th>Description</th>
-                    <th>DefaultPercent</th>
-                    <th>IsEnabled</th>
+                    <th>{{ t("pages.defaultSettingsModal.table.letter") }}</th>
+                    <th>{{ t("pages.defaultSettingsModal.table.description") }}</th>
+                    <th>{{ t("pages.defaultSettingsModal.table.defaultPercent") }}</th>
+                    <th>{{ t("pages.defaultSettingsModal.table.isEnabled") }}</th>
                   </tr>
                 </thead>
 
@@ -105,19 +105,19 @@
         </div>
 
         <div v-else class="dsm-loading">
-          Chargement...
+          {{ t("pages.defaultSettingsModal.loading") }}
         </div>
 
         <div class="dsm-footer">
           <div class="dsm-status">
-            <span v-if="saveState === 'saving'">Enregistrement...</span>
-            <span v-else-if="saveState === 'saved'">Enregistré</span>
-            <span v-else-if="saveState === 'error'">Erreur d’enregistrement</span>
+            <span v-if="saveState === 'saving'">{{ t("pages.defaultSettingsModal.status.saving") }}</span>
+            <span v-else-if="saveState === 'saved'">{{ t("pages.defaultSettingsModal.status.saved") }}</span>
+            <span v-else-if="saveState === 'error'">{{ t("pages.defaultSettingsModal.status.error") }}</span>
           </div>
 
           <div class="dsm-actions">
             <button class="dsm-btn dsm-btn--ghost" type="button" @click="close">
-              Fermer
+              {{ t("pages.defaultSettingsModal.actions.close") }}
             </button>
 
             <button
@@ -126,7 +126,7 @@
               :disabled="isSaving"
               @click="saveAll"
             >
-              {{ isSaving ? "Enregistrement..." : "Enregistrer maintenant" }}
+              {{ isSaving ? t("pages.defaultSettingsModal.actions.saving") : t("pages.defaultSettingsModal.actions.saveNow") }}
             </button>
           </div>
         </div>
@@ -137,6 +137,9 @@
 
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, ref, watch } from "vue";
+import { useI18n } from "vue3-i18n";
+
+const { t } = useI18n();
 
 type SkillRow = {
   id: string;

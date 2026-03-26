@@ -6,18 +6,18 @@
           <router-link
             :to="{ name: 'classes.examGroups', params: { classId: route.params.classId, examId: route.params.examId } }"
             class="exam-detail__back-link"
-            aria-label="Retour"
+            :aria-label="t('pages.examDetail.back')"
           >
             &lt;
           </router-link>
-          <h1 class="exam-detail__title">{{ exam?.name ?? t("navigation.exam") }}</h1>
+          <h1 class="exam-detail__title">{{ exam?.name ?? t("pages.examDetail.titleFallback") }}</h1>
         </div>
-        <p class="exam-detail__hint">{{ t("navigation.examDetailPlaceholder") }}</p>
+        <p class="exam-detail__hint">{{ t("pages.examDetail.subtitle") }}</p>
       </div>
 
       <div class="exam-detail__actions">
         <button type="button" class="btn btn--secondary" @click="showInfo = true">
-          Grille de compétences
+          {{ t("pages.examDetail.skillGrid") }}
         </button>
         <router-link
           :to="{ name: 'evaluation', params: { classId: route.params.classId, examId: route.params.examId }, query: route.query.groupId ? { groupId: route.query.groupId } : {} }"
@@ -41,14 +41,14 @@
             :disabled="isResetting"
             @click="resetDefaults"
           >
-            {{ isResetting ? '...': 'Réinitialiser' }}
+            {{ isResetting ? t("pages.examDetail.resetting") : t("pages.examDetail.reset") }}
           </button>
           <button
             type="button"
             class="btn btn--secondary"
             @click="showSidePanel = !showSidePanel"
           >
-            {{ showSidePanel ? 'Fermer' : 'Ouvrir' }} statistiques
+            {{ showSidePanel ? t("pages.examDetail.closeStats") : t("pages.examDetail.openStats") }}
           </button>
         </div>
 
@@ -59,7 +59,7 @@
           ========================== -->
           <div class="info-modal__main">
 
-            <h2 class="info-modal__section-title">Compétences</h2>
+            <h2 class="info-modal__section-title">{{ t("pages.examDetail.skills") }}</h2>
 
             <div class="skills-grid">
               <div class="skills-picker">
@@ -69,7 +69,7 @@
                   @click="showPicker = !showPicker"
                 >
                   <span class="skill-card__plus">+</span>
-                  <span class="skill-card__label">Choisissez des compétences</span>
+                  <span class="skill-card__label">{{ t("pages.examDetail.chooseSkills") }}</span>
                 </button>
 
                 <div
@@ -77,7 +77,7 @@
                   class="picker"
                   @mouseleave="showPicker = false"
                 >
-                  <div class="picker__title">Sélectionner</div>
+                  <div class="picker__title">{{ t("pages.examDetail.pickerTitle") }}</div>
                   <div class="picker__list">
                     <label
                       v-for="s in allSkills"
@@ -111,30 +111,30 @@
             </div>
 
             <div class="description-section">
-              <h2 class="info-modal__section-title">Description</h2>
+              <h2 class="info-modal__section-title">{{ t("pages.examDetail.description") }}</h2>
 
               <Card class="description-card">
                 <div class="description-card__content">
 
                   <div class="description-left">
                     <h3 class="description-title">
-                      {{ activeSkill?.label ?? "Aucune compétence sélectionnée" }}
+                      {{ activeSkill?.label ?? t("pages.examDetail.noSkillSelected") }}
                     </h3>
 
                     <div class="criteria-header">
-                      <div class="criteria-title">Critères</div>
+                      <div class="criteria-title">{{ t("pages.examDetail.criteria") }}</div>
                       <button
                         type="button"
                         class="btn btn--secondary"
                         :disabled="!activeSkill"
                         @click="addCriterion"
                       >
-                        + Ajouter
+                        + {{ t("pages.examDetail.add") }}
                       </button>
                     </div>
 
                     <div v-if="!activeSkill" class="hint">
-                      Choisis une compétence pour ajouter des critères.
+                      {{ t("pages.examDetail.chooseSkillHint") }}
                     </div>
 
                     <div v-else class="criteria-list">
@@ -154,7 +154,7 @@
                                 : (c.totalValue = 0)
                             "
                           >
-                            <option disabled value="0">Valeur du critère</option>
+                            <option disabled value="0">{{ t("pages.examDetail.criterionValue") }}</option>
                             <option
                               v-for="v in [5,10,15,20,25,30]"
                               :key="v"
@@ -162,7 +162,7 @@
                             >
                               {{ v }}
                             </option>
-                            <option value="other">Autre</option>
+                            <option value="other">{{ t("pages.examDetail.criterionOther") }}</option>
                           </select>
 
                           <input
@@ -170,13 +170,13 @@
                             v-model.number="c.totalValue"
                             type="number"
                             class="criterion-total"
-                            placeholder="Valeur personnalisée"
+                            :placeholder="t('pages.examDetail.criterionCustomValue')"
                           />
 
                           <input
                             v-model="c.text"
                             class="criterion-name"
-                            placeholder="Nom du critère"
+                            :placeholder="t('pages.examDetail.criterionName')"
                           />
 
                           <button
@@ -207,7 +207,7 @@
                             type="number"
                             class="weight-value"
                             :min="0"
-                            :placeholder="e.value === 0 ? 'Valeur du poids' : ''"
+                            :placeholder="e.value === 0 ? t('pages.examDetail.weightValue') : ''"
                             :disabled="!e.enabled || !c.totalValue"
                             @input="clampWeightValue(c, e)"
                           />
@@ -215,7 +215,7 @@
                           <input
                             v-model="e.description"
                             class="weight-description"
-                            placeholder="Description"
+                            :placeholder="t('pages.examDetail.weightDescription')"
                             :disabled="!e.enabled"
                           />
 
@@ -229,7 +229,7 @@
                         v-if="(criteria[activeSkillId] ?? []).length === 0"
                         class="hint"
                       >
-                        Aucun critère pour cette compétence.
+                        {{ t("pages.examDetail.noCriteria") }}
                       </div>
                     </div>
                   </div>
@@ -238,7 +238,7 @@
                     <div class="donut" :style="{ '--p': progress }">
                       <div class="donut__inner">{{ progress }}%</div>
                     </div>
-                    <div class="donut-hint">Complétion</div>
+                    <div class="donut-hint">{{ t("pages.examDetail.completion") }}</div>
                   </div>
 
                 </div>
@@ -250,7 +250,7 @@
           COLONNE DROITE (NOUVELLE)
           ========================== -->
           <div v-if="showSidePanel" class="info-modal__side">
-            <h3 class="side-title">Répartition des compétences</h3>
+            <h3 class="side-title">{{ t("pages.examDetail.skillsDistribution") }}</h3>
 
             <svg class="skills-donut" viewBox="0 0 120 120">
               <circle
@@ -285,7 +285,7 @@
                 />
                 <span class="legend-label">{{ s.label }}</span>
                 <span class="legend-value">
-                  {{ skillTotal(s.id) }} pts · {{ skillPercent(s.id) }}%
+                  {{ skillTotal(s.id) }} {{ t("pages.examDetail.pointsUnit") }} · {{ skillPercent(s.id) }}{{ t("pages.examDetail.percentUnit") }}
                 </span>
               </div>
             </div>
@@ -294,6 +294,94 @@
         </div>
       </div>
     </FullScreenModal>
+
+    <div class="evaluation__preview">
+      <div class="evaluation__preview-header">
+        <h2 class="evaluation__preview-title">
+          {{ exam?.name ?? t("pages.examDetail.titleFallback") }}
+        </h2>
+      </div>
+
+      <div
+        v-for="comp in previewCompetencies"
+        :key="comp.id"
+        class="evaluation__preview-comp"
+      >
+        <table class="evaluation__preview-table">
+          <thead>
+            <tr>
+              <th class="evaluation__preview-th evaluation__preview-th--label">
+                <span
+                  class="evaluation__color-dot"
+                  :style="{ backgroundColor: comp.color }"
+                ></span>
+                {{ comp.name }}
+              </th>
+
+              <th
+                v-for="grade in previewGrades"
+                :key="grade"
+                class="evaluation__preview-th"
+                :class="`evaluation__preview-th--${grade}`"
+              >
+                {{ grade }}
+              </th>
+
+              <th class="evaluation__preview-th evaluation__preview-th--comment">
+                {{ t("evaluation.comments") }}
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr v-for="crit in comp.criteria" :key="crit.id">
+              <td class="evaluation__preview-td evaluation__preview-td--label">
+                {{ crit.label }}
+              </td>
+
+              <td
+                v-for="grade in previewGrades"
+                :key="grade"
+                class="evaluation__preview-td"
+              >
+                <div class="evaluation__preview-desc">
+                  {{ crit.descriptions[grade] ?? "" }}
+                </div>
+
+                <div
+                  class="evaluation__preview-pts"
+                  v-if="crit.weights[grade] != null && crit.enabled[grade]"
+                >
+                  {{ crit.weights[grade] }}%
+                </div>
+              </td>
+
+              <td class="evaluation__preview-td evaluation__preview-td--comment">
+                —
+              </td>
+            </tr>
+
+            <tr class="evaluation__preview-summary">
+              <td class="evaluation__preview-td evaluation__preview-td--label">
+                {{ t("evaluation.competencyGrade") }}
+              </td>
+
+              <td
+                v-for="grade in previewGrades"
+                :key="grade"
+                class="evaluation__preview-td evaluation__preview-td--summary"
+              >
+                —
+              </td>
+
+              <td class="evaluation__preview-td evaluation__preview-td--comment">
+                —
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -307,6 +395,7 @@ import Card from "@/components/layouts/items/Card.vue";
 const { t } = useI18n();
 const route = useRoute();
 const classesStore = useClassesStore();
+
 
 function normalizeSkill(s: any): Skill {
   const rawExamSkillId = s?.examSkillId ?? s?.ExamSkillId ?? s?.id ?? s?.Id ?? "";
@@ -452,6 +541,39 @@ function weightPercentage(c: Criterion, e: WeightEvaluation) {
 
   return Number(percent.toFixed(1));
 }
+
+const previewGrades = [...WEIGHTS].reverse();
+
+const previewCompetencies = computed(() =>
+  selectedSkills.value.map((skill, index) => {
+    const skillCriteria = criteria.value[skill.id] ?? [];
+
+    return {
+      id: skill.id,
+      name: skill.label,
+      color: donutColors[index % donutColors.length],
+      criteria: skillCriteria.map((c) => {
+        const descriptions: Partial<Record<WeightKey, string>> = {};
+        const weights: Partial<Record<WeightKey, number>> = {};
+        const enabled: Partial<Record<WeightKey, boolean>> = {};
+
+        for (const e of c.evaluations) {
+          descriptions[e.weight] = e.description ?? "";
+          weights[e.weight] = weightPercentage(c, e);
+          enabled[e.weight] = !!e.enabled;
+        }
+
+        return {
+          id: c.id,
+          label: c.text,
+          descriptions,
+          weights,
+          enabled,
+        };
+      }),
+    };
+  })
+);
 
 function computeDefaultWeightValue(totalValue: number, percent: number) {
   if (!totalValue || totalValue <= 0) return 0;
@@ -905,7 +1027,9 @@ ACTION HAUT DROITE
 .info-modal__top-actions {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 12px;
+  margin-bottom: 40px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.12);
+  padding-bottom: 20px;
 }
 
 .btn--reset {
@@ -998,6 +1122,8 @@ COMPÉTENCES
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 12px;
   margin-bottom: 40px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.12);
+  padding-bottom: 40px;
 }
 
 .skill-card {
