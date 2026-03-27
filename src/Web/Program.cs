@@ -28,6 +28,8 @@ _agentLog("Program.cs:start", "startup", new { processId = Environment.ProcessId
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("appsettings.local.json", true);
+
 builder.Services.AddControllers();
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
@@ -42,7 +44,6 @@ builder.Services
     .AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddSignalR();
-builder.Configuration.AddJsonFile("appsettings.local.json", true);
 builder.Services
     .AddFastEndpoints()
     .SwaggerDocument(x =>
