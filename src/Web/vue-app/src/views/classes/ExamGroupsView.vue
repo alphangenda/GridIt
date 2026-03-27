@@ -214,6 +214,12 @@ async function onExportPdf(group: { id: string; name: string }) {
     critEvalMap[sid][norm(e.criterionId)] = { grade: e.grade || null, comment: e.comment ?? "" };
   }
 
+  // Video URL lookup
+  const videoUrlMap: Record<string, string> = {};
+  for (const v of evalsData.videoUrls ?? []) {
+    videoUrlMap[norm(v.studentId)] = v.videoUrl ?? "";
+  }
+
   // 2. Generate one PDF per student, bundle into ZIP
   const GRADES_DISPLAY = ALL_GRADES.slice().reverse() as GradeLetter[];
   const examName = exam.value?.name ?? "Examen";
@@ -229,6 +235,16 @@ async function onExportPdf(group: { id: string; name: string }) {
     doc.text(`${student.lastName}, ${student.firstName}  (D.A.: ${student.number})`, 14, 22);
 
     let startY = 28;
+
+    // YouTube video link
+    const videoUrl = videoUrlMap[norm(student.id)] ?? "";
+    if (videoUrl) {
+      doc.setFontSize(9);
+      doc.setTextColor(25, 118, 210);
+      doc.textWithLink(`Video : ${videoUrl}`, 14, startY, { url: videoUrl });
+      doc.setTextColor(0, 0, 0);
+      startY += 6;
+    }
 
     for (const comp of competencies) {
       doc.setFontSize(10);
