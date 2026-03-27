@@ -57,6 +57,20 @@
           </div>
         </div>
 
+        <div class="evaluation__video-url">
+          <label class="evaluation__video-url-label" for="videoUrlInput">
+            Lien YouTube
+          </label>
+          <input
+            id="videoUrlInput"
+            type="url"
+            class="evaluation__video-url-input"
+            placeholder="https://www.youtube.com/watch?v=..."
+            :value="getVideoUrl()"
+            @input="setVideoUrl(($event.target as HTMLInputElement).value)"
+          />
+        </div>
+
         <p v-if="competencies.length === 0" class="evaluation__empty-msg">
           {{ t("evaluation.noSkills") }}
         </p>
@@ -425,6 +439,9 @@ onMounted(async () => {
             comment: e.comment ?? "",
           };
         }
+        for (const v of evalData.videoUrls ?? []) {
+          videoUrls[v.studentId] = v.videoUrl ?? "";
+        }
       }
     } catch { /* silently ignore load errors */ }
   } finally {
@@ -441,6 +458,9 @@ interface CompEval {
 
 // studentId → competencyId → evaluation
 const evaluations = reactive<Record<string, Record<string, CompEval>>>({});
+
+// studentId → YouTube video URL
+const videoUrls = reactive<Record<string, string>>({});
 
 function ensureStudentEval(studentId: string) {
   if (!evaluations[studentId]) {
@@ -489,6 +509,21 @@ function setComment(compId: string, value: string) {
   if (!sid) return;
   ensureStudentEval(sid);
   evaluations[sid][compId].comment = value;
+  triggerSave();
+}
+
+// ── Video URL accessors ──────────────────────────────────────
+
+function getVideoUrl(): string {
+  const sid = selectedStudentId.value;
+  if (!sid) return "";
+  return videoUrls[sid] ?? "";
+}
+
+function setVideoUrl(value: string) {
+  const sid = selectedStudentId.value;
+  if (!sid) return;
+  videoUrls[sid] = value;
   triggerSave();
 }
 
@@ -655,6 +690,11 @@ watch(saveVersion, () => {
       }
     }
 
+    const videoUrlPayloads: { studentId: string; videoUrl: string }[] = [];
+    for (const [sid, url] of Object.entries(videoUrls)) {
+      videoUrlPayloads.push({ studentId: sid, videoUrl: url });
+    }
+
     try {
       await fetch(`/api/exams/${props.examId}/evaluations`, {
         method: "POST",
@@ -662,6 +702,7 @@ watch(saveVersion, () => {
         body: JSON.stringify({
           competencyEvaluations: compEvals,
           criterionEvaluations: critEvals,
+          videoUrls: videoUrlPayloads,
         }),
       });
     } catch { /* silently ignore save errors */ }
@@ -805,6 +846,35 @@ watch(saveVersion, () => {
 .evaluation__comment-input {
   width: 100%;
   padding: 4px 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+
+/* ── YouTube video URL field ───────────────────────────────── */
+
+.evaluation__video-url {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.evaluation__video-url-label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  color: #444;
+}
+
+.evaluation__video-url-input {
+  flex: 1;
+  padding: 6px 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 0.85rem;

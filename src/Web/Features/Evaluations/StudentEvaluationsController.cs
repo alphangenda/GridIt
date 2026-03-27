@@ -42,6 +42,17 @@ public class StudentEvaluationsController : ControllerBase
                     CONSTRAINT UQ_StudentCritEval UNIQUE (ExamId, StudentId, CriterionId)
                 )
             END
+
+            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='StudentExamVideos' AND xtype='U')
+            BEGIN
+                CREATE TABLE StudentExamVideos (
+                    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+                    ExamId UNIQUEIDENTIFIER NOT NULL,
+                    StudentId NVARCHAR(255) NOT NULL,
+                    VideoUrl NVARCHAR(500) NULL,
+                    CONSTRAINT UQ_StudentExamVideo UNIQUE (ExamId, StudentId)
+                )
+            END
         ", conn);
 
         cmd.ExecuteNonQuery();
@@ -103,7 +114,28 @@ public class StudentEvaluationsController : ControllerBase
             }
         }
 
-        return Ok(new { competencyEvaluations = compEvals, criterionEvaluations = critEvals });
+        // Video URLs
+        var videoUrls = new List<object>();
+        var cmd3 = new SqlCommand(@"
+            SELECT StudentId, VideoUrl
+            FROM StudentExamVideos
+            WHERE ExamId = @examId
+        ", conn);
+        cmd3.Parameters.AddWithValue("@examId", examId);
+
+        using (var reader = await cmd3.ExecuteReaderAsync(ct))
+        {
+            while (await reader.ReadAsync(ct))
+            {
+                videoUrls.Add(new
+                {
+                    studentId = reader.GetString(0),
+                    videoUrl = reader.IsDBNull(1) ? "" : reader.GetString(1)
+                });
+            }
+        }
+
+        return Ok(new { competencyEvaluations = compEvals, criterionEvaluations = critEvals, videoUrls });
     }
 
     // POST /api/exams/{examId}/evaluations
@@ -176,6 +208,31 @@ public class StudentEvaluationsController : ControllerBase
             }
         }
 
+        // Upsert video URLs
+        if (req.VideoUrls != null)
+        {
+            foreach (var v in req.VideoUrls)
+            {
+                var cmd = new SqlCommand(@"
+                    MERGE StudentExamVideos AS target
+                    USING (SELECT @examId AS ExamId, @studentId AS StudentId) AS source
+                    ON target.ExamId = source.ExamId
+                       AND target.StudentId = source.StudentId
+                    WHEN MATCHED THEN
+                        UPDATE SET VideoUrl = @videoUrl
+                    WHEN NOT MATCHED THEN
+                        INSERT (Id, ExamId, StudentId, VideoUrl)
+                        VALUES (NEWID(), @examId, @studentId, @videoUrl);
+                ", conn, tx);
+
+                cmd.Parameters.AddWithValue("@examId", examId);
+                cmd.Parameters.AddWithValue("@studentId", v.StudentId);
+                cmd.Parameters.AddWithValue("@videoUrl", (object?)v.VideoUrl ?? DBNull.Value);
+
+                await cmd.ExecuteNonQueryAsync(ct);
+            }
+        }
+
         tx.Commit();
         return NoContent();
     }
@@ -185,6 +242,7 @@ public class SaveEvaluationsRequest
 {
     public List<CompetencyEvalPayload>? CompetencyEvaluations { get; set; }
     public List<CriterionEvalPayload>? CriterionEvaluations { get; set; }
+    public List<VideoUrlPayload>? VideoUrls { get; set; }
 }
 
 public class CompetencyEvalPayload
@@ -201,4 +259,10 @@ public class CriterionEvalPayload
     public string CriterionId { get; set; } = "";
     public string? Grade { get; set; }
     public string? Comment { get; set; }
+}
+
+public class VideoUrlPayload
+{
+    public string StudentId { get; set; } = "";
+    public string? VideoUrl { get; set; }
 }

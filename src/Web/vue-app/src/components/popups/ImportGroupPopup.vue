@@ -158,8 +158,16 @@ function parseJSON(text: string): StudentRow[] {
 function parseExcel(data: ArrayBuffer): StudentRow[] {
   const workbook = XLSX.read(data, { type: "array" });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const rows: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  let rows: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
   if (rows.length < 2) throw new Error("Empty spreadsheet");
+
+  // Handle single-column files where data is delimiter-separated within cells (e.g. Omnivox exports)
+  if (rows[0].length === 1 && String(rows[0][0]).includes(";")) {
+    rows = rows.map((row) => String(row[0] ?? "").split(";"));
+  } else if (rows[0].length === 1 && String(rows[0][0]).includes(",")) {
+    rows = rows.map((row) => String(row[0] ?? "").split(","));
+  }
+
   const headers = rows[0].map(String);
   const mapped = mapHeaders(headers);
   if (!mapped.includes("number") || !mapped.includes("firstName") || !mapped.includes("lastName"))
