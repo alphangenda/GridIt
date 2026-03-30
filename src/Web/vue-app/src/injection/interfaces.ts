@@ -72,7 +72,7 @@ export interface IBookService {
 export interface IClassService {
   getAllClasses(): Promise<ClassItem[]>
 
-  createClass(name: string, students?: { number: string; firstName: string; lastName: string }[]): Promise<ClassItem>
+  createClass(name: string): Promise<ClassItem>
 
   deleteClass(classId: string): Promise<void>
 
