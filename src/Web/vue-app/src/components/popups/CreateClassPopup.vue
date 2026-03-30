@@ -68,6 +68,7 @@
 import { ref, onMounted } from "vue";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
+import { useSessionsStore } from "@/stores/sessionsStore";
 import { notifyError } from "@/notify";
 import * as XLSX from "xlsx";
 
@@ -79,6 +80,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const classesStore = useClassesStore();
+const sessionsStore = useSessionsStore();
 
 const name = ref("");
 const inputRef = ref<HTMLInputElement | null>(null);
@@ -248,6 +250,16 @@ async function handleSubmit() {
   if (!trimmed) return;
   try {
     await classesStore.addClass(trimmed, students.value.length > 0 ? students.value : undefined);
+
+    const selectedSession = sessionsStore.getSelectedSession;
+    if (selectedSession?.id) {
+      const createdClass = classesStore.getClasses[classesStore.getClasses.length - 1];
+      if (createdClass?.id) {
+        const updatedClassIds = [...(selectedSession.classIds ?? []), createdClass.id];
+        await sessionsStore.updateSession(selectedSession.id, selectedSession.name ?? "", updatedClassIds);
+      }
+    }
+
     emit("close");
   } catch {
     notifyError(t("pages.classes.addError"));
