@@ -7,6 +7,7 @@ public static class HttpContextExtensions
 {
     public static string? GetUserEmail(this HttpContext? httpContext)
     {
-        return httpContext?.User?.FindFirstValue(ClaimTypes.Email);
+        return httpContext?.User?.FindFirstValue(ClaimTypes.Email)
+            ?? httpContext?.User?.FindFirstValue("email");
     }
 }

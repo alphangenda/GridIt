@@ -65,7 +65,7 @@ const examItems = computed(() =>
     name: e.name,
     actions: {
       view: {
-        name: "classes.examDetail",
+        name: "classes.examGroups",
         params: { classId: classId.value, examId: e.id },
       },
       delete: true,
