@@ -9,9 +9,6 @@ branches:
 
 clone_depth: 1
 
-services:
-  - postgresql14
-
 environment:
   nodejs_version: "22"
   DOTNET_NOLOGO: true
@@ -35,6 +32,23 @@ dotnet_csproj:
 before_build:
   - dotnet --version
   - node --version
+  - ps: |
+      $pgService = Get-Service -Name "postgresql-x64-14" -ErrorAction SilentlyContinue
+      if ($pgService -eq $null) {
+        $pgService = Get-Service | Where-Object { $_.Name -like "postgresql*" } | Select-Object -First 1
+      }
+      if ($pgService -ne $null) {
+        Write-Host "Starting PostgreSQL service: $($pgService.Name)"
+        Start-Service $pgService.Name
+        Start-Sleep -Seconds 5
+      } else {
+        Write-Error "No PostgreSQL service found!"
+        exit 1
+      }
+  - ps: |
+      $env:PGPASSWORD = "Password12!"
+      & "C:\Program Files\PostgreSQL\14\bin\createdb.exe" -U postgres garneau_template_tests
+      if ($LASTEXITCODE -ne 0) { Write-Host "DB may already exist, continuing..." }
   - cd %APPVEYOR_BUILD_FOLDER%\tests\Tests.Common
   - mv -f appsettings.appveyor.json appsettings.json
   - cd %APPVEYOR_BUILD_FOLDER%
