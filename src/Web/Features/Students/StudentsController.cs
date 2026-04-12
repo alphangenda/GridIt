@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Web.Dtos;
 
 namespace Web.Features.Students;
@@ -21,14 +21,14 @@ public class StudentsController : ControllerBase
         var result = new List<StudentDto>();
         var cs = _config.GetConnectionString("DefaultConnection");
 
-        using var conn = new SqlConnection(cs);
+        using var conn = new NpgsqlConnection(cs);
         conn.Open();
 
-        var cmd = new SqlCommand(@"
-            SELECT Id, Number, FirstName, LastName
-            FROM Students
-            WHERE ClassId = @classId AND Deleted IS NULL
-            ORDER BY LastName, FirstName
+        var cmd = new NpgsqlCommand(@"
+            SELECT id, number, first_name, last_name
+            FROM students
+            WHERE class_id = @classId AND deleted IS NULL
+            ORDER BY last_name, first_name
         ", conn);
 
         cmd.Parameters.AddWithValue("@classId", classId);

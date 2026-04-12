@@ -34,6 +34,7 @@ public class GarneauTemplateDbContextInitializer
         try
         {
             await _context.Database.MigrateAsync();
+            await EnsureRawTablesAsync();
         }
         catch (Exception ex)
         {
@@ -55,6 +56,97 @@ public class GarneauTemplateDbContextInitializer
             _logger.LogError(ex, "An error occurred while seeding the database.");
             throw;
         }
+    }
+
+    private async Task EnsureRawTablesAsync()
+    {
+        await _context.Database.ExecuteSqlRawAsync(@"
+            CREATE TABLE IF NOT EXISTS criteria (
+                id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                exam_skill_id UUID NOT NULL,
+                label VARCHAR(500) NOT NULL,
+                total_value INT NOT NULL,
+                position INT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS criterion_weights (
+                id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                criterion_id UUID NOT NULL,
+                weight VARCHAR(10) NOT NULL,
+                value DECIMAL(10, 2) NOT NULL,
+                description VARCHAR(500) NULL,
+                is_enabled BOOL NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS default_criterion_letters (
+                letter VARCHAR(5) NOT NULL PRIMARY KEY,
+                description VARCHAR(255) NOT NULL,
+                default_percent INT NOT NULL,
+                is_enabled BOOL NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS default_selected_skills (
+                skill_id UUID NOT NULL PRIMARY KEY,
+                is_selected BOOL NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS exam_groups (
+                id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                exam_id UUID NOT NULL,
+                class_id UUID NOT NULL,
+                name VARCHAR(255) NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS exam_group_students (
+                id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                group_id UUID NOT NULL,
+                number VARCHAR(100) NOT NULL,
+                first_name VARCHAR(255) NOT NULL,
+                last_name VARCHAR(255) NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS student_evaluations (
+                id UUID NOT NULL PRIMARY KEY,
+                exam_id UUID NOT NULL,
+                student_id VARCHAR(255) NOT NULL,
+                competency_id VARCHAR(255) NOT NULL,
+                grade CHAR(1) NULL,
+                comment TEXT NULL,
+                CONSTRAINT uq_student_eval UNIQUE (exam_id, student_id, competency_id)
+            );
+
+            CREATE TABLE IF NOT EXISTS student_criterion_evaluations (
+                id UUID NOT NULL PRIMARY KEY,
+                exam_id UUID NOT NULL,
+                student_id VARCHAR(255) NOT NULL,
+                criterion_id UUID NOT NULL,
+                grade CHAR(1) NULL,
+                comment TEXT NULL,
+                CONSTRAINT uq_student_crit_eval UNIQUE (exam_id, student_id, criterion_id)
+            );
+
+            CREATE TABLE IF NOT EXISTS student_exam_videos (
+                id UUID NOT NULL PRIMARY KEY,
+                exam_id UUID NOT NULL,
+                student_id VARCHAR(255) NOT NULL,
+                video_url VARCHAR(500) NULL,
+                CONSTRAINT uq_student_exam_video UNIQUE (exam_id, student_id)
+            );
+        ");
+
+        await _context.Database.ExecuteSqlRawAsync(@"
+            INSERT INTO default_criterion_letters (letter, description, default_percent, is_enabled)
+            SELECT v.letter, v.description, v.default_percent, v.is_enabled
+            FROM (VALUES
+                ('A', 'Très bien', 100, true),
+                ('B', 'Bien', 75, true),
+                ('C', 'Moyen', 60, true),
+                ('D', 'Passable', 40, true),
+                ('E', 'Faible', 10, true),
+                ('F', 'Insuffisant', 0, true)
+            ) AS v(letter, description, default_percent, is_enabled)
+            WHERE NOT EXISTS (SELECT 1 FROM default_criterion_letters);
+        ");
     }
 
     private async Task SeedRoles()

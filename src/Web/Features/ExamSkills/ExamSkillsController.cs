@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Web.Dtos;
 
 namespace Web.Features.ExamSkills;
@@ -21,15 +21,15 @@ public class ExamSkillsController : ControllerBase
         var result = new List<ExamSkillDto>();
         var cs = _config.GetConnectionString("DefaultConnection");
 
-        using var conn = new SqlConnection(cs);
+        using var conn = new NpgsqlConnection(cs);
         conn.Open();
 
-        var cmd = new SqlCommand(@"
-            SELECT s.Id, s.Label, es.Position
-            FROM ExamSkills es
-            JOIN Skills s ON s.Id = es.SkillId
-            WHERE es.ExamId = @examId
-            ORDER BY es.Position
+        var cmd = new NpgsqlCommand(@"
+            SELECT s.id, s.label, es.position
+            FROM exam_skills es
+            JOIN skills s ON s.id = es.skill_id
+            WHERE es.exam_id = @examId
+            ORDER BY es.position
         ", conn);
 
         cmd.Parameters.AddWithValue("@examId", examId);
@@ -53,16 +53,16 @@ public class ExamSkillsController : ControllerBase
     {
         var cs = _config.GetConnectionString("DefaultConnection");
 
-        using var conn = new SqlConnection(cs);
+        using var conn = new NpgsqlConnection(cs);
         conn.Open();
 
-        var cmd = new SqlCommand(@"
-            INSERT INTO ExamSkills (Id, ExamId, SkillId, Position)
+        var cmd = new NpgsqlCommand(@"
+            INSERT INTO exam_skills (id, exam_id, skill_id, position)
             VALUES (
-                NEWID(),
+                gen_random_uuid(),
                 @examId,
                 @skillId,
-                (SELECT ISNULL(MAX(Position), 0) + 1 FROM ExamSkills WHERE ExamId = @examId)
+                (SELECT COALESCE(MAX(position), 0) + 1 FROM exam_skills WHERE exam_id = @examId)
             )
         ", conn);
 
@@ -79,12 +79,12 @@ public class ExamSkillsController : ControllerBase
     {
         var cs = _config.GetConnectionString("DefaultConnection");
 
-        using var conn = new SqlConnection(cs);
+        using var conn = new NpgsqlConnection(cs);
         conn.Open();
 
-        var cmd = new SqlCommand(@"
-            DELETE FROM ExamSkills
-            WHERE ExamId = @examId AND SkillId = @skillId
+        var cmd = new NpgsqlCommand(@"
+            DELETE FROM exam_skills
+            WHERE exam_id = @examId AND skill_id = @skillId
         ", conn);
 
         cmd.Parameters.AddWithValue("@examId", examId);

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Web.Dtos;
 
 namespace Web.Features.DefaultCriterionLetters;
@@ -21,13 +21,13 @@ public class DefaultCriterionLettersController : ControllerBase
         var result = new List<DefaultCriterionLetterDto>();
         var cs = _config.GetConnectionString("DefaultConnection");
 
-        using var conn = new SqlConnection(cs);
+        using var conn = new NpgsqlConnection(cs);
         conn.Open();
 
-        var cmd = new SqlCommand(@"
-            SELECT Letter, Description, DefaultPercent, IsEnabled
-            FROM DefaultCriterionLetters
-            ORDER BY Letter
+        var cmd = new NpgsqlCommand(@"
+            SELECT letter, description, default_percent, is_enabled
+            FROM default_criterion_letters
+            ORDER BY letter
         ", conn);
 
         using var reader = cmd.ExecuteReader();
@@ -51,17 +51,17 @@ public class DefaultCriterionLettersController : ControllerBase
     {
         var cs = _config.GetConnectionString("DefaultConnection");
 
-        using var conn = new SqlConnection(cs);
+        using var conn = new NpgsqlConnection(cs);
         conn.Open();
 
         foreach (var letter in dto.Letters)
         {
-            var cmd = new SqlCommand(@"
-                UPDATE DefaultCriterionLetters
-                SET Description = @description,
-                    DefaultPercent = @defaultPercent,
-                    IsEnabled = @isEnabled
-                WHERE Letter = @letter
+            var cmd = new NpgsqlCommand(@"
+                UPDATE default_criterion_letters
+                SET description = @description,
+                    default_percent = @defaultPercent,
+                    is_enabled = @isEnabled
+                WHERE letter = @letter
             ", conn);
 
             cmd.Parameters.AddWithValue("@letter", letter.Letter);
