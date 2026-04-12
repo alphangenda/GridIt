@@ -42,13 +42,13 @@ public class PersistenceTestFixture : TestFixture, IDisposable
 
         serviceCollection.AddDbContext<GarneauTemplateDbContext>(options =>
         {
-            options.UseSqlServer(
+            options.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection")!,
                 optionsBuilder => optionsBuilder
-                    .UseNodaTime()
                     .EnableRetryOnFailure()
                     .UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
-                    .MigrationsAssembly(typeof(GarneauTemplateDbContext).Assembly.FullName));
+                    .MigrationsAssembly(typeof(GarneauTemplateDbContext).Assembly.FullName))
+                .UseSnakeCaseNamingConvention();
             options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
 
