@@ -11,7 +11,7 @@ public static class MailingInitializer
         IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddSendGrid(options => options.ApiKey = configuration["SendGrid:ApiKey"]);
+        services.AddSendGrid(options => options.ApiKey = configuration["SendGrid:ApiKey"] ?? "placeholder");
         
         services.Configure<MailingSettings>(configuration.GetSection("Mailing"));
         services.Configure<SendGridSettings>(configuration.GetSection("SendGrid"));
