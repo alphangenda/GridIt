@@ -1,7 +1,7 @@
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Persistence;
 using Persistence.Extensions;
 
@@ -77,18 +77,18 @@ public class GetGridsEndpoint : EndpointWithoutRequest<List<GridDto>>
             .OrderByDescending(r => r.Created)
             .ToList();
 
-        // Load group names for all exams from ExamGroups table
+        // Load group names for all exams from exam_groups table
         var examGroupNames = new Dictionary<Guid, List<string>>();
         var cs = _config.GetConnectionString("DefaultConnection");
-        using (var conn = new SqlConnection(cs))
+        using (var conn = new NpgsqlConnection(cs))
         {
             conn.Open();
             var examIds = combined.Select(r => r.ExamId).ToList();
             if (examIds.Count > 0)
             {
                 var paramNames = examIds.Select((_, i) => $"@eid{i}").ToList();
-                var cmd = new SqlCommand(
-                    $"SELECT ExamId, Name FROM ExamGroups WHERE ExamId IN ({string.Join(",", paramNames)}) ORDER BY Name",
+                var cmd = new NpgsqlCommand(
+                    $"SELECT exam_id, name FROM exam_groups WHERE exam_id IN ({string.Join(",", paramNames)}) ORDER BY name",
                     conn);
                 for (var i = 0; i < examIds.Count; i++)
                     cmd.Parameters.AddWithValue($"@eid{i}", examIds[i]);

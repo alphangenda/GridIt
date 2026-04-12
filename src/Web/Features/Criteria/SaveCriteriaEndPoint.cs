@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Web.Dtos;
 
 namespace Web.Features.Criteria;
@@ -22,13 +22,13 @@ public class SaveCriteriaController : ControllerBase
         CancellationToken ct)
     {
         var connStr = _config.GetConnectionString("DefaultConnection");
-        using var conn = new SqlConnection(connStr);
+        using var conn = new NpgsqlConnection(connStr);
         await conn.OpenAsync(ct);
 
-        var getExamSkillId = new SqlCommand(@"
-            SELECT Id
-            FROM ExamSkills
-            WHERE ExamId = @examId AND SkillId = @skillId
+        var getExamSkillId = new NpgsqlCommand(@"
+            SELECT id
+            FROM exam_skills
+            WHERE exam_id = @examId AND skill_id = @skillId
         ", conn);
 
         getExamSkillId.Parameters.AddWithValue("@examId", examId);
@@ -40,20 +40,20 @@ public class SaveCriteriaController : ControllerBase
 
         var examSkillId = (Guid)examSkillIdObj;
 
-        var cmd = new SqlCommand(@"
+        var cmd = new NpgsqlCommand(@"
             SELECT
-                c.Id,
-                c.Label,
-                c.TotalValue,
-                c.Position,
-                w.Weight,
-                w.Value,
-                w.Description,
-                w.IsEnabled
-            FROM Criteria c
-            LEFT JOIN CriterionWeights w ON w.CriterionId = c.Id
-            WHERE c.ExamSkillId = @examSkillId
-            ORDER BY c.Position
+                c.id,
+                c.label,
+                c.total_value,
+                c.position,
+                w.weight,
+                w.value,
+                w.description,
+                w.is_enabled
+            FROM criteria c
+            LEFT JOIN criterion_weights w ON w.criterion_id = c.id
+            WHERE c.exam_skill_id = @examSkillId
+            ORDER BY c.position
         ", conn);
 
         cmd.Parameters.AddWithValue("@examSkillId", examSkillId);
@@ -103,12 +103,12 @@ public class SaveCriteriaController : ControllerBase
         CancellationToken ct)
     {
         var connStr = _config.GetConnectionString("DefaultConnection");
-        using var conn = new SqlConnection(connStr);
+        using var conn = new NpgsqlConnection(connStr);
         await conn.OpenAsync(ct);
 
-        var cmd = new SqlCommand(@"
-            DELETE FROM CriterionWeights WHERE CriterionId = @id;
-            DELETE FROM Criteria WHERE Id = @id;
+        var cmd = new NpgsqlCommand(@"
+            DELETE FROM criterion_weights WHERE criterion_id = @id;
+            DELETE FROM criteria WHERE id = @id;
         ", conn);
 
         cmd.Parameters.AddWithValue("@id", criterionId);
@@ -137,13 +137,13 @@ public async Task<IActionResult> Save(
             return NoContent();
 
         var connStr = _config.GetConnectionString("DefaultConnection");
-        using var conn = new SqlConnection(connStr);
+        using var conn = new NpgsqlConnection(connStr);
         await conn.OpenAsync(ct);
 
-        var getExamSkillId = new SqlCommand(@"
-            SELECT Id
-            FROM ExamSkills
-            WHERE ExamId = @examId AND SkillId = @skillId
+        var getExamSkillId = new NpgsqlCommand(@"
+            SELECT id
+            FROM exam_skills
+            WHERE exam_id = @examId AND skill_id = @skillId
         ", conn);
 
         getExamSkillId.Parameters.AddWithValue("@examId", examId);
@@ -156,14 +156,14 @@ public async Task<IActionResult> Save(
 
         var examSkillId = (Guid)examSkillIdObj;
 
-        using var tx = conn.BeginTransaction();
+        using var tx = await conn.BeginTransactionAsync(ct);
 
-        var delete = new SqlCommand(@"
-            DELETE cw FROM CriterionWeights cw
-            INNER JOIN Criteria c ON c.Id = cw.CriterionId
-            WHERE c.ExamSkillId = @examSkillId;
+        var delete = new NpgsqlCommand(@"
+            DELETE FROM criterion_weights cw
+            USING criteria c
+            WHERE c.id = cw.criterion_id AND c.exam_skill_id = @examSkillId;
 
-            DELETE FROM Criteria WHERE ExamSkillId = @examSkillId;
+            DELETE FROM criteria WHERE exam_skill_id = @examSkillId;
         ", conn, tx);
 
         delete.Parameters.AddWithValue("@examSkillId", examSkillId);
@@ -173,8 +173,8 @@ public async Task<IActionResult> Save(
         {
             var criterionId = Guid.NewGuid();
 
-            var insertCriterion = new SqlCommand(@"
-                INSERT INTO Criteria (Id, ExamSkillId, Label, TotalValue, Position)
+            var insertCriterion = new NpgsqlCommand(@"
+                INSERT INTO criteria (id, exam_skill_id, label, total_value, position)
                 VALUES (@id, @examSkillId, @label, @total, @pos)",
                 conn, tx);
 
@@ -188,19 +188,16 @@ public async Task<IActionResult> Save(
 
             foreach (var w in c.Weights.Where(w => w.IsEnabled && w.Value > 0))
             {
-                var insertWeight = new SqlCommand(@"
-                    INSERT INTO CriterionWeights
-                    (Id, CriterionId, Weight, Value, Description, IsEnabled)
+                var insertWeight = new NpgsqlCommand(@"
+                    INSERT INTO criterion_weights
+                    (id, criterion_id, weight, value, description, is_enabled)
                     VALUES (@id, @cid, @w, @val, @desc, @en)",
                     conn, tx);
 
                 insertWeight.Parameters.AddWithValue("@id", Guid.NewGuid());
                 insertWeight.Parameters.AddWithValue("@cid", criterionId);
                 insertWeight.Parameters.AddWithValue("@w", w.Weight);
-                var valueParam = insertWeight.Parameters.Add("@val", System.Data.SqlDbType.Decimal);
-                valueParam.Precision = 10;
-                valueParam.Scale = 2;
-                valueParam.Value = w.Value;
+                insertWeight.Parameters.AddWithValue("@val", w.Value);
                 insertWeight.Parameters.AddWithValue("@desc", (object?)w.Description ?? DBNull.Value);
                 insertWeight.Parameters.AddWithValue("@en", true);
 
@@ -208,7 +205,7 @@ public async Task<IActionResult> Save(
             }
         }
 
-        tx.Commit();
+        await tx.CommitAsync(ct);
         return NoContent();
     }
     catch (Exception ex)

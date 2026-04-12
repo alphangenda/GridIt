@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Web.Dtos;
 
 namespace Web.Features.Skills;
@@ -21,10 +21,10 @@ public class SkillsController : ControllerBase
         var skills = new List<SkillDto>();
         var connectionString = _config.GetConnectionString("DefaultConnection");
 
-        using var conn = new SqlConnection(connectionString);
+        using var conn = new NpgsqlConnection(connectionString);
         conn.Open();
 
-        var cmd = new SqlCommand("SELECT Id, Label FROM Skills", conn);
+        var cmd = new NpgsqlCommand("SELECT id, label FROM skills", conn);
         using var reader = cmd.ExecuteReader();
 
         while (reader.Read())

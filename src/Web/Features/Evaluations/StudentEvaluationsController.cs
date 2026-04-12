@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 
 namespace Web.Features.Evaluations;
 
@@ -14,45 +14,36 @@ public class StudentEvaluationsController : ControllerBase
         _config = config;
     }
 
-    private static void EnsureTables(SqlConnection conn)
+    private static void EnsureTables(NpgsqlConnection conn)
     {
-        var cmd = new SqlCommand(@"
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='StudentEvaluations' AND xtype='U')
-            BEGIN
-                CREATE TABLE StudentEvaluations (
-                    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-                    ExamId UNIQUEIDENTIFIER NOT NULL,
-                    StudentId NVARCHAR(255) NOT NULL,
-                    CompetencyId NVARCHAR(255) NOT NULL,
-                    Grade CHAR(1) NULL,
-                    Comment NVARCHAR(MAX) NULL,
-                    CONSTRAINT UQ_StudentEval UNIQUE (ExamId, StudentId, CompetencyId)
-                )
-            END
+        var cmd = new NpgsqlCommand(@"
+            CREATE TABLE IF NOT EXISTS student_evaluations (
+                id UUID NOT NULL PRIMARY KEY,
+                exam_id UUID NOT NULL,
+                student_id VARCHAR(255) NOT NULL,
+                competency_id VARCHAR(255) NOT NULL,
+                grade CHAR(1) NULL,
+                comment TEXT NULL,
+                CONSTRAINT uq_student_eval UNIQUE (exam_id, student_id, competency_id)
+            );
 
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='StudentCriterionEvaluations' AND xtype='U')
-            BEGIN
-                CREATE TABLE StudentCriterionEvaluations (
-                    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-                    ExamId UNIQUEIDENTIFIER NOT NULL,
-                    StudentId NVARCHAR(255) NOT NULL,
-                    CriterionId UNIQUEIDENTIFIER NOT NULL,
-                    Grade CHAR(1) NULL,
-                    Comment NVARCHAR(MAX) NULL,
-                    CONSTRAINT UQ_StudentCritEval UNIQUE (ExamId, StudentId, CriterionId)
-                )
-            END
+            CREATE TABLE IF NOT EXISTS student_criterion_evaluations (
+                id UUID NOT NULL PRIMARY KEY,
+                exam_id UUID NOT NULL,
+                student_id VARCHAR(255) NOT NULL,
+                criterion_id UUID NOT NULL,
+                grade CHAR(1) NULL,
+                comment TEXT NULL,
+                CONSTRAINT uq_student_crit_eval UNIQUE (exam_id, student_id, criterion_id)
+            );
 
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='StudentExamVideos' AND xtype='U')
-            BEGIN
-                CREATE TABLE StudentExamVideos (
-                    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-                    ExamId UNIQUEIDENTIFIER NOT NULL,
-                    StudentId NVARCHAR(255) NOT NULL,
-                    VideoUrl NVARCHAR(500) NULL,
-                    CONSTRAINT UQ_StudentExamVideo UNIQUE (ExamId, StudentId)
-                )
-            END
+            CREATE TABLE IF NOT EXISTS student_exam_videos (
+                id UUID NOT NULL PRIMARY KEY,
+                exam_id UUID NOT NULL,
+                student_id VARCHAR(255) NOT NULL,
+                video_url VARCHAR(500) NULL,
+                CONSTRAINT uq_student_exam_video UNIQUE (exam_id, student_id)
+            );
         ", conn);
 
         cmd.ExecuteNonQuery();
@@ -63,7 +54,7 @@ public class StudentEvaluationsController : ControllerBase
     public async Task<IActionResult> Get(Guid examId, CancellationToken ct)
     {
         var connStr = _config.GetConnectionString("DefaultConnection");
-        using var conn = new SqlConnection(connStr);
+        using var conn = new NpgsqlConnection(connStr);
         await conn.OpenAsync(ct);
         EnsureTables(conn);
 
@@ -71,10 +62,10 @@ public class StudentEvaluationsController : ControllerBase
         var critEvals = new List<object>();
 
         // Competency-level evaluations
-        var cmd1 = new SqlCommand(@"
-            SELECT StudentId, CompetencyId, Grade, Comment
-            FROM StudentEvaluations
-            WHERE ExamId = @examId
+        var cmd1 = new NpgsqlCommand(@"
+            SELECT student_id, competency_id, grade, comment
+            FROM student_evaluations
+            WHERE exam_id = @examId
         ", conn);
         cmd1.Parameters.AddWithValue("@examId", examId);
 
@@ -93,10 +84,10 @@ public class StudentEvaluationsController : ControllerBase
         }
 
         // Criterion-level evaluations
-        var cmd2 = new SqlCommand(@"
-            SELECT StudentId, CriterionId, Grade, Comment
-            FROM StudentCriterionEvaluations
-            WHERE ExamId = @examId
+        var cmd2 = new NpgsqlCommand(@"
+            SELECT student_id, criterion_id, grade, comment
+            FROM student_criterion_evaluations
+            WHERE exam_id = @examId
         ", conn);
         cmd2.Parameters.AddWithValue("@examId", examId);
 
@@ -116,10 +107,10 @@ public class StudentEvaluationsController : ControllerBase
 
         // Video URLs
         var videoUrls = new List<object>();
-        var cmd3 = new SqlCommand(@"
-            SELECT StudentId, VideoUrl
-            FROM StudentExamVideos
-            WHERE ExamId = @examId
+        var cmd3 = new NpgsqlCommand(@"
+            SELECT student_id, video_url
+            FROM student_exam_videos
+            WHERE exam_id = @examId
         ", conn);
         cmd3.Parameters.AddWithValue("@examId", examId);
 
@@ -146,28 +137,23 @@ public class StudentEvaluationsController : ControllerBase
         CancellationToken ct)
     {
         var connStr = _config.GetConnectionString("DefaultConnection");
-        using var conn = new SqlConnection(connStr);
+        using var conn = new NpgsqlConnection(connStr);
         await conn.OpenAsync(ct);
         EnsureTables(conn);
 
-        using var tx = conn.BeginTransaction();
+        using var tx = await conn.BeginTransactionAsync(ct);
 
         // Upsert competency evaluations
         if (req.CompetencyEvaluations != null)
         {
             foreach (var e in req.CompetencyEvaluations)
             {
-                var cmd = new SqlCommand(@"
-                    MERGE StudentEvaluations AS target
-                    USING (SELECT @examId AS ExamId, @studentId AS StudentId, @compId AS CompetencyId) AS source
-                    ON target.ExamId = source.ExamId
-                       AND target.StudentId = source.StudentId
-                       AND target.CompetencyId = source.CompetencyId
-                    WHEN MATCHED THEN
-                        UPDATE SET Grade = @grade, Comment = @comment
-                    WHEN NOT MATCHED THEN
-                        INSERT (Id, ExamId, StudentId, CompetencyId, Grade, Comment)
-                        VALUES (NEWID(), @examId, @studentId, @compId, @grade, @comment);
+                var cmd = new NpgsqlCommand(@"
+                    INSERT INTO student_evaluations (id, exam_id, student_id, competency_id, grade, comment)
+                    VALUES (gen_random_uuid(), @examId, @studentId, @compId, @grade, @comment)
+                    ON CONFLICT (exam_id, student_id, competency_id) DO UPDATE SET
+                        grade = EXCLUDED.grade,
+                        comment = EXCLUDED.comment
                 ", conn, tx);
 
                 cmd.Parameters.AddWithValue("@examId", examId);
@@ -185,17 +171,12 @@ public class StudentEvaluationsController : ControllerBase
         {
             foreach (var e in req.CriterionEvaluations)
             {
-                var cmd = new SqlCommand(@"
-                    MERGE StudentCriterionEvaluations AS target
-                    USING (SELECT @examId AS ExamId, @studentId AS StudentId, @critId AS CriterionId) AS source
-                    ON target.ExamId = source.ExamId
-                       AND target.StudentId = source.StudentId
-                       AND target.CriterionId = source.CriterionId
-                    WHEN MATCHED THEN
-                        UPDATE SET Grade = @grade, Comment = @comment
-                    WHEN NOT MATCHED THEN
-                        INSERT (Id, ExamId, StudentId, CriterionId, Grade, Comment)
-                        VALUES (NEWID(), @examId, @studentId, @critId, @grade, @comment);
+                var cmd = new NpgsqlCommand(@"
+                    INSERT INTO student_criterion_evaluations (id, exam_id, student_id, criterion_id, grade, comment)
+                    VALUES (gen_random_uuid(), @examId, @studentId, @critId, @grade, @comment)
+                    ON CONFLICT (exam_id, student_id, criterion_id) DO UPDATE SET
+                        grade = EXCLUDED.grade,
+                        comment = EXCLUDED.comment
                 ", conn, tx);
 
                 cmd.Parameters.AddWithValue("@examId", examId);
@@ -213,16 +194,11 @@ public class StudentEvaluationsController : ControllerBase
         {
             foreach (var v in req.VideoUrls)
             {
-                var cmd = new SqlCommand(@"
-                    MERGE StudentExamVideos AS target
-                    USING (SELECT @examId AS ExamId, @studentId AS StudentId) AS source
-                    ON target.ExamId = source.ExamId
-                       AND target.StudentId = source.StudentId
-                    WHEN MATCHED THEN
-                        UPDATE SET VideoUrl = @videoUrl
-                    WHEN NOT MATCHED THEN
-                        INSERT (Id, ExamId, StudentId, VideoUrl)
-                        VALUES (NEWID(), @examId, @studentId, @videoUrl);
+                var cmd = new NpgsqlCommand(@"
+                    INSERT INTO student_exam_videos (id, exam_id, student_id, video_url)
+                    VALUES (gen_random_uuid(), @examId, @studentId, @videoUrl)
+                    ON CONFLICT (exam_id, student_id) DO UPDATE SET
+                        video_url = EXCLUDED.video_url
                 ", conn, tx);
 
                 cmd.Parameters.AddWithValue("@examId", examId);
@@ -233,7 +209,7 @@ public class StudentEvaluationsController : ControllerBase
             }
         }
 
-        tx.Commit();
+        await tx.CommitAsync(ct);
         return NoContent();
     }
 }

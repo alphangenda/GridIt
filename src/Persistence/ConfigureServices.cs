@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 using Persistence.Interceptors;
 
 namespace Persistence;
@@ -34,15 +35,18 @@ public static class ConfigureServices
 
     private static void ConfigureDbContext(IServiceCollection services, IConfiguration configuration)
     {
+        var dataSource = new NpgsqlDataSourceBuilder(configuration.GetConnectionString("DefaultConnection")!)
+            .Build();
+
         services.AddDbContext<GarneauTemplateDbContext>(options =>
         {
-            options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection")!,
-                optionsBuilder => optionsBuilder
-                    .UseNodaTime()
-                    .EnableRetryOnFailure()
-                    .UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
-                    .MigrationsAssembly(typeof(GarneauTemplateDbContext).Assembly.FullName));
+            options.UseNpgsql(
+                    dataSource,
+                    optionsBuilder => optionsBuilder
+                        .EnableRetryOnFailure()
+                        .UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
+                        .MigrationsAssembly(typeof(GarneauTemplateDbContext).Assembly.FullName))
+                .UseSnakeCaseNamingConvention();
         });
 
         services.AddScoped<GarneauTemplateDbContextInitializer>();

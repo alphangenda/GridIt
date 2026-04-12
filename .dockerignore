@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/.git/
+src/Web/wwwroot/vue/
+src/Web/wwwroot/css/
+src/Web/wwwroot/js/
+**/*.user
+**/.vs/

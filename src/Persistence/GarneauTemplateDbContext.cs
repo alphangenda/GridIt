@@ -9,6 +9,8 @@ using Domain.Entities.Sessions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NodaTime;
 using Persistence.Extensions;
 using Persistence.Interceptors;
 
@@ -57,6 +59,14 @@ public class GarneauTemplateDbContext : IdentityDbContext<User, Role, Guid,
 
     public GarneauTemplateDbContext(DbContextOptions<GarneauTemplateDbContext> options) : base(options)
     {
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Properties<Instant>()
+            .HaveConversion<InstantToDateTimeOffsetConverter>();
+        configurationBuilder.Properties<Instant?>()
+            .HaveConversion<NullableInstantToDateTimeOffsetConverter>();
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -132,4 +142,18 @@ public class GarneauTemplateDbContext : IdentityDbContext<User, Role, Guid,
     {
         return await base.SaveChangesAsync(cancellationToken ?? CancellationToken.None);
     }
+}
+
+internal class InstantToDateTimeOffsetConverter : ValueConverter<Instant, DateTimeOffset>
+{
+    public InstantToDateTimeOffsetConverter()
+        : base(v => v.ToDateTimeOffset(), v => Instant.FromDateTimeOffset(v)) { }
+}
+
+internal class NullableInstantToDateTimeOffsetConverter : ValueConverter<Instant?, DateTimeOffset?>
+{
+    public NullableInstantToDateTimeOffsetConverter()
+        : base(
+            v => v == null ? (DateTimeOffset?)null : v.Value.ToDateTimeOffset(),
+            v => v == null ? (Instant?)null : Instant.FromDateTimeOffset(v.Value)) { }
 }

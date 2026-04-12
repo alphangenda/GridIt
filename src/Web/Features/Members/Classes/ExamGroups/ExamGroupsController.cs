@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Web.Dtos;
 
 namespace Web.Features.Members.Classes.ExamGroups;
@@ -15,82 +15,43 @@ public class ExamGroupsController : ControllerBase
         _config = config;
     }
 
-    private static void EnsureTables(SqlConnection conn)
+    private static void EnsureTables(NpgsqlConnection conn)
     {
-        // Drop old ExamGroups table if it has the wrong schema (missing Name column)
-        using var dropOld = new SqlCommand(@"
-            IF EXISTS (SELECT * FROM sysobjects WHERE name='ExamGroups' AND xtype='U')
-            AND NOT EXISTS (
-                SELECT * FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_NAME = 'ExamGroups' AND COLUMN_NAME = 'Name'
-            )
-            BEGIN
-                IF EXISTS (SELECT * FROM sysobjects WHERE name='ExamGroupStudents' AND xtype='U')
-                    DROP TABLE ExamGroupStudents
-                DROP TABLE ExamGroups
-            END
-        ", conn);
-        dropOld.ExecuteNonQuery();
+        using var cmd1 = new NpgsqlCommand(@"
+            CREATE TABLE IF NOT EXISTS exam_groups (
+                id       UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                exam_id  UUID NOT NULL,
+                class_id UUID NOT NULL,
+                name     VARCHAR(255) NOT NULL
+            );
 
-        using var cmd1 = new SqlCommand(@"
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='ExamGroups' AND xtype='U')
-            BEGIN
-                CREATE TABLE ExamGroups (
-                    Id       UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-                    ExamId   UNIQUEIDENTIFIER NOT NULL,
-                    ClassId  UNIQUEIDENTIFIER NOT NULL,
-                    Name     NVARCHAR(255)    NOT NULL
-                )
-            END
+            CREATE TABLE IF NOT EXISTS exam_group_students (
+                id         UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                group_id   UUID NOT NULL,
+                number     VARCHAR(100) NOT NULL,
+                first_name VARCHAR(255) NOT NULL,
+                last_name  VARCHAR(255) NOT NULL
+            );
         ", conn);
         cmd1.ExecuteNonQuery();
-
-        // Migration : ajouter ClassId si la table existe sans cette colonne
-        using var addClassId = new SqlCommand(@"
-            IF EXISTS (SELECT * FROM sysobjects WHERE name='ExamGroups' AND xtype='U')
-            AND NOT EXISTS (
-                SELECT * FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_NAME = 'ExamGroups' AND COLUMN_NAME = 'ClassId'
-            )
-            BEGIN
-                ALTER TABLE ExamGroups
-                ADD ClassId UNIQUEIDENTIFIER NOT NULL
-                DEFAULT '00000000-0000-0000-0000-000000000000'
-            END
-        ", conn);
-        addClassId.ExecuteNonQuery();
-
-        using var cmd2 = new SqlCommand(@"
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='ExamGroupStudents' AND xtype='U')
-            BEGIN
-                CREATE TABLE ExamGroupStudents (
-                    Id          UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-                    GroupId     UNIQUEIDENTIFIER NOT NULL,
-                    Number      NVARCHAR(100)    NOT NULL,
-                    FirstName   NVARCHAR(255)    NOT NULL,
-                    LastName    NVARCHAR(255)    NOT NULL
-                )
-            END
-        ", conn);
-        cmd2.ExecuteNonQuery();
     }
 
     [HttpGet]
     public IActionResult Get(Guid examId)
     {
         var cs = _config.GetConnectionString("DefaultConnection");
-        using var conn = new SqlConnection(cs);
+        using var conn = new NpgsqlConnection(cs);
         conn.Open();
         EnsureTables(conn);
 
         var groups = new List<ExamGroupDto>();
 
-        var cmd = new SqlCommand(@"
-            SELECT g.Id, g.Name,
-                   (SELECT COUNT(*) FROM ExamGroupStudents s WHERE s.GroupId = g.Id) AS StudentCount
-            FROM ExamGroups g
-            WHERE g.ExamId = @examId
-            ORDER BY g.Name
+        var cmd = new NpgsqlCommand(@"
+            SELECT g.id, g.name,
+                   (SELECT COUNT(*) FROM exam_group_students s WHERE s.group_id = g.id) AS student_count
+            FROM exam_groups g
+            WHERE g.exam_id = @examId
+            ORDER BY g.name
         ", conn);
         cmd.Parameters.AddWithValue("@examId", examId);
 
@@ -112,18 +73,18 @@ public class ExamGroupsController : ControllerBase
     public IActionResult GetStudents(Guid examId, Guid groupId)
     {
         var cs = _config.GetConnectionString("DefaultConnection");
-        using var conn = new SqlConnection(cs);
+        using var conn = new NpgsqlConnection(cs);
         conn.Open();
         EnsureTables(conn);
 
         var students = new List<StudentDto>();
 
-        var cmd = new SqlCommand(@"
-            SELECT s.Id, s.Number, s.FirstName, s.LastName
-            FROM ExamGroupStudents s
-            INNER JOIN ExamGroups g ON g.Id = s.GroupId AND g.ExamId = @examId
-            WHERE s.GroupId = @groupId
-            ORDER BY s.LastName, s.FirstName
+        var cmd = new NpgsqlCommand(@"
+            SELECT s.id, s.number, s.first_name, s.last_name
+            FROM exam_group_students s
+            INNER JOIN exam_groups g ON g.id = s.group_id AND g.exam_id = @examId
+            WHERE s.group_id = @groupId
+            ORDER BY s.last_name, s.first_name
         ", conn);
         cmd.Parameters.AddWithValue("@examId", examId);
         cmd.Parameters.AddWithValue("@groupId", groupId);
@@ -150,14 +111,14 @@ public class ExamGroupsController : ControllerBase
             return BadRequest("Name is required.");
 
         var cs = _config.GetConnectionString("DefaultConnection");
-        using var conn = new SqlConnection(cs);
+        using var conn = new NpgsqlConnection(cs);
         conn.Open();
         EnsureTables(conn);
 
         var groupId = Guid.NewGuid();
 
-        var insertGroup = new SqlCommand(@"
-            INSERT INTO ExamGroups (Id, ExamId, ClassId, Name) VALUES (@id, @examId, @classId, @name)
+        var insertGroup = new NpgsqlCommand(@"
+            INSERT INTO exam_groups (id, exam_id, class_id, name) VALUES (@id, @examId, @classId, @name)
         ", conn);
         insertGroup.Parameters.AddWithValue("@id", groupId);
         insertGroup.Parameters.AddWithValue("@examId", examId);
@@ -169,9 +130,9 @@ public class ExamGroupsController : ControllerBase
         {
             foreach (var s in req.Students)
             {
-                var insertStudent = new SqlCommand(@"
-                    INSERT INTO ExamGroupStudents (Id, GroupId, Number, FirstName, LastName)
-                    VALUES (NEWID(), @groupId, @number, @firstName, @lastName)
+                var insertStudent = new NpgsqlCommand(@"
+                    INSERT INTO exam_group_students (id, group_id, number, first_name, last_name)
+                    VALUES (gen_random_uuid(), @groupId, @number, @firstName, @lastName)
                 ", conn);
                 insertStudent.Parameters.AddWithValue("@groupId", groupId);
                 insertStudent.Parameters.AddWithValue("@number", s.Number);
@@ -188,15 +149,15 @@ public class ExamGroupsController : ControllerBase
     public IActionResult Delete(Guid examId, Guid groupId)
     {
         var cs = _config.GetConnectionString("DefaultConnection");
-        using var conn = new SqlConnection(cs);
+        using var conn = new NpgsqlConnection(cs);
         conn.Open();
         EnsureTables(conn);
 
-        new SqlCommand(@"DELETE FROM ExamGroupStudents WHERE GroupId = @groupId", conn)
+        new NpgsqlCommand(@"DELETE FROM exam_group_students WHERE group_id = @groupId", conn)
             .Also(c => c.Parameters.AddWithValue("@groupId", groupId))
             .ExecuteNonQuery();
 
-        new SqlCommand(@"DELETE FROM ExamGroups WHERE Id = @groupId AND ExamId = @examId", conn)
+        new NpgsqlCommand(@"DELETE FROM exam_groups WHERE id = @groupId AND exam_id = @examId", conn)
             .Also(c => {
                 c.Parameters.AddWithValue("@groupId", groupId);
                 c.Parameters.AddWithValue("@examId", examId);
@@ -207,9 +168,9 @@ public class ExamGroupsController : ControllerBase
     }
 }
 
-internal static class SqlCommandExtensions
+internal static class NpgsqlCommandExtensions
 {
-    public static SqlCommand Also(this SqlCommand cmd, Action<SqlCommand> configure)
+    public static NpgsqlCommand Also(this NpgsqlCommand cmd, Action<NpgsqlCommand> configure)
     {
         configure(cmd);
         return cmd;

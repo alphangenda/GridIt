@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Web.Dtos;
 
 namespace Web.Features.DefaultSelectedSkills;
@@ -21,12 +21,12 @@ public class DefaultSelectedSkillsController : ControllerBase
         var result = new List<DefaultSelectedSkillDto>();
         var cs = _config.GetConnectionString("DefaultConnection");
 
-        using var conn = new SqlConnection(cs);
+        using var conn = new NpgsqlConnection(cs);
         conn.Open();
 
-        var cmd = new SqlCommand(@"
-            SELECT SkillId, IsSelected
-            FROM DefaultSelectedSkills
+        var cmd = new NpgsqlCommand(@"
+            SELECT skill_id, is_selected
+            FROM default_selected_skills
         ", conn);
 
         using var reader = cmd.ExecuteReader();
@@ -48,19 +48,15 @@ public class DefaultSelectedSkillsController : ControllerBase
     {
         var cs = _config.GetConnectionString("DefaultConnection");
 
-        using var conn = new SqlConnection(cs);
+        using var conn = new NpgsqlConnection(cs);
         conn.Open();
 
         foreach (var skill in dto.Skills)
         {
-            var cmd = new SqlCommand(@"
-                IF EXISTS (SELECT 1 FROM DefaultSelectedSkills WHERE SkillId = @skillId)
-                    UPDATE DefaultSelectedSkills
-                    SET IsSelected = @isSelected
-                    WHERE SkillId = @skillId
-                ELSE
-                    INSERT INTO DefaultSelectedSkills (SkillId, IsSelected)
-                    VALUES (@skillId, @isSelected)
+            var cmd = new NpgsqlCommand(@"
+                INSERT INTO default_selected_skills (skill_id, is_selected)
+                VALUES (@skillId, @isSelected)
+                ON CONFLICT (skill_id) DO UPDATE SET is_selected = EXCLUDED.is_selected
             ", conn);
 
             cmd.Parameters.AddWithValue("@skillId", skill.SkillId);
