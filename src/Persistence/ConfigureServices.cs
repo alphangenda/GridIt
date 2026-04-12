@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -46,7 +47,8 @@ public static class ConfigureServices
                         .EnableRetryOnFailure()
                         .UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
                         .MigrationsAssembly(typeof(GarneauTemplateDbContext).Assembly.FullName))
-                .UseSnakeCaseNamingConvention();
+                .UseSnakeCaseNamingConvention()
+                .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
 
         services.AddScoped<GarneauTemplateDbContextInitializer>();
