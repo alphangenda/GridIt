@@ -1,5 +1,12 @@
 <template>
   <div class="exam-detail">
+    <ConfirmResetPopup
+      v-if="showResetConfirm"
+      :is-loading="isResetting"
+      @close="showResetConfirm = false"
+      @confirm="confirmResetDefaults"
+    />
+
     <div class="exam-detail__header">
       <div>
         <div class="exam-detail__back">
@@ -41,7 +48,7 @@
             type="button"
             class="btn btn--reset"
             :disabled="isResetting"
-            @click="resetDefaults"
+            @click="showResetConfirm = true"
           >
             {{ isResetting ? t("pages.examDetail.resetting") : t("pages.examDetail.reset") }}
           </button>
@@ -398,6 +405,7 @@ import { useRoute } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
 import FullScreenModal from "@/components/popups/FullScreenModal.vue";
+import ConfirmResetPopup from "@/components/popups/ConfirmResetPopup.vue";
 import Card from "@/components/layouts/items/Card.vue";
 const { t } = useI18n();
 const route = useRoute();
@@ -424,6 +432,7 @@ const exam = computed(() => {
 const examTitle = computed(() => String(exam.value?.name ?? route.query.examName ?? t("pages.examDetail.titleFallback")));
 
 const showInfo = ref(false);
+const showResetConfirm = ref(false);
 
 /* =========================
 DONUT COMPETENCES
@@ -843,6 +852,11 @@ async function resetDefaults() {
   } finally {
     isResetting.value = false;
   }
+}
+
+async function confirmResetDefaults() {
+  await resetDefaults();
+  showResetConfirm.value = false;
 }
 
 function addCriterion() {
