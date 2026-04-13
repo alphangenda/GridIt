@@ -500,7 +500,7 @@
       "loginInfos": "Informations de connexion"
     },
     "classesIndex": {
-      "defaultSettings": "Paramètres par défaut",
+      "defaultSettings": "barème de correction",
       "defaultSettingsSaved": "Paramètres par défaut sauvegardés"
     },
     "examDetail": {
@@ -534,7 +534,7 @@
       "percentUnit": "%"
     },
     "defaultSettingsModal": {
-      "title": "Paramètres par défaut",
+      "title": "Barème de correction",
       "subtitle": "Choisis les compétences de base et configure les lettres A à F.",
       "close": "Fermer",
       "baseSkills": "Compétences de base",

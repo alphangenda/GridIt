@@ -11,7 +11,7 @@
       <div class="dsm-modal">
         <div class="dsm-header">
           <div>
-            <h2 class="dsm-title">{{ t("pages.defaultSettingsModal.title") }}</h2>
+            <h2 class="dsm-title">barème de correction</h2>
             <p class="dsm-subtitle">
               {{ t("pages.defaultSettingsModal.subtitle") }}
             </p>
