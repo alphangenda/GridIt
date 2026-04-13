@@ -477,20 +477,6 @@ type DefaultLetter = {
 };
 
 const defaultLetters = ref<DefaultLetter[]>([]);
-const defaultSelectedSkillIds = ref<string[]>([]);
-
-async function loadDefaultSelectedSkills() {
-  const res = await fetch("/api/default-selected-skills");
-  if (!res.ok) {
-    throw new Error("Impossible de charger les compétences par défaut");
-  }
-
-  const data = await res.json();
-  defaultSelectedSkillIds.value = (data as any[])
-    .filter(x => !!x.isSelected)
-    .map(x => String(x.skillId));
-}
-
 async function loadDefaultLetters() {
   const res = await fetch("/api/default-criterion-letters");
   if (!res.ok) {
@@ -603,46 +589,24 @@ const showSidePanel = ref(false);
 const allSkills = ref<Skill[]>([]);
 const isResetting = ref(false);
 
-async function applyDefaultSkillsToExam() {
-  if (!exam.value) return;
-  if (defaultSelectedSkillIds.value.length === 0) return;
-
-  const defaultsToAdd = allSkills.value.filter(s =>
-    defaultSelectedSkillIds.value.includes(String(s.id))
-  );
-
-  for (const skill of defaultsToAdd) {
-    await fetch(`/api/exams/${exam.value.id}/skills`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ skillId: skill.id }),
-    });
-
-  }
-}
-
 onMounted(async () => {
   if (!exam.value) return;
 
-  const [skillsRes, defaultSkillsRes, defaultLettersRes, examSkillsRes] = await Promise.all([
+  const [skillsRes, defaultLettersRes, classSkillsRes, examSkillsRes] = await Promise.all([
     fetch("/api/skills"),
-    fetch("/api/default-selected-skills"),
     fetch("/api/default-criterion-letters"),
+    fetch(`/api/classes/${route.params.classId}/skills`),
     fetch(`/api/exams/${exam.value.id}/skills`),
   ]);
 
-  const [skillsData, defaultSkillsData, defaultLettersData, examSkillsData] = await Promise.all([
+  const [skillsData, defaultLettersData, classSkillsData, examSkillsData] = await Promise.all([
     skillsRes.json(),
-    defaultSkillsRes.json(),
     defaultLettersRes.json(),
+    classSkillsRes.json(),
     examSkillsRes.json(),
   ]);
 
   allSkills.value = (skillsData as any[]).map(normalizeSkill);
-
-  defaultSelectedSkillIds.value = (defaultSkillsData as any[])
-    .filter(x => !!x.isSelected)
-    .map(x => String(x.skillId));
 
   defaultLetters.value = (defaultLettersData as any[]).map((x) => ({
     letter: String(x.letter) as WeightKey,
@@ -651,10 +615,18 @@ onMounted(async () => {
     isEnabled: !!x.isEnabled,
   }));
 
+  const classSkillRows = (classSkillsData as any[]).map(normalizeSkill);
   let examSkillRows = (examSkillsData as any[]).map(normalizeSkill);
 
-  if (examSkillRows.length === 0 && defaultSelectedSkillIds.value.length > 0) {
-    await applyDefaultSkillsToExam();
+  // si l'examen est vide, copier les compétences du cours
+  if (examSkillRows.length === 0 && classSkillRows.length > 0) {
+    for (const skill of classSkillRows) {
+      await fetch(`/api/exams/${exam.value.id}/skills`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ skillId: skill.id }),
+      });
+    }
 
     const reloadExamSkillsRes = await fetch(`/api/exams/${exam.value.id}/skills`);
     const reloadExamSkillsData = await reloadExamSkillsRes.json();
@@ -735,23 +707,19 @@ async function resetDefaults() {
   isResetting.value = true;
 
   try {
-    const [skillsRes, defaultSkillsRes, defaultLettersRes] = await Promise.all([
+    const [skillsRes, classSkillsRes, defaultLettersRes] = await Promise.all([
       fetch("/api/skills"),
-      fetch("/api/default-selected-skills"),
+      fetch(`/api/classes/${route.params.classId}/skills`),
       fetch("/api/default-criterion-letters"),
     ]);
 
-    const [skillsData, defaultSkillsData, defaultLettersData] = await Promise.all([
+    const [skillsData, classSkillsData, defaultLettersData] = await Promise.all([
       skillsRes.json(),
-      defaultSkillsRes.json(),
+      classSkillsRes.json(),
       defaultLettersRes.json(),
     ]);
 
     allSkills.value = (skillsData as any[]).map(normalizeSkill);
-
-    defaultSelectedSkillIds.value = (defaultSkillsData as any[])
-      .filter((x: any) => !!x.isSelected)
-      .map((x: any) => String(x.skillId));
 
     defaultLetters.value = (defaultLettersData as any[]).map((x: any) => ({
       letter: String(x.letter) as WeightKey,
@@ -760,6 +728,7 @@ async function resetDefaults() {
       isEnabled: !!x.isEnabled,
     }));
 
+    // vider les skills de l'examen
     const currentRes = await fetch(`/api/exams/${exam.value.id}/skills`);
     const currentSkills = await currentRes.json();
     for (const raw of currentSkills as any[]) {
@@ -770,11 +739,9 @@ async function resetDefaults() {
       );
     }
 
-    const defaultsToAdd = allSkills.value.filter((s) =>
-      defaultSelectedSkillIds.value.includes(String(s.id))
-    );
-
-    for (const skill of defaultsToAdd) {
+    // réappliquer celles du cours
+    const classSkills = (classSkillsData as any[]).map(normalizeSkill);
+    for (const skill of classSkills) {
       await fetch(`/api/exams/${exam.value.id}/skills`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -28,21 +28,6 @@
                 {{ t("pages.defaultSettingsModal.baseSkillsHelp") }}
               </p>
             </div>
-
-            <div class="dsm-skills-grid">
-              <label
-                v-for="skill in skills"
-                :key="skill.id"
-                class="dsm-skill-card"
-              >
-                <input
-                  type="checkbox"
-                  v-model="skill.isSelected"
-                  @change="scheduleAutoSave"
-                />
-                <span>{{ skill.label }}</span>
-              </label>
-            </div>
           </section>
 
           <section class="dsm-section">
@@ -141,12 +126,6 @@ import { useI18n } from "vue3-i18n";
 
 const { t } = useI18n();
 
-type SkillRow = {
-  id: string;
-  label: string;
-  isSelected: boolean;
-};
-
 type LetterRow = {
   letter: string;
   description: string;
@@ -165,7 +144,6 @@ const emit = defineEmits<{
   (e: "saved"): void;
 }>();
 
-const skills = ref<SkillRow[]>([]);
 const letters = ref<LetterRow[]>([]);
 const isLoading = ref(false);
 const isSaving = ref(false);
@@ -210,36 +188,6 @@ function scheduleAutoSave() {
   }, 700);
 }
 
-async function loadSkills() {
-  const [skillsRes, selectedRes] = await Promise.all([
-    fetch("/api/skills"),
-    fetch("/api/default-selected-skills"),
-  ]);
-
-  if (!skillsRes.ok) {
-    throw new Error("Impossible de charger les compétences");
-  }
-
-  if (!selectedRes.ok) {
-    throw new Error("Impossible de charger les compétences par défaut");
-  }
-
-  const skillsData = await skillsRes.json();
-  const selectedData = await selectedRes.json();
-
-  const selectedMap = new Map<string, boolean>();
-
-  for (const row of selectedData) {
-    selectedMap.set(String(row.skillId), !!row.isSelected);
-  }
-
-  skills.value = (skillsData as any[]).map((skill) => ({
-    id: String(skill.id),
-    label: String(skill.label),
-    isSelected: selectedMap.get(String(skill.id)) ?? false,
-  }));
-}
-
 async function loadLetters() {
   const res = await fetch("/api/default-criterion-letters");
 
@@ -262,32 +210,13 @@ async function loadAll() {
   saveState.value = "idle";
 
   try {
-    await Promise.all([loadSkills(), loadLetters()]);
+    await loadLetters();
   } finally {
     isLoading.value = false;
   }
 }
 
-async function saveSkills() {
-  const payload = {
-    skills: skills.value.map((skill) => ({
-      skillId: skill.id,
-      isSelected: skill.isSelected,
-    })),
-  };
 
-  const res = await fetch("/api/default-selected-skills", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) {
-    throw new Error("Erreur lors de l'enregistrement des compétences");
-  }
-}
 
 async function saveLetters() {
   const payload = {
@@ -319,7 +248,7 @@ async function saveAll() {
   saveState.value = "saving";
 
   try {
-    await Promise.all([saveSkills(), saveLetters()]);
+    await saveLetters();
     saveState.value = "saved";
     emit("saved");
   } catch (error) {

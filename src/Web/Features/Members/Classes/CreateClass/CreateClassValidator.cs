@@ -1,9 +1,8 @@
-using FastEndpoints;
 using FluentValidation;
 
 namespace Web.Features.Members.Classes.CreateClass;
 
-public class CreateClassValidator : Validator<CreateClassRequest>
+public class CreateClassValidator : AbstractValidator<CreateClassRequest>
 {
     public CreateClassValidator()
     {
