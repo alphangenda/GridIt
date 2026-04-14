@@ -11,7 +11,7 @@
       <div>
         <div class="exam-detail__back">
           <router-link
-            :to="isReadOnly ? { name: 'grids' } : { name: 'classes.groupExams', params: { classId: classId, groupId: String(route.params.groupId ?? '') } }"
+            :to="isReadOnly ? { name: 'grids' } : route.params.groupId ? { name: 'classes.groupExams', params: { classId: classId, groupId: String(route.params.groupId) } } : { name: 'classes.detail', params: { classId: classId } }"
             class="exam-detail__back-link"
             :aria-label="t('pages.examDetail.back')"
           >
@@ -615,7 +615,7 @@ onMounted(async () => {
     fetch("/api/skills"),
     fetch("/api/default-criterion-letters"),
     fetch(`/api/classes/${route.params.classId}/skills`),
-    fetch(`/api/exams/${exam.value.id}/skills`),
+    fetch(`/api/exams/${examId.value}/skills`),
   ]);
 
   const [skillsData, defaultLettersData, classSkillsData, examSkillsData] = await Promise.all([
@@ -637,10 +637,10 @@ onMounted(async () => {
   const classSkillRows = (classSkillsData as any[]).map(normalizeSkill);
   let examSkillRows = (examSkillsData as any[]).map(normalizeSkill);
 
-  // si l'examen est vide, copier les compétences du cours
-  if (examSkillRows.length === 0 && classSkillRows.length > 0) {
+  // si l'examen est vide, copier les compétences du cours (seulement si on est propriétaire)
+  if (!isReadOnly.value && examSkillRows.length === 0 && classSkillRows.length > 0) {
     for (const skill of classSkillRows) {
-      await fetch(`/api/exams/${exam.value.id}/skills`, {
+      await fetch(`/api/exams/${examId.value}/skills`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ skillId: skill.id }),
@@ -777,7 +777,7 @@ async function resetDefaults() {
     }));
 
     // vider les skills de l'examen
-    const currentRes = await fetch(`/api/exams/${exam.value.id}/skills`);
+    const currentRes = await fetch(`/api/exams/${examId.value}/skills`);
     const currentSkills = await currentRes.json();
     for (const raw of currentSkills as any[]) {
       const normalized = normalizeSkill(raw);
@@ -790,7 +790,7 @@ async function resetDefaults() {
     // réappliquer celles du cours
     const classSkills = (classSkillsData as any[]).map(normalizeSkill);
     for (const skill of classSkills) {
-      await fetch(`/api/exams/${exam.value.id}/skills`, {
+      await fetch(`/api/exams/${examId.value}/skills`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ skillId: skill.id }),
