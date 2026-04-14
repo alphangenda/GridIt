@@ -49,6 +49,8 @@ public class GarneauTemplateDbContext : IdentityDbContext<User, Role, Guid,
     public DbSet<Student> Students { get; set; } = null!;
     public DbSet<Skill> Skills { get; set; } = null!;
     public DbSet<ExamSkill> ExamSkills { get; set; } = null!;
+    public DbSet<Group> Groups { get; set; } = null!;
+    public DbSet<GroupClass> GroupClasses { get; set; } = null!;
     public DbSet<Session> Sessions { get; set; } = null!;
     public DbSet<SessionClass> SessionClasses { get; set; } = null!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
@@ -125,6 +127,28 @@ public class GarneauTemplateDbContext : IdentityDbContext<User, Role, Guid,
                     .WithMany()
                     .HasForeignKey(sc => sc.SessionId)
                     .OnDelete(DeleteBehavior.Cascade));
+
+        builder.Entity<Group>().ToTable("groups");
+
+        builder.Entity<GroupClass>()
+            .ToTable("group_classes")
+            .HasOne<Group>()
+            .WithMany()
+            .HasForeignKey(gc => gc.GroupId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<GroupClass>()
+            .HasOne<Class>()
+            .WithMany()
+            .HasForeignKey(gc => gc.ClassId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Exam>()
+            .HasOne<Group>()
+            .WithMany()
+            .HasForeignKey(e => e.GroupId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }

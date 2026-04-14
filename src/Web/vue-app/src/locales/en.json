@@ -187,9 +187,19 @@
     "groups": "Groups",
     "groupName": "Group name",
     "importGroup": "Import a group",
-    "noGroups": "No groups yet. Import one to get started.",
+    "noGroups": "No groups yet.",
     "deleteGroupConfirm": "Are you sure you want to delete this group?",
-    "students": "student(s)"
+    "students": "student(s)",
+    "addGroup": "Add a group",
+    "createGroup": "Create a group",
+    "createNewGroup": "New group",
+    "addExistingGroup": "Existing group",
+    "selectGroup": "Select a group",
+    "noExams": "No exams for this group.",
+    "classes": "Courses",
+    "groupNameExists": "A group with this name already exists. Please try a different name.",
+    "groupAlreadyLinked": "This group is already linked to this course.",
+    "examNameExists": "An evaluation with this name already exists in this group. Please try a different name."
   },
   "products": {
     "form": {
