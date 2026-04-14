@@ -231,6 +231,13 @@ const router = createRouter({
           meta: { title: "routes.classes.name" }
         },
         {
+          path: ":classId/exams/:examId",
+          name: "classes.examDetailDirect",
+          component: ExamDetailView,
+          props: true,
+          meta: { title: "routes.classes.examDetail" }
+        },
+        {
           path: ":classId/groups/:groupId/exams/:examId",
           name: "classes.examDetail",
           component: ExamDetailView,
