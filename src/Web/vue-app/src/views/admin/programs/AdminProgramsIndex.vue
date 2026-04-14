@@ -1,20 +1,19 @@
 <template>
   <div class="content-grid content-grid--subpage content-grid--subpage-table">
-    <div class="content-grid__header">
+    <div class="content-grid__header program-header">
       <h1 class="back-link">{{ t("routes.admin.children.programs.name") }}</h1>
-    </div>
-
-    <div class="content-grid__actions program-actions">
-      <input
-        v-model="newProgramName"
-        class="form__input"
-        type="text"
-        :placeholder="t('pages.programs.newProgramPlaceholder')"
-        @keyup.enter="createProgram"
-      />
-      <button type="button" class="btn" @click="createProgram">
-        {{ t("pages.programs.addProgram") }}
-      </button>
+      <div class="program-actions">
+        <input
+          v-model="newProgramName"
+          class="form__input"
+          type="text"
+          :placeholder="t('pages.programs.newProgramPlaceholder')"
+          @keyup.enter="createProgram"
+        />
+        <button type="button" class="btn" @click="createProgram">
+          {{ t("pages.programs.addProgram") }}
+        </button>
+      </div>
     </div>
 
     <Card>
@@ -54,10 +53,8 @@
           </label>
         </div>
 
-        <div class="program-skills__actions">
-          <button type="button" class="btn" :disabled="isSavingSkills" @click="saveProgramSkills">
-            {{ isSavingSkills ? t("pages.programs.skillsSaving") : t("pages.programs.skillsSave") }}
-          </button>
+        <div v-if="isSavingSkills" class="program-skills__status">
+          {{ t("pages.programs.skillsSaving") }}
         </div>
       </div>
     </Card>
@@ -65,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onBeforeUnmount, ref } from "vue";
 import { useI18n } from "vue3-i18n";
 import type { Header } from "vue3-easy-data-table";
 import DataTable from "@/components/layouts/items/DataTable.vue";
@@ -104,6 +101,11 @@ const selectedProgram = computed(() =>
 
 onMounted(async () => {
   await Promise.all([loadPrograms(), loadSkills()]);
+
+  if (programs.value.length === 0) {
+    await new Promise((r) => setTimeout(r, 500));
+    await loadPrograms();
+  }
 });
 
 async function loadPrograms() {
@@ -195,7 +197,19 @@ function toggleSkill(skillId: string, checked: boolean) {
 function onSkillCheckboxChange(skillId: string, event: Event) {
   const target = event.target as HTMLInputElement | null;
   toggleSkill(skillId, !!target?.checked);
+  scheduleAutoSave();
 }
+
+let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+function scheduleAutoSave() {
+  if (autoSaveTimer) clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => saveProgramSkills(), 400);
+}
+
+onBeforeUnmount(() => {
+  if (autoSaveTimer) clearTimeout(autoSaveTimer);
+});
 
 async function saveProgramSkills() {
   if (!selectedProgramId.value) return;
@@ -203,7 +217,6 @@ async function saveProgramSkills() {
   isSavingSkills.value = true;
   try {
     await programService.saveProgramSkills(selectedProgramId.value, selectedSkillIds.value);
-    notifySuccess(t("pages.programs.skillsSaved"));
   } catch (error) {
     console.error(error);
     notifyError(t("pages.programs.skillsSaveError"));
@@ -214,9 +227,16 @@ async function saveProgramSkills() {
 </script>
 
 <style scoped lang="scss">
+.program-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
 .program-actions {
-  display: grid;
-  grid-template-columns: minmax(240px, 420px) auto;
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
