@@ -111,4 +111,8 @@ export interface IProgramService {
   createProgram(name: string): Promise<{ id: string; name: string }>
 
   deleteProgram(programId: string): Promise<void>
+
+  getProgramSkills(programId: string): Promise<Array<{ id: string; label: string }>>
+
+  saveProgramSkills(programId: string, skillIds: string[]): Promise<void>
 }

@@ -519,7 +519,16 @@
       "deleteConfirm": "Voulez-vous vraiment supprimer ce programme ?",
       "loadError": "Impossible de charger les programmes.",
       "createError": "Impossible de créer le programme.",
-      "deleteError": "Impossible de supprimer le programme."
+      "deleteError": "Impossible de supprimer le programme.",
+      "skillsTitle": "Compétences du programme : {name}",
+      "skillsHint": "Cliquez sur un programme puis cochez les compétences à associer.",
+      "skillsLoading": "Chargement des compétences...",
+      "noSkillsAvailable": "Aucune compétence disponible.",
+      "skillsSave": "Enregistrer les compétences",
+      "skillsSaving": "Enregistrement...",
+      "skillsSaved": "Compétences du programme enregistrées.",
+      "skillsLoadError": "Impossible de charger les compétences du programme.",
+      "skillsSaveError": "Impossible d'enregistrer les compétences du programme."
     },
     "sessions": {
       "homeTitle": "Page d'accueil",

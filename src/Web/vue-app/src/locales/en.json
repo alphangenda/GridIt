@@ -519,7 +519,16 @@
       "deleteConfirm": "Are you sure you want to delete this program?",
       "loadError": "Failed to load programs.",
       "createError": "Failed to create program.",
-      "deleteError": "Failed to delete program."
+      "deleteError": "Failed to delete program.",
+      "skillsTitle": "Program skills: {name}",
+      "skillsHint": "Click a program, then check the skills to link.",
+      "skillsLoading": "Loading skills...",
+      "noSkillsAvailable": "No skills available.",
+      "skillsSave": "Save skills",
+      "skillsSaving": "Saving...",
+      "skillsSaved": "Program skills saved.",
+      "skillsLoadError": "Failed to load program skills.",
+      "skillsSaveError": "Failed to save program skills."
     },
     "sessions": {
       "homeTitle": "Homepage",

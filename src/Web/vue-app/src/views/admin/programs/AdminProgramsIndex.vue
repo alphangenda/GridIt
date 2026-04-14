@@ -22,7 +22,44 @@
         :headers="headers"
         :items="items"
         @delete="onDelete"
+        @row-click="onSelectProgram"
       />
+    </Card>
+
+    <Card v-if="selectedProgram">
+      <div class="program-skills">
+        <h2>{{ t("pages.programs.skillsTitle", { name: selectedProgram.name }) }}</h2>
+        <p class="program-skills__hint">{{ t("pages.programs.skillsHint") }}</p>
+
+        <div v-if="isSkillsLoading" class="program-skills__status">
+          {{ t("pages.programs.skillsLoading") }}
+        </div>
+
+        <div v-else-if="allSkills.length === 0" class="program-skills__status">
+          {{ t("pages.programs.noSkillsAvailable") }}
+        </div>
+
+        <div v-else class="program-skills__list">
+          <label
+            v-for="skill in allSkills"
+            :key="skill.id"
+            class="program-skills__item"
+          >
+            <input
+              :checked="selectedSkillIds.includes(skill.id)"
+              type="checkbox"
+              @change="onSkillCheckboxChange(skill.id, $event)"
+            />
+            <span>{{ skill.label }}</span>
+          </label>
+        </div>
+
+        <div class="program-skills__actions">
+          <button type="button" class="btn" :disabled="isSavingSkills" @click="saveProgramSkills">
+            {{ isSavingSkills ? t("pages.programs.skillsSaving") : t("pages.programs.skillsSave") }}
+          </button>
+        </div>
+      </div>
     </Card>
   </div>
 </template>
@@ -37,11 +74,17 @@ import { useProgramService } from "@/inversify.config";
 import { notifyError, notifySuccess } from "@/notify";
 
 type ProgramItem = { id: string; name: string };
+type SkillItem = { id: string; label: string };
 
 const { t } = useI18n();
 const programService = useProgramService();
 const programs = ref<ProgramItem[]>([]);
 const newProgramName = ref("");
+const selectedProgramId = ref<string | null>(null);
+const allSkills = ref<SkillItem[]>([]);
+const selectedSkillIds = ref<string[]>([]);
+const isSkillsLoading = ref(false);
+const isSavingSkills = ref(false);
 
 const headers: Header[] = [
   { text: t("pages.programs.columns.name"), value: "name", sortable: true },
@@ -55,9 +98,12 @@ const items = computed(() =>
     actions: { delete: true },
   }))
 );
+const selectedProgram = computed(() =>
+  programs.value.find((p) => p.id === selectedProgramId.value) ?? null
+);
 
 onMounted(async () => {
-  await loadPrograms();
+  await Promise.all([loadPrograms(), loadSkills()]);
 });
 
 async function loadPrograms() {
@@ -74,9 +120,11 @@ async function createProgram() {
   if (!trimmed) return;
 
   try {
-    await programService.createProgram(trimmed);
+    const created = await programService.createProgram(trimmed);
     newProgramName.value = "";
     await loadPrograms();
+    selectedProgramId.value = created.id;
+    await loadProgramSkills(created.id);
     notifySuccess(t("pages.programs.created"));
   } catch (error) {
     console.error(error);
@@ -90,10 +138,77 @@ async function onDelete(item: { id: string }) {
   try {
     await programService.deleteProgram(item.id);
     programs.value = programs.value.filter((x) => x.id !== item.id);
+    if (selectedProgramId.value === item.id) {
+      selectedProgramId.value = null;
+      selectedSkillIds.value = [];
+    }
     notifySuccess(t("pages.programs.deleted"));
   } catch (error) {
     console.error(error);
     notifyError(t("pages.programs.deleteError"));
+  }
+}
+
+async function loadSkills() {
+  try {
+    const response = await fetch("/api/skills");
+    if (!response.ok) throw new Error("Failed to load skills");
+    const data = (await response.json()) as SkillItem[];
+    allSkills.value = Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error(error);
+    allSkills.value = [];
+    notifyError(t("pages.programs.skillsLoadError"));
+  }
+}
+
+async function onSelectProgram(item: { id: string }) {
+  selectedProgramId.value = item.id;
+  await loadProgramSkills(item.id);
+}
+
+async function loadProgramSkills(programId: string) {
+  isSkillsLoading.value = true;
+  try {
+    const skills = await programService.getProgramSkills(programId);
+    selectedSkillIds.value = skills.map((x) => x.id);
+  } catch (error) {
+    console.error(error);
+    selectedSkillIds.value = [];
+    notifyError(t("pages.programs.skillsLoadError"));
+  } finally {
+    isSkillsLoading.value = false;
+  }
+}
+
+function toggleSkill(skillId: string, checked: boolean) {
+  if (checked) {
+    if (!selectedSkillIds.value.includes(skillId)) {
+      selectedSkillIds.value = [...selectedSkillIds.value, skillId];
+    }
+    return;
+  }
+
+  selectedSkillIds.value = selectedSkillIds.value.filter((id) => id !== skillId);
+}
+
+function onSkillCheckboxChange(skillId: string, event: Event) {
+  const target = event.target as HTMLInputElement | null;
+  toggleSkill(skillId, !!target?.checked);
+}
+
+async function saveProgramSkills() {
+  if (!selectedProgramId.value) return;
+
+  isSavingSkills.value = true;
+  try {
+    await programService.saveProgramSkills(selectedProgramId.value, selectedSkillIds.value);
+    notifySuccess(t("pages.programs.skillsSaved"));
+  } catch (error) {
+    console.error(error);
+    notifyError(t("pages.programs.skillsSaveError"));
+  } finally {
+    isSavingSkills.value = false;
   }
 }
 </script>
@@ -103,5 +218,31 @@ async function onDelete(item: { id: string }) {
   display: grid;
   grid-template-columns: minmax(240px, 420px) auto;
   gap: 8px;
+}
+
+.program-skills {
+  display: grid;
+  gap: 12px;
+}
+
+.program-skills__hint,
+.program-skills__status {
+  margin: 0;
+  color: #6b7280;
+}
+
+.program-skills__list {
+  display: grid;
+  gap: 8px;
+}
+
+.program-skills__item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.program-skills__actions {
+  margin-top: 8px;
 }
 </style>
