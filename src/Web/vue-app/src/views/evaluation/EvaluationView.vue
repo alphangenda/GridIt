@@ -350,7 +350,7 @@ onMounted(async () => {
     const groupId = route.query.groupId as string | undefined;
 
     const studentsUrl = groupId
-      ? `/api/exams/${props.examId}/groups/${groupId}/students`
+      ? `/api/groups/${groupId}/students`
       : `/api/classes/${props.classId}/students`;
 
     const [studentsRes, skillsRes] = await Promise.all([

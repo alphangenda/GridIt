@@ -20,9 +20,10 @@ import EditBookForm from "@/views/member/EditBookForm.vue";
 
 import ClassesView from "@/views/classes/ClassesView.vue";
 import ClassesIndexView from "@/views/classes/ClassesIndexView.vue";
-import ClassExamsView from "@/views/classes/ClassExamsView.vue";
+import ClassGroupsView from "@/views/classes/ClassGroupsView.vue";
+import GroupExamsView from "@/views/classes/GroupExamsView.vue";
 import ExamDetailView from "@/views/classes/ExamDetailView.vue";
-import ExamGroupsView from "@/views/classes/ExamGroupsView.vue";
+import GroupesView from "@/views/groups/GroupesView.vue";
 
 import EvaluationView from "@/views/evaluation/EvaluationView.vue";
 import SessionsView from "@/views/sessions/SessionsView.vue";
@@ -212,19 +213,19 @@ const router = createRouter({
         {
           path: ":classId",
           name: "classes.detail",
-          component: ClassExamsView,
+          component: ClassGroupsView,
           props: true,
           meta: { title: "routes.classes.name" }
         },
         {
-          path: ":classId/exams/:examId/groups",
-          name: "classes.examGroups",
-          component: ExamGroupsView,
+          path: ":classId/groups/:groupId",
+          name: "classes.groupExams",
+          component: GroupExamsView,
           props: true,
-          meta: { title: "routes.classes.examDetail" }
+          meta: { title: "routes.classes.name" }
         },
         {
-          path: ":classId/exams/:examId",
+          path: ":classId/groups/:groupId/exams/:examId",
           name: "classes.examDetail",
           component: ExamDetailView,
           props: true,
@@ -240,6 +241,15 @@ const router = createRouter({
       meta: {
         requiredRole: [Role.Member, Role.Admin],
         title: "routes.grids.name"
+      }
+    },
+    {
+      path: "/groupes",
+      name: "groupes",
+      component: GroupesView,
+      meta: {
+        requiredRole: [Role.Member, Role.Admin],
+        title: "navigation.groups"
       }
     },
     {
@@ -288,7 +298,7 @@ router.beforeEach(async (to, from) => {
   const doesNotHaveGivenRole = !isRoleArray && !userStore.hasRole(to.meta.requiredRole as Role);
   const hasNoRoleAmongRoleList = isRoleArray && !userStore.hasOneOfTheseRoles(to.meta.requiredRole as Role[]);
   if (doesNotHaveGivenRole || hasNoRoleAmongRoleList) {
-    return { name: "classes" };
+    return { name: "login" };
   }
 });
 
