@@ -62,7 +62,7 @@
           <div class="app-header__avatar">
             <IconFaceMan class="icon icon--white"/>
           </div>
-          <span class="app-header__profile-name">{{ personStore.person?.fullName ?? '' }}</span>
+          <span class="app-header__profile-name">{{ personStore.person?.fullName || personStore.person?.firstName?.substring(0, 5) || '' }}</span>
           <IconChevron :class="['icon', 'app-header__chevron', { 'icon--rotate-180': isDropdownOpen }]"/>
         </button>
         <Transition name="dropdown">
