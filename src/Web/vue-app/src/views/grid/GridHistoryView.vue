@@ -180,7 +180,7 @@ const tableItems = computed(() =>
     date: new Date(g.createdAt).toLocaleDateString("fr-CA"),
     actions: {
       view: {
-        name: "classes.examDetail",
+        name: "classes.examDetailDirect",
         params: { classId: g.classId, examId: g.id },
         query: g.isOwner ? {} : { readOnly: "1", examName: g.name },
       },
