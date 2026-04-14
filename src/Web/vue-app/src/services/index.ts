@@ -6,3 +6,4 @@ export * from './classService';
 export * from './sessionService';
 export * from './userService';
 export * from './gridService';
+export * from './programService';

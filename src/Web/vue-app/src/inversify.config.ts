@@ -11,6 +11,7 @@ import {
   IClassService,
   IGridService,
   IMemberService,
+  IProgramService,
   ISessionService,
   IUserService
 } from "@/injection/interfaces";
@@ -21,6 +22,7 @@ import {
   ClassService,
   GridService,
   MemberService,
+  ProgramService,
   SessionService,
   UserService
 } from "@/services";
@@ -37,6 +39,7 @@ dependencyInjection.bind<ISessionService>(TYPES.ISessionService).to(SessionServi
 dependencyInjection.bind<IMemberService>(TYPES.IMemberService).to(MemberService).inSingletonScope()
 dependencyInjection.bind<IUserService>(TYPES.IUserService).to(UserService).inSingletonScope()
 dependencyInjection.bind<IGridService>(TYPES.IGridService).to(GridService).inSingletonScope()
+dependencyInjection.bind<IProgramService>(TYPES.IProgramService).to(ProgramService).inSingletonScope()
 
 function useAdministratorService() {
   return dependencyInjection.get<IAdministratorService>(TYPES.IAdministratorService);
@@ -70,6 +73,10 @@ function useGridService() {
   return dependencyInjection.get<IGridService>(TYPES.IGridService);
 }
 
+function useProgramService() {
+  return dependencyInjection.get<IProgramService>(TYPES.IProgramService);
+}
+
 
 export {
   dependencyInjection,
@@ -80,5 +87,6 @@ export {
   useSessionService,
   useMemberService,
   useUserService,
-  useGridService
+  useGridService,
+  useProgramService
 };

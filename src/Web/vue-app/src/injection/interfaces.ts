@@ -72,7 +72,7 @@ export interface IBookService {
 export interface IClassService {
   getAllClasses(): Promise<ClassItem[]>
 
-  createClass(name: string): Promise<ClassItem>
+  createClass(name: string, skillIds: string[], programId?: string): Promise<ClassItem>
 
   deleteClass(classId: string): Promise<void>
 
@@ -103,4 +103,12 @@ export interface IGridService {
   getAllGrids(): Promise<any[]>
 
   toggleVisibility(examId: string, isPublic: boolean): Promise<boolean>
+}
+
+export interface IProgramService {
+  getAllPrograms(): Promise<Array<{ id: string; name: string }>>
+
+  createProgram(name: string): Promise<{ id: string; name: string }>
+
+  deleteProgram(programId: string): Promise<void>
 }

@@ -24,6 +24,7 @@ public class ClassRepository : IClassRepository
     {
         return _context.Classes
             .AsNoTracking()
+            .Include(x => x.Program)
             .Where(x => x.CreatedBy == createdBy)
             .ToList();
     }

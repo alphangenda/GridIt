@@ -45,6 +45,7 @@ public class GarneauTemplateDbContext : IdentityDbContext<User, Role, Guid,
     public DbSet<Member> Members { get; set; } = null!;
     public DbSet<Book> Books { get; set; } = null!;
     public DbSet<Class> Classes { get; set; } = null!;
+    public DbSet<CourseProgram> CoursePrograms { get; set; } = null!;
     public DbSet<Exam> Exams { get; set; } = null!;
     public DbSet<Student> Students { get; set; } = null!;
     public DbSet<Skill> Skills { get; set; } = null!;
@@ -100,6 +101,12 @@ public class GarneauTemplateDbContext : IdentityDbContext<User, Role, Guid,
             .WithMany()
             .HasForeignKey(s => s.ClassId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Class>()
+            .HasOne(c => c.Program)
+            .WithMany()
+            .HasForeignKey(c => c.ProgramId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.Entity<ExamSkill>()
             .HasOne<Exam>()

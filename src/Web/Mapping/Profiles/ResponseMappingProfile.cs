@@ -49,7 +49,9 @@ public class ResponseMappingProfile : Profile
             .ForMember(x => x.PhoneNumber, opt => opt.MapFrom(x => x.PhoneNumber!.Number))
             .ForMember(x => x.PhoneExtension, opt => opt.MapFrom(x => x.PhoneNumber!.Extension));
 
-        CreateMap<Class, ClassDto>();
+        CreateMap<Class, ClassDto>()
+            .ForMember(dto => dto.ProgramName,
+                opt => opt.MapFrom(src => src.Program == null ? null : src.Program.Name));
         CreateMap<Exam, ExamDto>();
         CreateMap<Session, SessionDto>()
             .ForMember(dto => dto.ClassIds, opt => opt.MapFrom(s => s.Classes.Select(c => c.Id).ToList()));

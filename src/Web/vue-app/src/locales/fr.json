@@ -54,6 +54,11 @@
             "fullPath": "/administration/membres/:id/modifier",
             "name": "Modifier un membre"
           }
+        },
+        "programs": {
+          "path": "programmes",
+          "fullPath": "/administration/programmes",
+          "name": "Programmes"
         }
       }
     },
@@ -498,7 +503,23 @@
       }
     },
     "classes": {
-      "addError": "Impossible d'ajouter la classe. Veuillez réessayer."
+      "addError": "Impossible d'ajouter la classe. Veuillez réessayer.",
+      "program": "Programme",
+      "programNone": "Aucun programme",
+      "programsLoadError": "Impossible de charger les programmes."
+    },
+    "programs": {
+      "columns": {
+        "name": "Nom du programme"
+      },
+      "newProgramPlaceholder": "Nom du programme",
+      "addProgram": "Ajouter un programme",
+      "created": "Programme créé.",
+      "deleted": "Programme supprimé.",
+      "deleteConfirm": "Voulez-vous vraiment supprimer ce programme ?",
+      "loadError": "Impossible de charger les programmes.",
+      "createError": "Impossible de créer le programme.",
+      "deleteError": "Impossible de supprimer le programme."
     },
     "sessions": {
       "homeTitle": "Page d'accueil",
