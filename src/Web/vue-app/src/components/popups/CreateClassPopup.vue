@@ -21,27 +21,15 @@
             </div>
 
             <div class="form__group">
-              <label class="form__label">
-                {{ t("pages.classes.skills") }}
+              <label class="form__label" for="class-program">
+                {{ t("pages.classes.program") }}
               </label>
-
-              <select
-                v-model="selectedSkillIds"
-                class="skills-select"
-                multiple
-                size="8"
-              >
-                <option
-                  v-for="skill in skills"
-                  :key="skill.id"
-                  :value="skill.id"
-                >
-                  {{ skill.label }}
+              <select id="class-program" v-model="selectedProgramId" class="form__input">
+                <option v-for="program in programs" :key="program.id" :value="program.id">
+                  {{ program.name }}
                 </option>
               </select>
-              <p class="skills-hint">{{ t("pages.classes.skillsHint") ?? t("pages.classes.skills") }}</p>
             </div>
-
 
             <div class="form__submit">
               <button class="btn btn--fullscreen" type="submit">{{ t("global.add") }}</button>
@@ -59,12 +47,13 @@ import { ref, onMounted } from "vue";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
 import { useSessionsStore } from "@/stores/sessionsStore";
+import { useProgramService } from "@/inversify.config";
 import { notifyError } from "@/notify";
 
 
-type Skill = {
+type ProgramItem = {
   id: string;
-  label: string;
+  name: string;
 };
 
 const emit = defineEmits<{
@@ -74,37 +63,27 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const classesStore = useClassesStore();
 const sessionsStore = useSessionsStore();
+const programService = useProgramService();
 
 const name = ref("");
 const inputRef = ref<HTMLInputElement | null>(null);
 
 
-const skills = ref<Skill[]>([]);
-const selectedSkillIds = ref<string[]>([]);
+const programs = ref<ProgramItem[]>([]);
+const selectedProgramId = ref<string>("");
 
 onMounted(async () => {
   inputRef.value?.focus();
-  await loadSkills();
+  await loadPrograms();
 });
 
-
-async function loadSkills() {
+async function loadPrograms() {
   try {
-    const res = await fetch("/api/skills");
-
-    if (!res.ok) {
-      throw new Error("Impossible de charger les compétences");
-    }
-
-    const data = await res.json();
-
-    skills.value = (data as any[]).map((skill) => ({
-      id: String(skill.id),
-      label: String(skill.label),
-    }));
+    const data = await programService.getAllPrograms();
+    programs.value = data.map((x) => ({ id: String(x.id), name: String(x.name) }));
   } catch (error) {
     console.error(error);
-    notifyError(t("pages.classes.skillsLoadError"));
+    notifyError(t("pages.classes.programsLoadError"));
   }
 }
 
@@ -114,7 +93,11 @@ async function handleSubmit() {
   if (!trimmed) return;
 
   try {
-    const createdClass = await classesStore.addClass(trimmed, selectedSkillIds.value);
+    const createdClass = await classesStore.addClass(
+      trimmed,
+      [],
+      selectedProgramId.value || undefined
+    );
 
     const selectedSession = sessionsStore.getSelectedSession;
 
@@ -152,24 +135,4 @@ async function handleSubmit() {
   opacity: 0;
 }
 
-.skills-select {
-  width: 100%;
-  min-height: 180px;
-  padding: 10px;
-  border: 1px solid #e4e4e4;
-  border-radius: 12px;
-  background: #f8f9fb;
-  font-size: 15px;
-}
-
-.skills-select option {
-  padding: 8px 10px;
-  border-radius: 6px;
-}
-
-.skills-hint {
-  margin-top: 6px;
-  font-size: 13px;
-  color: #6b7280;
-}
 </style>

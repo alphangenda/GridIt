@@ -404,12 +404,14 @@ import { computed, onMounted , ref, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
+import { useProgramService } from "@/inversify.config";
 import FullScreenModal from "@/components/popups/FullScreenModal.vue";
 import ConfirmResetPopup from "@/components/popups/ConfirmResetPopup.vue";
 import Card from "@/components/layouts/items/Card.vue";
 const { t } = useI18n();
 const route = useRoute();
 const classesStore = useClassesStore();
+const programService = useProgramService();
 
 const isReadOnly = computed(() => route.query.readOnly === '1');
 const classId = computed(() => String(route.params.classId ?? ""));
@@ -586,7 +588,13 @@ function computeDefaultWeightValue(totalValue: number, percent: number) {
   return Number(((percent / 100) * totalValue).toFixed(2));
 }
 
+const prevTotalValues = new Map<string, number>();
+
 function recalculateCriterionValues(c: Criterion) {
+  const prevTotal = prevTotalValues.get(c.id) ?? 0;
+  const totalChanged = c.totalValue !== prevTotal;
+  prevTotalValues.set(c.id, c.totalValue);
+
   for (const e of c.evaluations) {
     const def = defaultLetters.value.find(x => x.letter === e.weight);
     const percent = def?.defaultPercent ?? 0;
@@ -596,7 +604,7 @@ function recalculateCriterionValues(c: Criterion) {
       continue;
     }
 
-    if (e.value === 0) {
+    if (e.value === 0 || totalChanged) {
       e.value = computeDefaultWeightValue(c.totalValue, percent);
     }
   }
@@ -606,26 +614,58 @@ function recalculateCriterionValues(c: Criterion) {
 const showSidePanel = ref(false);
 
 const allSkills = ref<Skill[]>([]);
+const defaultSelectedSkillIds = computed(() => [] as string[]);
 const isResetting = ref(false);
+
+async function applyDefaultSkillsToExam() {
+  if (!examId.value) return;
+  if (defaultSelectedSkillIds.value.length === 0) return;
+
+  const defaultsToAdd = allSkills.value.filter(s =>
+    defaultSelectedSkillIds.value.includes(String(s.id))
+  );
+
+  for (const skill of defaultsToAdd) {
+    await fetch(`/api/exams/${examId.value}/skills`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ skillId: skill.id }),
+    });
+
+  }
+}
+async function loadAvailableSkills(): Promise<Skill[]> {
+  await classesStore.fetchClasses();
+  const currentClass = classesStore.getClasses.find((c) => c.id === classId.value);
+  const pid = currentClass?.programId;
+
+  if (pid) {
+    const programSkills = await programService.getProgramSkills(pid);
+    if (programSkills.length > 0) {
+      return programSkills.map((s) => normalizeSkill({ id: s.id, label: s.label }));
+    }
+  }
+
+  const res = await fetch("/api/skills");
+  const data = await res.json();
+  return (data as any[]).map(normalizeSkill);
+}
 
 onMounted(async () => {
   if (!examId.value) return;
 
-  const [skillsRes, defaultLettersRes, classSkillsRes, examSkillsRes] = await Promise.all([
-    fetch("/api/skills"),
+  const [skillsList, defaultLettersRes, examSkillsRes] = await Promise.all([
+    loadAvailableSkills(),
     fetch("/api/default-criterion-letters"),
-    fetch(`/api/classes/${route.params.classId}/skills`),
     fetch(`/api/exams/${examId.value}/skills`),
   ]);
 
-  const [skillsData, defaultLettersData, classSkillsData, examSkillsData] = await Promise.all([
-    skillsRes.json(),
+  const [defaultLettersData, examSkillsData] = await Promise.all([
     defaultLettersRes.json(),
-    classSkillsRes.json(),
     examSkillsRes.json(),
   ]);
 
-  allSkills.value = (skillsData as any[]).map(normalizeSkill);
+  allSkills.value = skillsList;
 
   defaultLetters.value = (defaultLettersData as any[]).map((x) => ({
     letter: String(x.letter) as WeightKey,
@@ -634,18 +674,10 @@ onMounted(async () => {
     isEnabled: !!x.isEnabled,
   }));
 
-  const classSkillRows = (classSkillsData as any[]).map(normalizeSkill);
   let examSkillRows = (examSkillsData as any[]).map(normalizeSkill);
 
-  // si l'examen est vide, copier les compétences du cours (seulement si on est propriétaire)
-  if (!isReadOnly.value && examSkillRows.length === 0 && classSkillRows.length > 0) {
-    for (const skill of classSkillRows) {
-      await fetch(`/api/exams/${examId.value}/skills`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skillId: skill.id }),
-      });
-    }
+  if (!isReadOnly.value && examSkillRows.length === 0 && defaultSelectedSkillIds.value.length > 0) {
+    await applyDefaultSkillsToExam();
 
     const reloadExamSkillsRes = await fetch(`/api/exams/${examId.value}/skills`);
     const reloadExamSkillsData = await reloadExamSkillsRes.json();
@@ -755,19 +787,14 @@ async function resetDefaults() {
   isResetting.value = true;
 
   try {
-    const [skillsRes, classSkillsRes, defaultLettersRes] = await Promise.all([
-      fetch("/api/skills"),
-      fetch(`/api/classes/${route.params.classId}/skills`),
+    const [skillsList, defaultLettersRes] = await Promise.all([
+      loadAvailableSkills(),
       fetch("/api/default-criterion-letters"),
     ]);
 
-    const [skillsData, classSkillsData, defaultLettersData] = await Promise.all([
-      skillsRes.json(),
-      classSkillsRes.json(),
-      defaultLettersRes.json(),
-    ]);
+    const defaultLettersData = await defaultLettersRes.json();
 
-    allSkills.value = (skillsData as any[]).map(normalizeSkill);
+    allSkills.value = skillsList;
 
     defaultLetters.value = (defaultLettersData as any[]).map((x: any) => ({
       letter: String(x.letter) as WeightKey,
@@ -776,7 +803,6 @@ async function resetDefaults() {
       isEnabled: !!x.isEnabled,
     }));
 
-    // vider les skills de l'examen
     const currentRes = await fetch(`/api/exams/${examId.value}/skills`);
     const currentSkills = await currentRes.json();
     for (const raw of currentSkills as any[]) {
@@ -787,9 +813,11 @@ async function resetDefaults() {
       );
     }
 
-    // réappliquer celles du cours
-    const classSkills = (classSkillsData as any[]).map(normalizeSkill);
-    for (const skill of classSkills) {
+    const defaultsToAdd = allSkills.value.filter((s) =>
+      defaultSelectedSkillIds.value.includes(String(s.id))
+    );
+
+    for (const skill of defaultsToAdd) {
       await fetch(`/api/exams/${examId.value}/skills`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -7,7 +7,7 @@
         class="btn btn--secondary"
         @click="showDefaultSettings = true"
       >
-        {{ t("pages.classesIndex.defaultSettings") }}
+        barème de correction
       </button>
       <div class="content-grid__actions">
         <button type="button" class="btn" @click="onAddClass">

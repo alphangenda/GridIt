@@ -29,9 +29,9 @@ export const useClassesStore = defineStore("classes", {
       const exams = await classService.getExamsByClass(classId);
       this.examsByClassId[classId] = exams;
     },
-    async addClass(name: string, skillIds: string[]) {
+    async addClass(name: string, skillIds: string[], programId?: string) {
       const classService = useClassService();
-      const created = await classService.createClass(name, skillIds);
+      const created = await classService.createClass(name, skillIds, programId);
       this.classes.push(created);
       return created;
     },

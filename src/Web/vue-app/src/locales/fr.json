@@ -54,6 +54,11 @@
             "fullPath": "/administration/membres/:id/modifier",
             "name": "Modifier un membre"
           }
+        },
+        "programs": {
+          "path": "programmes",
+          "fullPath": "/administration/programmes",
+          "name": "Programmes"
         }
       }
     },
@@ -498,7 +503,32 @@
       }
     },
     "classes": {
-      "addError": "Impossible d'ajouter la classe. Veuillez réessayer."
+      "addError": "Impossible d'ajouter la classe. Veuillez réessayer.",
+      "program": "Programme",
+      "programNone": "Aucun programme",
+      "programsLoadError": "Impossible de charger les programmes."
+    },
+    "programs": {
+      "columns": {
+        "name": "Nom du programme"
+      },
+      "newProgramPlaceholder": "Nom du programme",
+      "addProgram": "Ajouter un programme",
+      "created": "Programme créé.",
+      "deleted": "Programme supprimé.",
+      "deleteConfirm": "Voulez-vous vraiment supprimer ce programme ?",
+      "loadError": "Impossible de charger les programmes.",
+      "createError": "Impossible de créer le programme.",
+      "deleteError": "Impossible de supprimer le programme.",
+      "skillsTitle": "Compétences du programme : {name}",
+      "skillsHint": "Cliquez sur un programme puis cochez les compétences à associer.",
+      "skillsLoading": "Chargement des compétences...",
+      "noSkillsAvailable": "Aucune compétence disponible.",
+      "skillsSave": "Enregistrer les compétences",
+      "skillsSaving": "Enregistrement...",
+      "skillsSaved": "Compétences du programme enregistrées.",
+      "skillsLoadError": "Impossible de charger les compétences du programme.",
+      "skillsSaveError": "Impossible d'enregistrer les compétences du programme."
     },
     "sessions": {
       "homeTitle": "Page d'accueil",
@@ -510,7 +540,7 @@
       "loginInfos": "Informations de connexion"
     },
     "classesIndex": {
-      "defaultSettings": "Paramètres par défaut",
+      "defaultSettings": "barème de correction",
       "defaultSettingsSaved": "Paramètres par défaut sauvegardés"
     },
     "examDetail": {
@@ -547,7 +577,7 @@
       "percentUnit": "%"
     },
     "defaultSettingsModal": {
-      "title": "Paramètres par défaut",
+      "title": "Barème de correction",
       "subtitle": "Choisis les compétences de base et configure les lettres A à F.",
       "close": "Fermer",
       "baseSkills": "Compétences de base",

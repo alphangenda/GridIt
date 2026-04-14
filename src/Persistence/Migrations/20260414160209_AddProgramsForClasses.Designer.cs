@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Persistence;
@@ -11,9 +12,11 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(GarneauTemplateDbContext))]
-    partial class GarneauTemplateDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260414160209_AddProgramsForClasses")]
+    partial class AddProgramsForClasses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -417,34 +420,6 @@ namespace Persistence.Migrations
                         .HasDatabaseName("ix_group_classes_group_id");
 
                     b.ToTable("group_classes", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.Classes.ProgramSkill", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("ProgramId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("program_id");
-
-                    b.Property<Guid>("SkillId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("skill_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_program_skills");
-
-                    b.HasIndex("SkillId")
-                        .HasDatabaseName("ix_program_skills_skill_id");
-
-                    b.HasIndex("ProgramId", "SkillId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_program_skills_program_id_skill_id");
-
-                    b.ToTable("program_skills", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Classes.Skill", b =>
@@ -1025,23 +1000,6 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_group_classes_groups_group_id");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Classes.ProgramSkill", b =>
-                {
-                    b.HasOne("Domain.Entities.Classes.CourseProgram", null)
-                        .WithMany()
-                        .HasForeignKey("ProgramId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_program_skills_course_programs_program_id");
-
-                    b.HasOne("Domain.Entities.Classes.Skill", null)
-                        .WithMany()
-                        .HasForeignKey("SkillId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_program_skills_skills_skill_id");
                 });
 
             modelBuilder.Entity("Domain.Entities.Classes.Student", b =>

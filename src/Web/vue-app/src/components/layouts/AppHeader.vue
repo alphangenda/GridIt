@@ -48,6 +48,14 @@
       >
         {{ t("navigation.groups") }}
       </button>
+      <button
+        v-if="!isMobile && isSuperAdmin"
+        type="button"
+        class="app-header__grids-btn"
+        @click="goToPrograms"
+      >
+        {{ t("routes.admin.children.programs.name") }}
+      </button>
     </div>
 
     <div class="app-header__right">
@@ -90,6 +98,7 @@ import { useAuthenticationService } from "@/inversify.config";
 import { useMemberStore } from "@/stores/memberStore";
 import { useAdministratorStore } from "@/stores/administratorStore";
 import { useSessionsStore } from "@/stores/sessionsStore";
+import { Role } from "@/types/enums";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -104,6 +113,7 @@ const isDropdownOpen = ref(false);
 const profileRef = ref<HTMLElement | null>(null);
 
 const isMobile = computed(() => window.innerWidth < 768);
+const isSuperAdmin = computed(() => userStore.hasRole(Role.Admin));
 
 const sessions = computed(() => sessionsStore.getSessions);
 
@@ -184,6 +194,10 @@ async function goToGrids() {
 
 async function goToGroupes() {
   await router.push({ name: "groupes" });
+}
+
+async function goToPrograms() {
+  await router.push({ name: "admin.children.programs" });
 }
 </script>
 

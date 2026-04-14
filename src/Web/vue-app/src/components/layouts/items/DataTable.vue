@@ -72,6 +72,7 @@ defineProps<{
 // eslint-disable-next-line
 const emit = defineEmits<{
   (event: "delete", item: any): void
+  (event: "row-click", item: any): void
 }>()
 
 const router = useRouter()
@@ -79,7 +80,10 @@ const router = useRouter()
 function onClickRow(item: any) {
   if (item?.actions?.view) {
     router.push(item.actions.view)
+    return
   }
+
+  emit("row-click", item)
 }
 
 function handleDelete(item: any) {
