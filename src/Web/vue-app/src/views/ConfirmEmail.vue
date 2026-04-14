@@ -40,5 +40,11 @@
         const response = await authenticationService.confirmEmail({ userId, token })
         confirmed.value = response.succeeded;
         isLoading.value = false;
+
+        if (response.succeeded) {
+            setTimeout(() => {
+                router.push({ name: 'login' });
+            }, 2000);
+        }
     })
 </script>

@@ -11,7 +11,7 @@
       <div>
         <div class="exam-detail__back">
           <router-link
-            :to="isReadOnly ? { name: 'grids' } : { name: 'classes.examGroups', params: { classId: classId, examId: examId } }"
+            :to="isReadOnly ? { name: 'grids' } : { name: 'classes.groupExams', params: { classId: classId, groupId: String(route.params.groupId ?? '') } }"
             class="exam-detail__back-link"
             :aria-label="t('pages.examDetail.back')"
           >
@@ -28,7 +28,7 @@
         </button>
         <router-link
           v-if="!isReadOnly"
-          :to="{ name: 'evaluation', params: { classId: classId, examId: examId }, query: route.query.groupId ? { groupId: route.query.groupId } : {} }"
+          :to="{ name: 'evaluation', params: { classId: classId, examId: examId }, query: route.params.groupId ? { groupId: route.params.groupId } : {} }"
           class="btn"
         >
           {{ t("evaluation.evaluate") }}

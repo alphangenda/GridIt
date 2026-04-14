@@ -8,9 +8,7 @@
         <button
           v-if="cours.id"
           class="side-nav__link side-nav__link--expandable"
-          :class="{
-            'side-nav__link--expanded': expandedClassId === cours.id,
-          }"
+          :class="{ 'side-nav__link--expanded': expandedClassId === cours.id }"
           @click="toggleClass(cours.id!)"
         >
           <span class="side-nav__link-text">{{ cours.name }}</span>
@@ -22,36 +20,35 @@
         <Transition name="slide">
           <div v-if="expandedClassId === cours.id" class="side-nav__dropdown">
             <ul class="side-nav__sub-list">
-              <li v-for="exam in getExams(cours.id!)" :key="exam.id">
+              <li v-for="group in getGroups(cours.id!)" :key="group.id">
                 <RouterLink
-                  v-if="exam.id"
-                  :to="{ name: 'classes.examGroups', params: { classId: cours.id, examId: exam.id } }"
+                  :to="{ name: 'classes.groupExams', params: { classId: cours.id, groupId: group.id } }"
                   class="side-nav__sub-link"
                   active-class="side-nav__sub-link--active"
                 >
-                  {{ exam.name }}
+                  {{ group.name }}
                 </RouterLink>
               </li>
-              <li v-if="getExams(cours.id!).length === 0" class="side-nav__sub-empty">
-                {{ t("navigation.noExams") }}
+              <li v-if="getGroups(cours.id!).length === 0" class="side-nav__sub-empty">
+                {{ t("navigation.noGroups") }}
               </li>
             </ul>
             <button
               type="button"
               class="side-nav__add-exam-btn"
-              @click.stop="openCreateExam(cours.id!)"
+              @click.stop="openAddGroup(cours.id!)"
             >
-              + {{ t("navigation.addExam") }}
+              + {{ t("navigation.addGroup") }}
             </button>
           </div>
         </Transition>
       </li>
     </ul>
 
-    <CreateExamPopup
-      v-if="showCreatePopup && createExamClassId"
-      :class-id="createExamClassId"
-      @close="showCreatePopup = false"
+    <ImportGroupPopup
+      v-if="showAddPopup && addGroupClassId"
+      :class-id="addGroupClassId"
+      @close="onPopupClose"
     />
   </nav>
 </template>
@@ -62,7 +59,7 @@ import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
 import { useSessionsStore } from "@/stores/sessionsStore";
-import CreateExamPopup from "@/components/popups/CreateExamPopup.vue";
+import ImportGroupPopup from "@/components/popups/ImportGroupPopup.vue";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -71,31 +68,35 @@ const classesStore = useClassesStore();
 const sessionsStore = useSessionsStore();
 
 const expandedClassId = ref<string | null>(null);
-const showCreatePopup = ref(false);
-const createExamClassId = ref<string | null>(null);
+const showAddPopup = ref(false);
+const addGroupClassId = ref<string | null>(null);
 const initialized = ref(false);
+
+// groups cache: classId -> list of groups
+const groupsCache = ref<Record<string, { id: string; name: string }[]>>({});
 
 const activeClassId = computed(() => route.params.classId as string | undefined);
 
 const filteredClasses = computed(() => {
   const selectedId = sessionsStore.getSelectedSessionId;
-  if (!selectedId) {
-    return classesStore.getClasses;
-  }
+  if (!selectedId) return classesStore.getClasses;
 
   const selectedSession = sessionsStore.getSelectedSession;
   const classIds = selectedSession?.classIds ?? [];
-  if (!classIds.length) {
-    return [];
-  }
+  if (!classIds.length) return [];
 
-  return classesStore.getClasses.filter(
-    (c) => c.id && classIds.includes(c.id)
-  );
+  return classesStore.getClasses.filter((c) => c.id && classIds.includes(c.id));
 });
 
-function getExams(classId: string) {
-  return classesStore.getExamsForClass(classId);
+function getGroups(classId: string) {
+  return groupsCache.value[classId] ?? [];
+}
+
+async function fetchGroups(classId: string) {
+  const res = await fetch(`/api/classes/${classId}/groups`);
+  if (!res.ok) return;
+  const data = await res.json();
+  groupsCache.value[classId] = data.map((g: any) => ({ id: String(g.id), name: String(g.name) }));
 }
 
 function toggleClass(classId: string) {
@@ -103,14 +104,21 @@ function toggleClass(classId: string) {
     expandedClassId.value = null;
   } else {
     expandedClassId.value = classId;
-    classesStore.fetchExams(classId);
+    fetchGroups(classId);
     router.push({ name: "classes.detail", params: { classId } });
   }
 }
 
-function openCreateExam(classId: string) {
-  createExamClassId.value = classId;
-  showCreatePopup.value = true;
+function openAddGroup(classId: string) {
+  addGroupClassId.value = classId;
+  showAddPopup.value = true;
+}
+
+async function onPopupClose() {
+  showAddPopup.value = false;
+  if (addGroupClassId.value) {
+    await fetchGroups(addGroupClassId.value);
+  }
 }
 
 // Auto-expand once when classes are first loaded and a classId is in the URL
@@ -119,7 +127,7 @@ watch(
   (classes) => {
     if (!initialized.value && classes.length > 0 && activeClassId.value) {
       expandedClassId.value = activeClassId.value;
-      classesStore.fetchExams(activeClassId.value);
+      fetchGroups(activeClassId.value);
       initialized.value = true;
     }
   },
@@ -132,7 +140,7 @@ onBeforeRouteUpdate((to, from) => {
   const oldId = from.params.classId as string | undefined;
   if (newId && newId !== oldId) {
     expandedClassId.value = newId;
-    classesStore.fetchExams(newId);
+    fetchGroups(newId);
   }
 });
 </script>
