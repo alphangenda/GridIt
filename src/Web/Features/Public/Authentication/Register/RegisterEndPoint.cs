@@ -3,6 +3,7 @@ using Application.Interfaces.Services.Notifications;
 using Application.Interfaces.Services.Users;
 using Application.Settings;
 using Domain.Common;
+using Domain.Entities;
 using Domain.Entities.Identity;
 using Domain.Repositories;
 using Microsoft.Extensions.Options;
@@ -14,12 +15,14 @@ public class RegisterEndpoint : EndpointWithSanitizedRequest<RegisterRequest, Su
 {
     private readonly string _baseUrl;
     private readonly IUserRepository _userRepository;
+    private readonly IMemberRepository _memberRepository;
     private readonly IAuthenticationService _authenticationService;
     private readonly ILogger<RegisterEndpoint> _logger;
     private readonly INotificationService _notificationService;
 
     public RegisterEndpoint(
         IUserRepository userRepository,
+        IMemberRepository memberRepository,
         ILogger<RegisterEndpoint> logger,
         INotificationService notificationService,
         IAuthenticationService authenticationService,
@@ -27,6 +30,7 @@ public class RegisterEndpoint : EndpointWithSanitizedRequest<RegisterRequest, Su
     {
         _logger = logger;
         _userRepository = userRepository;
+        _memberRepository = memberRepository;
         _notificationService = notificationService;
         _authenticationService = authenticationService;
         _baseUrl = applicationSettings.Value.BaseUrl;
@@ -102,6 +106,11 @@ public class RegisterEndpoint : EndpointWithSanitizedRequest<RegisterRequest, Su
             await Send.OkAsync(new SucceededOrNotResponse(false, errors), ct);
             return;
         }
+
+        var emailPrefix = req.Email.Split('@')[0];
+        var member = new Member(emailPrefix, emailPrefix);
+        member.OnCreated(createdUser);
+        await _memberRepository.Create(member);
 
         var token = await _userRepository.GetEmailConfirmationTokenForUser(createdUser);
         var link = $"{_baseUrl}{req.ConfirmEmailRelativeUrl}?userId={createdUser.Id}&token={token.Base64UrlEncode()}";
