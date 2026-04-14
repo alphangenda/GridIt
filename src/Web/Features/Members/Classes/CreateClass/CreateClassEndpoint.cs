@@ -10,11 +10,16 @@ public class CreateClassEndpoint : Endpoint<CreateClassRequest, ClassDto>
 {
     private readonly IMapper _mapper;
     private readonly IClassRepository _classRepository;
+    private readonly IClassSkillRepository _classSkillRepository;
 
-    public CreateClassEndpoint(IMapper mapper, IClassRepository classRepository)
+    public CreateClassEndpoint(
+        IMapper mapper,
+        IClassRepository classRepository,
+        IClassSkillRepository classSkillRepository)
     {
         _mapper = mapper;
         _classRepository = classRepository;
+        _classSkillRepository = classSkillRepository;
     }
 
     public override void Configure()
@@ -32,6 +37,12 @@ public class CreateClassEndpoint : Endpoint<CreateClassRequest, ClassDto>
         classEntity.SetId(Guid.NewGuid());
 
         await _classRepository.CreateClass(classEntity);
+
+        if (req.SkillIds is not null && req.SkillIds.Count > 0)
+        {
+            await _classSkillRepository.SaveClassSkills(classEntity.Id, req.SkillIds);
+        }
+
         await Send.OkAsync(_mapper.Map<ClassDto>(classEntity), ct);
     }
 }

@@ -40,6 +40,14 @@
       >
         {{ t("routes.grids.name") }}
       </button>
+      <button
+        v-if="!isMobile"
+        type="button"
+        class="app-header__grids-btn"
+        @click="goToGroupes"
+      >
+        {{ t("navigation.groups") }}
+      </button>
     </div>
 
     <div class="app-header__right">
@@ -172,6 +180,10 @@ async function goToSessions() {
 
 async function goToGrids() {
   await router.push({ name: "grids" });
+}
+
+async function goToGroupes() {
+  await router.push({ name: "groupes" });
 }
 </script>
 

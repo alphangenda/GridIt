@@ -1,26 +1,34 @@
 <template>
   <div class="exam-detail">
+    <ConfirmResetPopup
+      v-if="showResetConfirm"
+      :is-loading="isResetting"
+      @close="showResetConfirm = false"
+      @confirm="confirmResetDefaults"
+    />
+
     <div class="exam-detail__header">
       <div>
         <div class="exam-detail__back">
           <router-link
-            :to="{ name: 'classes.examGroups', params: { classId: route.params.classId, examId: route.params.examId } }"
+            :to="isReadOnly ? { name: 'grids' } : { name: 'classes.groupExams', params: { classId: classId, groupId: String(route.params.groupId ?? '') } }"
             class="exam-detail__back-link"
             :aria-label="t('pages.examDetail.back')"
           >
             &lt;
           </router-link>
-          <h1 class="exam-detail__title">{{ exam?.name ?? t("pages.examDetail.titleFallback") }}</h1>
+          <h1 class="exam-detail__title">{{ examTitle }}</h1>
         </div>
-        <p class="exam-detail__hint">{{ t("pages.examDetail.subtitle") }}</p>
+        <p v-if="!isReadOnly" class="exam-detail__hint">{{ t("pages.examDetail.subtitle") }}</p>
       </div>
 
       <div class="exam-detail__actions">
-        <button type="button" class="btn btn--secondary" @click="showInfo = true">
+        <button v-if="!isReadOnly" type="button" class="btn btn--secondary" @click="showInfo = true">
           {{ t("pages.examDetail.skillGrid") }}
         </button>
         <router-link
-          :to="{ name: 'evaluation', params: { classId: route.params.classId, examId: route.params.examId }, query: route.query.groupId ? { groupId: route.query.groupId } : {} }"
+          v-if="!isReadOnly"
+          :to="{ name: 'evaluation', params: { classId: classId, examId: examId }, query: route.params.groupId ? { groupId: route.params.groupId } : {} }"
           class="btn"
         >
           {{ t("evaluation.evaluate") }}
@@ -36,10 +44,11 @@
 
         <div class="info-modal__top-actions">
           <button
+            v-if="!isReadOnly"
             type="button"
             class="btn btn--reset"
             :disabled="isResetting"
-            @click="resetDefaults"
+            @click="showResetConfirm = true"
           >
             {{ isResetting ? t("pages.examDetail.resetting") : t("pages.examDetail.reset") }}
           </button>
@@ -62,7 +71,7 @@
             <h2 class="info-modal__section-title">{{ t("pages.examDetail.skills") }}</h2>
 
             <div class="skills-grid">
-              <div class="skills-picker">
+              <div class="skills-picker" v-if="!isReadOnly">
                 <button
                   type="button"
                   class="skill-card skill-card--add"
@@ -124,6 +133,7 @@
                     <div class="criteria-header">
                       <div class="criteria-title">{{ t("pages.examDetail.criteria") }}</div>
                       <button
+                        v-if="!isReadOnly"
                         type="button"
                         class="btn btn--secondary"
                         :disabled="!activeSkill"
@@ -148,6 +158,7 @@
                           <select
                             v-model="c.valuePreset"
                             class="criterion-total"
+                            :disabled="isReadOnly"
                             @change="
                               c.valuePreset !== 'other'
                                 ? (c.totalValue = Number(c.valuePreset))
@@ -171,15 +182,18 @@
                             type="number"
                             class="criterion-total"
                             :placeholder="t('pages.examDetail.criterionCustomValue')"
+                            :disabled="isReadOnly"
                           />
 
                           <input
                             v-model="c.text"
                             class="criterion-name"
                             :placeholder="t('pages.examDetail.criterionName')"
+                            :disabled="isReadOnly"
                           />
 
                           <button
+                            v-if="!isReadOnly"
                             class="criterion-x"
                             @click="removeCriterion(activeSkillId, c.id)"
                           >
@@ -197,7 +211,7 @@
                             <input
                               type="checkbox"
                               v-model="e.enabled"
-                              :disabled="e.weight === 'A'"
+                              :disabled="isReadOnly || e.weight === 'A'"
                             />
                             {{ e.weight }}
                           </label>
@@ -208,7 +222,7 @@
                             class="weight-value"
                             :min="0"
                             :placeholder="e.value === 0 ? t('pages.examDetail.weightValue') : ''"
-                            :disabled="!e.enabled || !c.totalValue"
+                            :disabled="isReadOnly || !e.enabled || !c.totalValue"
                             @input="clampWeightValue(c, e)"
                           />
 
@@ -216,7 +230,7 @@
                             v-model="e.description"
                             class="weight-description"
                             :placeholder="t('pages.examDetail.weightDescription')"
-                            :disabled="!e.enabled"
+                            :disabled="isReadOnly || !e.enabled"
                           />
 
                           <div class="weight-percent">
@@ -296,9 +310,9 @@
     </FullScreenModal>
 
     <div class="evaluation__preview">
-      <div class="evaluation__preview-header">
+      <div v-if="!isReadOnly" class="evaluation__preview-header">
         <h2 class="evaluation__preview-title">
-          {{ exam?.name ?? t("pages.examDetail.titleFallback") }}
+          {{ examTitle }}
         </h2>
       </div>
 
@@ -391,10 +405,15 @@ import { useRoute } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
 import FullScreenModal from "@/components/popups/FullScreenModal.vue";
+import ConfirmResetPopup from "@/components/popups/ConfirmResetPopup.vue";
 import Card from "@/components/layouts/items/Card.vue";
 const { t } = useI18n();
 const route = useRoute();
 const classesStore = useClassesStore();
+
+const isReadOnly = computed(() => route.query.readOnly === '1');
+const classId = computed(() => String(route.params.classId ?? ""));
+const examId = computed(() => String(route.params.examId ?? ""));
 
 
 function normalizeSkill(s: any): Skill {
@@ -408,12 +427,12 @@ function normalizeSkill(s: any): Skill {
   };
 }
 const exam = computed(() => {
-  const classId = route.params.classId as string;
-  const examId = route.params.examId as string;
-  return classesStore.getExamsForClass(classId)?.find((e) => e.id === examId);
+  return classesStore.getExamsForClass(classId.value)?.find((e) => e.id === examId.value);
 });
+const examTitle = computed(() => String(exam.value?.name ?? route.query.examName ?? t("pages.examDetail.titleFallback")));
 
 const showInfo = ref(false);
+const showResetConfirm = ref(false);
 
 /* =========================
 DONUT COMPETENCES
@@ -477,20 +496,6 @@ type DefaultLetter = {
 };
 
 const defaultLetters = ref<DefaultLetter[]>([]);
-const defaultSelectedSkillIds = ref<string[]>([]);
-
-async function loadDefaultSelectedSkills() {
-  const res = await fetch("/api/default-selected-skills");
-  if (!res.ok) {
-    throw new Error("Impossible de charger les compétences par défaut");
-  }
-
-  const data = await res.json();
-  defaultSelectedSkillIds.value = (data as any[])
-    .filter(x => !!x.isSelected)
-    .map(x => String(x.skillId));
-}
-
 async function loadDefaultLetters() {
   const res = await fetch("/api/default-criterion-letters");
   if (!res.ok) {
@@ -603,8 +608,10 @@ const showSidePanel = ref(false);
 const allSkills = ref<Skill[]>([]);
 const isResetting = ref(false);
 
+<<<<<<< HEAD
+=======
 async function applyDefaultSkillsToExam() {
-  if (!exam.value) return;
+  if (!examId.value) return;
   if (defaultSelectedSkillIds.value.length === 0) return;
 
   const defaultsToAdd = allSkills.value.filter(s =>
@@ -612,7 +619,7 @@ async function applyDefaultSkillsToExam() {
   );
 
   for (const skill of defaultsToAdd) {
-    await fetch(`/api/exams/${exam.value.id}/skills`, {
+    await fetch(`/api/exams/${examId.value}/skills`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ skillId: skill.id }),
@@ -621,28 +628,29 @@ async function applyDefaultSkillsToExam() {
   }
 }
 
+>>>>>>> c985427aff122b6a8fb783ca4530b9c6e12aa4e0
 onMounted(async () => {
-  if (!exam.value) return;
+  if (!examId.value) return;
 
-  const [skillsRes, defaultSkillsRes, defaultLettersRes, examSkillsRes] = await Promise.all([
+  const [skillsRes, defaultLettersRes, classSkillsRes, examSkillsRes] = await Promise.all([
     fetch("/api/skills"),
-    fetch("/api/default-selected-skills"),
     fetch("/api/default-criterion-letters"),
+<<<<<<< HEAD
+    fetch(`/api/classes/${route.params.classId}/skills`),
     fetch(`/api/exams/${exam.value.id}/skills`),
+=======
+    fetch(`/api/exams/${examId.value}/skills`),
+>>>>>>> c985427aff122b6a8fb783ca4530b9c6e12aa4e0
   ]);
 
-  const [skillsData, defaultSkillsData, defaultLettersData, examSkillsData] = await Promise.all([
+  const [skillsData, defaultLettersData, classSkillsData, examSkillsData] = await Promise.all([
     skillsRes.json(),
-    defaultSkillsRes.json(),
     defaultLettersRes.json(),
+    classSkillsRes.json(),
     examSkillsRes.json(),
   ]);
 
   allSkills.value = (skillsData as any[]).map(normalizeSkill);
-
-  defaultSelectedSkillIds.value = (defaultSkillsData as any[])
-    .filter(x => !!x.isSelected)
-    .map(x => String(x.skillId));
 
   defaultLetters.value = (defaultLettersData as any[]).map((x) => ({
     letter: String(x.letter) as WeightKey,
@@ -651,12 +659,25 @@ onMounted(async () => {
     isEnabled: !!x.isEnabled,
   }));
 
+  const classSkillRows = (classSkillsData as any[]).map(normalizeSkill);
   let examSkillRows = (examSkillsData as any[]).map(normalizeSkill);
 
-  if (examSkillRows.length === 0 && defaultSelectedSkillIds.value.length > 0) {
+<<<<<<< HEAD
+  // si l'examen est vide, copier les compétences du cours
+  if (examSkillRows.length === 0 && classSkillRows.length > 0) {
+    for (const skill of classSkillRows) {
+      await fetch(`/api/exams/${exam.value.id}/skills`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ skillId: skill.id }),
+      });
+    }
+=======
+  if (!isReadOnly.value && examSkillRows.length === 0 && defaultSelectedSkillIds.value.length > 0) {
     await applyDefaultSkillsToExam();
+>>>>>>> c985427aff122b6a8fb783ca4530b9c6e12aa4e0
 
-    const reloadExamSkillsRes = await fetch(`/api/exams/${exam.value.id}/skills`);
+    const reloadExamSkillsRes = await fetch(`/api/exams/${examId.value}/skills`);
     const reloadExamSkillsData = await reloadExamSkillsRes.json();
     examSkillRows = (reloadExamSkillsData as any[]).map(normalizeSkill);
   }
@@ -673,6 +694,12 @@ onMounted(async () => {
   }
 
   activeSkillId.value = selectedSkills.value[0]?.id ?? "";
+
+  await Promise.all(
+    selectedSkills.value.map(async (skill) => {
+      criteria.value[skill.id] = await fetchCriteriaForSkill(skill.id);
+    })
+  );
 });
 
 const showPicker = ref(false);
@@ -683,6 +710,29 @@ const activeSkillId = ref<string>("");
 const criteria = ref<Record<string, Criterion[]>>({});
 
 const activeSkill = computed(() => selectedSkills.value.find(s => s.id === activeSkillId.value) ?? null);
+
+async function fetchCriteriaForSkill(skillId: string) {
+  const res = await fetch(`/api/exams/${examId.value}/skills/${skillId}/criteria`);
+  const data = await res.json();
+
+  return data.map((c: any) => ({
+    id: c.id,
+    text: c.label,
+    totalValue: c.totalValue,
+    valuePreset: [5, 10, 15, 20, 25, 30].includes(c.totalValue) ? c.totalValue : "other",
+    evaluations: WEIGHTS.map(w => {
+      const found = c.weights.find((x: any) => x.weight === w);
+      const def = defaultLetters.value.find(x => x.letter === w);
+
+      return {
+        weight: w,
+        value: found?.value ?? 0,
+        description: found?.description ?? def?.description ?? "",
+        enabled: found?.isEnabled ?? def?.isEnabled ?? (w === "A"),
+      };
+    }),
+  }));
+}
 
 function isSelected(id: string | number) {
   return selectedSkills.value.some(s => s.id === String(id));
@@ -695,14 +745,14 @@ watch(selectedSkills, (list) => {
 });
 
 async function toggleSkill(skill: Skill) {
-  if (!exam.value) return;
+  if (!examId.value) return;
 
   const normalizedSkill = normalizeSkill(skill);
   const alreadySelected = isSelected(normalizedSkill.id);
 
   if (alreadySelected) {
     await fetch(
-      `/api/exams/${exam.value.id}/skills/${skill.id}`,
+      `/api/exams/${examId.value}/skills/${skill.id}`,
       { method: "DELETE" }
     );
 
@@ -716,7 +766,7 @@ async function toggleSkill(skill: Skill) {
 
     if (isSelected(normalizedSkill.id)) return;
 
-    await fetch(`/api/exams/${exam.value.id}/skills`, {
+    await fetch(`/api/exams/${examId.value}/skills`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ skillId: normalizedSkill.id }),
@@ -731,27 +781,23 @@ async function toggleSkill(skill: Skill) {
 }
 
 async function resetDefaults() {
-  if (!exam.value || isResetting.value) return;
+  if (!examId.value || isResetting.value) return;
   isResetting.value = true;
 
   try {
-    const [skillsRes, defaultSkillsRes, defaultLettersRes] = await Promise.all([
+    const [skillsRes, classSkillsRes, defaultLettersRes] = await Promise.all([
       fetch("/api/skills"),
-      fetch("/api/default-selected-skills"),
+      fetch(`/api/classes/${route.params.classId}/skills`),
       fetch("/api/default-criterion-letters"),
     ]);
 
-    const [skillsData, defaultSkillsData, defaultLettersData] = await Promise.all([
+    const [skillsData, classSkillsData, defaultLettersData] = await Promise.all([
       skillsRes.json(),
-      defaultSkillsRes.json(),
+      classSkillsRes.json(),
       defaultLettersRes.json(),
     ]);
 
     allSkills.value = (skillsData as any[]).map(normalizeSkill);
-
-    defaultSelectedSkillIds.value = (defaultSkillsData as any[])
-      .filter((x: any) => !!x.isSelected)
-      .map((x: any) => String(x.skillId));
 
     defaultLetters.value = (defaultLettersData as any[]).map((x: any) => ({
       letter: String(x.letter) as WeightKey,
@@ -760,29 +806,41 @@ async function resetDefaults() {
       isEnabled: !!x.isEnabled,
     }));
 
+<<<<<<< HEAD
+    // vider les skills de l'examen
     const currentRes = await fetch(`/api/exams/${exam.value.id}/skills`);
+=======
+    const currentRes = await fetch(`/api/exams/${examId.value}/skills`);
+>>>>>>> c985427aff122b6a8fb783ca4530b9c6e12aa4e0
     const currentSkills = await currentRes.json();
     for (const raw of currentSkills as any[]) {
       const normalized = normalizeSkill(raw);
       await fetch(
-        `/api/exams/${exam.value.id}/skills/${normalized.id}`,
+        `/api/exams/${examId.value}/skills/${normalized.id}`,
         { method: "DELETE" }
       );
     }
 
+<<<<<<< HEAD
+    // réappliquer celles du cours
+    const classSkills = (classSkillsData as any[]).map(normalizeSkill);
+    for (const skill of classSkills) {
+      await fetch(`/api/exams/${exam.value.id}/skills`, {
+=======
     const defaultsToAdd = allSkills.value.filter((s) =>
       defaultSelectedSkillIds.value.includes(String(s.id))
     );
 
     for (const skill of defaultsToAdd) {
-      await fetch(`/api/exams/${exam.value.id}/skills`, {
+      await fetch(`/api/exams/${examId.value}/skills`, {
+>>>>>>> c985427aff122b6a8fb783ca4530b9c6e12aa4e0
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ skillId: skill.id }),
       });
     }
 
-    const afterRes = await fetch(`/api/exams/${exam.value.id}/skills`);
+    const afterRes = await fetch(`/api/exams/${examId.value}/skills`);
     const afterSkillsData = await afterRes.json();
 
     const seen = new Set<string>();
@@ -804,6 +862,11 @@ async function resetDefaults() {
   } finally {
     isResetting.value = false;
   }
+}
+
+async function confirmResetDefaults() {
+  await resetDefaults();
+  showResetConfirm.value = false;
 }
 
 function addCriterion() {
@@ -843,14 +906,14 @@ const progress = computed(() => {
 async function saveCriteria(skillId: string) {
   console.log("Sauvegarde critère pour", skillId);
 
-  if (!exam.value) return;
+  if (!examId.value) return;
   if (!criteria.value[skillId]) return;
 
   const examSkill = selectedSkills.value.find(s => s.id === skillId);
   if (!examSkill) return;
 
   await fetch(
-    `/api/exams/${exam.value.id}/skills/${skillId}/criteria`,
+    `/api/exams/${examId.value}/skills/${skillId}/criteria`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -877,7 +940,7 @@ async function saveCriteria(skillId: string) {
 }
 
 async function removeCriterion(skillId: string, criterionId: string) {
-  if (!exam.value || !skillId) return;
+  if (!examId.value || !skillId) return;
 
    if (saveTimeout) {
     clearTimeout(saveTimeout);
@@ -890,7 +953,7 @@ async function removeCriterion(skillId: string, criterionId: string) {
   criteria.value[skillId] = list.filter(c => c.id !== criterionId);
 
   await fetch(
-    `/api/exams/${exam.value.id}/skills/${skillId}/criteria/${criterionId}`,
+    `/api/exams/${examId.value}/skills/${skillId}/criteria/${criterionId}`,
     { method: "DELETE" }
   );
 
@@ -900,29 +963,10 @@ async function removeCriterion(skillId: string, criterionId: string) {
 let isReloading = false;
 
 async function reloadCriteria(skillId: string) {
-  if (!exam.value) return;
+  if (!examId.value) return;
   isReloading = true;
 
-  const res = await fetch(`/api/exams/${exam.value.id}/skills/${skillId}/criteria`);
-  const data = await res.json();
-
-  criteria.value[skillId] = data.map((c: any) => ({
-    id: c.id,
-    text: c.label,
-    totalValue: c.totalValue,
-    valuePreset: [5, 10, 15, 20, 25, 30].includes(c.totalValue) ? c.totalValue : "other",
-    evaluations: WEIGHTS.map(w => {
-      const found = c.weights.find((x: any) => x.weight === w);
-      const def = defaultLetters.value.find(x => x.letter === w);
-
-      return {
-        weight: w,
-        value: found?.value ?? 0,
-        description: found?.description ?? def?.description ?? "",
-        enabled: found?.isEnabled ?? def?.isEnabled ?? (w === "A"),
-      };
-    }),
-  }));
+  criteria.value[skillId] = await fetchCriteriaForSkill(skillId);
   await nextTick();
   await nextTick();
   isReloading = false;
@@ -957,6 +1001,7 @@ watch(
   () => {
     if (isReloading) return;
     if (!activeSkillId.value) return;
+    if (isReadOnly.value) return;
 
     const list = criteria.value[activeSkillId.value] ?? [];
     for (const c of list) {
