@@ -1,4 +1,4 @@
-namespace Web.Dtos;
+namespace Domain.Dtos;
 
 public class SkillDto
 {
