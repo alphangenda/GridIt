@@ -17,10 +17,10 @@ export class ClassService extends ApiService implements IClassService {
     }
   }
 
-  public async createClass(name: string): Promise<ClassItem> {
+  public async createClass(name: string, skillIds: string[]): Promise<ClassItem> {
     const response = await this._httpClient.post<ClassItem>(
       `${import.meta.env.VITE_API_BASE_URL}/classes`,
-      { name },
+      { name, skillIds },
       this.headersWithJsonContentType()
     );
     if (response.status < 200 || response.status >= 300 || !response.data) {
