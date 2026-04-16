@@ -29,8 +29,17 @@
       v-model="showDefaultSettings"
       @saved="handleDefaultsSaved"
     />
+
+    <ConfirmDeletePopup
+      v-if="pendingDelete"
+      :message="t('navigation.deleteClassConfirm')"
+      :is-loading="isDeleting"
+      @close="pendingDelete = null"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -41,6 +50,8 @@ import Card from "@/components/layouts/items/Card.vue";
 import DataTable from "@/components/layouts/items/DataTable.vue";
 import CreateClassPopup from "@/components/popups/CreateClassPopup.vue";
 import DefaultSettingsModal from "@/components/popups/DefaultSettingsModal.vue";
+import ConfirmDeletePopup from "@/components/popups/ConfirmDeletePopup.vue";
+import { notifySuccess, notifyError } from "@/notify";
 import type { Header } from "vue3-easy-data-table";
 
 const showDefaultSettings = ref(false);
@@ -54,6 +65,8 @@ const router = useRouter();
 const classesStore = useClassesStore();
 const sessionsStore = useSessionsStore();
 const showCreatePopup = ref(false);
+const pendingDelete = ref<{ id: string } | null>(null);
+const isDeleting = ref(false);
 
 onMounted(() => {
   classesStore.fetchClasses();
@@ -97,8 +110,20 @@ function onAddClass() {
 }
 
 function onDeleteClass(item: { id: string }) {
-  if (window.confirm(t("navigation.deleteClassConfirm"))) {
-    classesStore.deleteClass(item.id);
+  pendingDelete.value = item;
+}
+
+async function confirmDelete() {
+  if (!pendingDelete.value) return;
+  isDeleting.value = true;
+  try {
+    await classesStore.deleteClass(pendingDelete.value.id);
+    pendingDelete.value = null;
+    notifySuccess(t("navigation.classDeleted"));
+  } catch {
+    notifyError(t("navigation.deleteError"));
+  } finally {
+    isDeleting.value = false;
   }
 }
 </script>

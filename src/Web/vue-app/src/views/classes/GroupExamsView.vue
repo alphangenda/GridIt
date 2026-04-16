@@ -62,6 +62,14 @@
       @close="onExamPopupClose"
     />
 
+    <ConfirmDeletePopup
+      v-if="pendingDelete"
+      :message="t('navigation.deleteExamConfirm')"
+      :is-loading="isDeleting"
+      @close="pendingDelete = null"
+      @confirm="confirmDelete"
+    />
+
   </div>
 </template>
 
@@ -71,6 +79,8 @@ import { useRoute } from 'vue-router';
 import { useI18n } from 'vue3-i18n';
 import Card from '@/components/layouts/items/Card.vue';
 import CreateExamForGroupPopup from '@/components/popups/CreateExamForGroupPopup.vue';
+import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup.vue';
+import { notifySuccess, notifyError } from '@/notify';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import JSZip from 'jszip';
@@ -92,6 +102,8 @@ const exams = ref<{ id: string; name: string }[]>([]);
 const groupName = ref('');
 const loading = ref(true);
 const showCreateExamPopup = ref(false);
+const pendingDelete = ref<{ id: string; name: string } | null>(null);
+const isDeleting = ref(false);
 
 async function fetchGroupName() {
   const res = await fetch(`/api/classes/${classId.value}/groups`);
@@ -113,12 +125,26 @@ async function fetchExams() {
   }
 }
 
-async function onDeleteExam(exam: { id: string }) {
-  if (!window.confirm(t('navigation.deleteExamConfirm'))) return;
-  await fetch(`/api/classes/${classId.value}/groups/${groupId.value}/exams/${exam.id}`, {
-    method: 'DELETE',
-  });
-  await fetchExams();
+function onDeleteExam(exam: { id: string; name: string }) {
+  pendingDelete.value = exam;
+}
+
+async function confirmDelete() {
+  if (!pendingDelete.value) return;
+  isDeleting.value = true;
+  try {
+    const res = await fetch(`/api/classes/${classId.value}/groups/${groupId.value}/exams/${pendingDelete.value.id}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error();
+    pendingDelete.value = null;
+    notifySuccess(t('navigation.examDeleted'));
+    await fetchExams();
+  } catch {
+    notifyError(t('navigation.deleteError'));
+  } finally {
+    isDeleting.value = false;
+  }
 }
 
 async function onExamPopupClose() {

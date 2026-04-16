@@ -1,7 +1,6 @@
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using Persistence;
 using Persistence.Extensions;
 
@@ -10,12 +9,10 @@ namespace Web.Features.Grids.GetGrids;
 public class GetGridsEndpoint : EndpointWithoutRequest<List<GridDto>>
 {
     private readonly GarneauTemplateDbContext _context;
-    private readonly IConfiguration _config;
 
-    public GetGridsEndpoint(GarneauTemplateDbContext context, IConfiguration config)
+    public GetGridsEndpoint(GarneauTemplateDbContext context)
     {
         _context = context;
-        _config = config;
     }
 
     public override void Configure()
@@ -47,6 +44,7 @@ public class GetGridsEndpoint : EndpointWithoutRequest<List<GridDto>>
                 exam.IsPublic,
                 CreatorEmail = session.CreatedBy ?? "",
                 Created = exam.Created,
+                GroupId = exam.GroupId,
             }
         ).ToListAsync(ct);
 
@@ -67,6 +65,7 @@ public class GetGridsEndpoint : EndpointWithoutRequest<List<GridDto>>
                 exam.IsPublic,
                 CreatorEmail = session.CreatedBy ?? "",
                 Created = exam.Created,
+                GroupId = exam.GroupId,
             }
         ).ToListAsync(ct);
 
@@ -77,33 +76,17 @@ public class GetGridsEndpoint : EndpointWithoutRequest<List<GridDto>>
             .OrderByDescending(r => r.Created)
             .ToList();
 
-        // Load group names for all exams from exam_groups table
-        var examGroupNames = new Dictionary<Guid, List<string>>();
-        var cs = _config.GetConnectionString("DefaultConnection");
-        using (var conn = new NpgsqlConnection(cs))
-        {
-            conn.Open();
-            var examIds = combined.Select(r => r.ExamId).ToList();
-            if (examIds.Count > 0)
-            {
-                var paramNames = examIds.Select((_, i) => $"@eid{i}").ToList();
-                var cmd = new NpgsqlCommand(
-                    $"SELECT exam_id, name FROM exam_groups WHERE exam_id IN ({string.Join(",", paramNames)}) ORDER BY name",
-                    conn);
-                for (var i = 0; i < examIds.Count; i++)
-                    cmd.Parameters.AddWithValue($"@eid{i}", examIds[i]);
+        // Load group names via Exam.GroupId → Groups table
+        var groupIds = combined
+            .Where(r => r.GroupId.HasValue)
+            .Select(r => r.GroupId!.Value)
+            .Distinct()
+            .ToList();
 
-                using var reader = cmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    var eid = reader.GetGuid(0);
-                    var name = reader.GetString(1);
-                    if (!examGroupNames.ContainsKey(eid))
-                        examGroupNames[eid] = new List<string>();
-                    examGroupNames[eid].Add(name);
-                }
-            }
-        }
+        var groupNamesById = await _context.Groups
+            .Where(g => groupIds.Contains(g.Id))
+            .Select(g => new { g.Id, g.Name })
+            .ToDictionaryAsync(g => g.Id, g => g.Name, ct);
 
         var grids = combined.Select(r => new GridDto(
                 r.ExamId,
@@ -115,7 +98,9 @@ public class GetGridsEndpoint : EndpointWithoutRequest<List<GridDto>>
                 r.CreatorEmail == userEmail,
                 r.CreatorEmail,
                 r.Created.ToDateTimeUtc(),
-                examGroupNames.TryGetValue(r.ExamId, out var names) ? names : new List<string>()
+                r.GroupId.HasValue && groupNamesById.TryGetValue(r.GroupId.Value, out var gName)
+                    ? new List<string> { gName }
+                    : new List<string>()
             )).ToList();
 
         await Send.OkAsync(grids, ct);

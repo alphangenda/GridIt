@@ -22,8 +22,17 @@
     </Card>
 
     <CreateExamPopup v-if="showCreatePopup" :class-id="classId" @close="showCreatePopup = false" />
+
+    <ConfirmDeletePopup
+      v-if="pendingDelete"
+      :message="t('navigation.deleteExamConfirm')"
+      :is-loading="isDeleting"
+      @close="pendingDelete = null"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -32,6 +41,8 @@ import { useClassesStore } from "@/stores/classesStore";
 import Card from "@/components/layouts/items/Card.vue";
 import DataTable from "@/components/layouts/items/DataTable.vue";
 import CreateExamPopup from "@/components/popups/CreateExamPopup.vue";
+import ConfirmDeletePopup from "@/components/popups/ConfirmDeletePopup.vue";
+import { notifySuccess, notifyError } from "@/notify";
 import type { Header } from "vue3-easy-data-table";
 
 const { t } = useI18n();
@@ -39,6 +50,8 @@ const route = useRoute();
 const router = useRouter();
 const classesStore = useClassesStore();
 const showCreatePopup = ref(false);
+const pendingDelete = ref<{ id: string } | null>(null);
+const isDeleting = ref(false);
 
 const classId = computed(() => route.params.classId as string);
 
@@ -78,8 +91,20 @@ function onAddExam() {
 }
 
 function onDeleteExam(item: { id: string }) {
-  if (window.confirm(t("navigation.deleteExamConfirm"))) {
-    classesStore.deleteExam(classId.value, item.id);
+  pendingDelete.value = item;
+}
+
+async function confirmDelete() {
+  if (!pendingDelete.value) return;
+  isDeleting.value = true;
+  try {
+    await classesStore.deleteExam(classId.value, pendingDelete.value.id);
+    pendingDelete.value = null;
+    notifySuccess(t("navigation.examDeleted"));
+  } catch {
+    notifyError(t("navigation.deleteError"));
+  } finally {
+    isDeleting.value = false;
   }
 }
 </script>

@@ -125,6 +125,54 @@ public class GroupsController : ControllerBase
         return Ok(students);
     }
 
+    [HttpPost("{groupId}/students")]
+    public async Task<IActionResult> AddStudent(Guid groupId, [FromBody] GroupStudentEntry req)
+    {
+        if (string.IsNullOrWhiteSpace(req.Number) || string.IsNullOrWhiteSpace(req.FirstName) || string.IsNullOrWhiteSpace(req.LastName))
+            return BadRequest("All fields are required.");
+
+        var group = await _db.Groups.FindAsync(groupId);
+        if (group == null) return NotFound();
+
+        var cs = _config.GetConnectionString("DefaultConnection");
+        using var conn = new NpgsqlConnection(cs);
+        conn.Open();
+        EnsureGroupStudentsTable(conn);
+
+        var newId = Guid.NewGuid();
+        using var insert = new NpgsqlCommand(@"
+            INSERT INTO group_students (id, group_id, number, first_name, last_name)
+            VALUES (@id, @groupId, @number, @firstName, @lastName)
+        ", conn);
+        insert.Parameters.AddWithValue("@id", newId);
+        insert.Parameters.AddWithValue("@groupId", groupId);
+        insert.Parameters.AddWithValue("@number", req.Number.Trim());
+        insert.Parameters.AddWithValue("@firstName", req.FirstName.Trim());
+        insert.Parameters.AddWithValue("@lastName", req.LastName.Trim());
+        insert.ExecuteNonQuery();
+
+        return Ok(new { id = newId, number = req.Number.Trim(), firstName = req.FirstName.Trim(), lastName = req.LastName.Trim() });
+    }
+
+    [HttpDelete("{groupId}/students/{studentId}")]
+    public async Task<IActionResult> DeleteStudent(Guid groupId, Guid studentId)
+    {
+        var cs = _config.GetConnectionString("DefaultConnection");
+        using var conn = new NpgsqlConnection(cs);
+        conn.Open();
+        EnsureGroupStudentsTable(conn);
+
+        using var cmd = new NpgsqlCommand(@"
+            DELETE FROM group_students WHERE id = @studentId AND group_id = @groupId
+        ", conn);
+        cmd.Parameters.AddWithValue("@studentId", studentId);
+        cmd.Parameters.AddWithValue("@groupId", groupId);
+        var affected = cmd.ExecuteNonQuery();
+
+        if (affected == 0) return NotFound();
+        return Ok();
+    }
+
     [HttpDelete("{groupId}")]
     public async Task<IActionResult> Delete(Guid groupId)
     {

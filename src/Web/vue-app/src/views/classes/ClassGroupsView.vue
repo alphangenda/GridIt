@@ -47,6 +47,14 @@
       :class-id="classId"
       @close="onPopupClose"
     />
+
+    <ConfirmDeletePopup
+      v-if="pendingDelete"
+      :message="t('navigation.deleteGroupConfirm')"
+      :is-loading="isDeleting"
+      @close="pendingDelete = null"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
@@ -57,11 +65,15 @@ import { useI18n } from 'vue3-i18n';
 import { useClassesStore } from '@/stores/classesStore';
 import Card from '@/components/layouts/items/Card.vue';
 import ImportGroupPopup from '@/components/popups/ImportGroupPopup.vue';
+import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup.vue';
+import { notifySuccess, notifyError } from '@/notify';
 
 const { t } = useI18n();
 const route = useRoute();
 const classesStore = useClassesStore();
 const showAddPopup = ref(false);
+const pendingDelete = ref<{ id: string } | null>(null);
+const isDeleting = ref(false);
 
 const classId = computed(() => route.params.classId as string);
 const groups = ref<{ id: string; name: string }[]>([]);
@@ -83,10 +95,24 @@ async function fetchGroups() {
   }
 }
 
-async function onRemoveGroup(group: { id: string }) {
-  if (!window.confirm(t('navigation.deleteGroupConfirm'))) return;
-  await fetch(`/api/classes/${classId.value}/groups/${group.id}`, { method: 'DELETE' });
-  await fetchGroups();
+function onRemoveGroup(group: { id: string }) {
+  pendingDelete.value = group;
+}
+
+async function confirmDelete() {
+  if (!pendingDelete.value) return;
+  isDeleting.value = true;
+  try {
+    const res = await fetch(`/api/classes/${classId.value}/groups/${pendingDelete.value.id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error();
+    pendingDelete.value = null;
+    notifySuccess(t('navigation.groupRemovedFromClass'));
+    await fetchGroups();
+  } catch {
+    notifyError(t('navigation.deleteError'));
+  } finally {
+    isDeleting.value = false;
+  }
 }
 
 async function onPopupClose() {
