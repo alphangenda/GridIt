@@ -3,7 +3,14 @@
     <AppHeader />
 
     <div class="dashboard__body">
-      <ClassesNav />
+      <div class="dashboard__nav-wrap" :class="{ 'dashboard__nav-wrap--collapsed': navCollapsed }">
+        <ClassesNav />
+      </div>
+      <button
+        class="dashboard__nav-toggle"
+        :title="navCollapsed ? 'Ouvrir' : 'Fermer'"
+        @click="navCollapsed = !navCollapsed"
+      >{{ navCollapsed ? '›' : '‹' }}</button>
       <main class="dashboard__content">
         <LogoutPopup />
         <Notifications />
@@ -39,6 +46,7 @@ import { usePersonStore } from "@/stores/personStore";
 import { useUserStore } from "@/stores/userStore";
 
 const route = useRoute();
+const navCollapsed = ref(false);
 const userStore = useUserStore();
 const personStore = usePersonStore();
 const memberStore = useMemberStore();
@@ -63,8 +71,6 @@ onMounted(async () => {
   }
   userIsLoading.value = false;
   // Load classes after auth is ready so GET /classes has a valid token (fixes empty list on refresh)
-  if (route.name === "classes" || route.name === "classes.index" || (typeof route.name === "string" && route.name.startsWith("classes."))) {
-    await classesStore.fetchClasses();
-  }
+  await classesStore.fetchClasses();
 });
 </script>
