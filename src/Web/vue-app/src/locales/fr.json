@@ -204,7 +204,19 @@
     "classes": "Cours",
     "groupNameExists": "Un groupe avec ce nom existe déjà. Veuillez réessayer avec un nom différent.",
     "groupAlreadyLinked": "Ce groupe est déjà lié à ce cours.",
-    "examNameExists": "Une évaluation avec ce nom existe déjà dans ce groupe. Veuillez réessayer avec un nom différent."
+    "examNameExists": "Une évaluation avec ce nom existe déjà dans ce groupe. Veuillez réessayer avec un nom différent.",
+    "classDeleted": "Cours supprimé.",
+    "groupDeleted": "Groupe supprimé.",
+    "groupRemovedFromClass": "Groupe retiré du cours.",
+    "examDeleted": "Évaluation supprimée.",
+    "deleteError": "Impossible de supprimer. Veuillez réessayer.",
+    "noStudents": "Aucun étudiant dans ce groupe.",
+    "addStudent": "Ajouter un étudiant",
+    "studentAdded": "Étudiant ajouté.",
+    "studentDeleted": "Étudiant supprimé.",
+    "deleteStudentConfirm": "Voulez-vous vraiment supprimer cet étudiant ?",
+    "studentAddError": "Impossible d'ajouter l'étudiant. Veuillez réessayer.",
+    "studentDeleteError": "Impossible de supprimer l'étudiant. Veuillez réessayer."
   },
   "products": {
     "form": {

@@ -81,6 +81,14 @@
       @close="skillPendingRemoval = null"
       @confirm="confirmRemoveSkill"
     />
+
+    <ConfirmDeletePopup
+      v-if="programPendingDelete"
+      :message="t('pages.programs.deleteConfirm')"
+      :is-loading="isDeletingProgram"
+      @close="programPendingDelete = null"
+      @confirm="confirmDeleteProgram"
+    />
   </div>
 </template>
 
@@ -92,6 +100,7 @@ import DataTable from "@/components/layouts/items/DataTable.vue";
 import Card from "@/components/layouts/items/Card.vue";
 import AddSkillToProgramPopup from "@/components/popups/AddSkillToProgramPopup.vue";
 import ConfirmRemoveSkillPopup from "@/components/popups/ConfirmRemoveSkillPopup.vue";
+import ConfirmDeletePopup from "@/components/popups/ConfirmDeletePopup.vue";
 import IconDelete from "@/assets/icons/icon__delete.svg";
 import { useProgramService } from "@/inversify.config";
 import { notifyError, notifySuccess } from "@/notify";
@@ -109,6 +118,8 @@ const isSkillsLoading = ref(false);
 const isAddPopupOpen = ref(false);
 const removingSkillId = ref<string | null>(null);
 const skillPendingRemoval = ref<SkillItem | null>(null);
+const programPendingDelete = ref<ProgramItem | null>(null);
+const isDeletingProgram = ref(false);
 
 const headers: Header[] = [
   { text: t("pages.programs.columns.name"), value: "name", sortable: true },
@@ -161,20 +172,28 @@ async function createProgram() {
   }
 }
 
-async function onDelete(item: { id: string }) {
-  if (!confirm(t("pages.programs.deleteConfirm"))) return;
+function onDelete(item: { id: string }) {
+  const program = programs.value.find((p) => p.id === item.id);
+  if (program) programPendingDelete.value = program;
+}
 
+async function confirmDeleteProgram() {
+  if (!programPendingDelete.value) return;
+  isDeletingProgram.value = true;
   try {
-    await programService.deleteProgram(item.id);
-    programs.value = programs.value.filter((x) => x.id !== item.id);
-    if (selectedProgramId.value === item.id) {
+    await programService.deleteProgram(programPendingDelete.value.id);
+    programs.value = programs.value.filter((x) => x.id !== programPendingDelete.value!.id);
+    if (selectedProgramId.value === programPendingDelete.value.id) {
       selectedProgramId.value = null;
       programSkills.value = [];
     }
     notifySuccess(t("pages.programs.deleted"));
+    programPendingDelete.value = null;
   } catch (error) {
     console.error(error);
     notifyError(t("pages.programs.deleteError"));
+  } finally {
+    isDeletingProgram.value = false;
   }
 }
 

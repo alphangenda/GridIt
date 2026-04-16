@@ -102,8 +102,6 @@ public class ClassGroupsController : ControllerBase
                 insert.Parameters.AddWithValue("@lastName", s.LastName);
                 insert.ExecuteNonQuery();
             }
-
-            return Ok(new { id = groupId });
         }
 
         var link = new GroupClass();

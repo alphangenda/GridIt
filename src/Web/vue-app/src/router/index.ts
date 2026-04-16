@@ -25,6 +25,7 @@ import ClassGroupsView from "@/views/classes/ClassGroupsView.vue";
 import GroupExamsView from "@/views/classes/GroupExamsView.vue";
 import ExamDetailView from "@/views/classes/ExamDetailView.vue";
 import GroupesView from "@/views/groups/GroupesView.vue";
+import GroupStudentsView from "@/views/groups/GroupStudentsView.vue";
 
 import EvaluationView from "@/views/evaluation/EvaluationView.vue";
 import SessionsView from "@/views/sessions/SessionsView.vue";
@@ -260,6 +261,16 @@ const router = createRouter({
       path: "/groupes",
       name: "groupes",
       component: GroupesView,
+      meta: {
+        requiredRole: [Role.Member, Role.Admin],
+        title: "navigation.groups"
+      }
+    },
+    {
+      path: "/groupes/:groupId",
+      name: "groupes.students",
+      component: GroupStudentsView,
+      props: true,
       meta: {
         requiredRole: [Role.Member, Role.Admin],
         title: "navigation.groups"

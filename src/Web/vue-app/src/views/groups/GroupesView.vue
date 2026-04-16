@@ -26,6 +26,14 @@
       class-id=""
       @close="onPopupClose"
     />
+
+    <ConfirmDeletePopup
+      v-if="pendingDelete"
+      :message="t('navigation.deleteGroupConfirm')"
+      :is-loading="isDeleting"
+      @close="pendingDelete = null"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
@@ -35,12 +43,16 @@ import { useI18n } from 'vue3-i18n';
 import Card from '@/components/layouts/items/Card.vue';
 import DataTable from '@/components/layouts/items/DataTable.vue';
 import ImportGroupPopup from '@/components/popups/ImportGroupPopup.vue';
+import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup.vue';
+import { notifySuccess, notifyError } from '@/notify';
 import type { Header } from 'vue3-easy-data-table';
 
 const { t } = useI18n();
 const groups = ref<{ id: string; name: string; classes: { id: string; name: string }[] }[]>([]);
 const loading = ref(true);
 const showCreatePopup = ref(false);
+const pendingDelete = ref<{ id: string } | null>(null);
+const isDeleting = ref(false);
 
 const headers: Header[] = [
   { text: t('navigation.groupName'), value: 'name', sortable: true },
@@ -53,7 +65,10 @@ const tableItems = computed(() =>
     id: g.id,
     name: g.name,
     classNames: g.classes.map((c) => c.name).join(', ') || '—',
-    actions: { delete: true },
+    actions: {
+      view: { name: 'groupes.students', params: { groupId: g.id } },
+      delete: true,
+    },
   }))
 );
 
@@ -78,10 +93,24 @@ async function onPopupClose() {
   await fetchGroups();
 }
 
-async function onDeleteGroup(item: { id: string }) {
-  if (!window.confirm(t('navigation.deleteGroupConfirm'))) return;
-  await fetch(`/api/groups/${item.id}`, { method: 'DELETE' });
-  await fetchGroups();
+function onDeleteGroup(item: { id: string }) {
+  pendingDelete.value = item;
+}
+
+async function confirmDelete() {
+  if (!pendingDelete.value) return;
+  isDeleting.value = true;
+  try {
+    const res = await fetch(`/api/groups/${pendingDelete.value.id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error();
+    pendingDelete.value = null;
+    notifySuccess(t('navigation.groupDeleted'));
+    await fetchGroups();
+  } catch {
+    notifyError(t('navigation.deleteError'));
+  } finally {
+    isDeleting.value = false;
+  }
 }
 
 onMounted(fetchGroups);
