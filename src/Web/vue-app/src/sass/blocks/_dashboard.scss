@@ -12,6 +12,29 @@
     flex-direction: column;
   }
 
+  &__nav-wrap {
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: width 0.25s ease;
+  }
+
+  &__nav-toggle {
+    display: none;
+    background: $color-grey-dark;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0;
+    align-self: stretch;
+    width: 20px;
+    flex-shrink: 0;
+    &:hover {
+      background: $color-grey-darker;
+    }
+  }
+
   &__content {
     flex: 1;
     padding: 32px 0 48px;
@@ -26,15 +49,32 @@
 @include breakpoint(md-up) {
   .dashboard {
     &__body {
-      display: grid;
-      grid-template-columns: 240px 1fr;
+      display: flex;
+      flex-direction: row;
       min-height: calc(100vh - 56px);
     }
 
+    &__nav-wrap {
+      width: 240px;
+      display: flex;
+      flex-direction: column;
+
+      &--collapsed {
+        width: 0;
+      }
+    }
+
+    &__nav-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     &__content {
+      flex: 1;
+      min-width: 0;
       padding-left: 40px;
       padding-top: 40px;
     }
-
   }
 }
