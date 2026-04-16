@@ -38,6 +38,6 @@ public class DeleteProgramEndpoint : EndpointWithoutRequest
 
         _dbContext.CoursePrograms.Remove(program);
         await _dbContext.SaveChangesAsync(ct);
-        await Send.OkAsync(ct);
+        await Send.NoContentAsync(ct);
     }
 }
