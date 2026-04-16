@@ -115,4 +115,10 @@ export interface IProgramService {
   getProgramSkills(programId: string): Promise<Array<{ id: string; label: string }>>
 
   saveProgramSkills(programId: string, skillIds: string[]): Promise<void>
+
+  createSkill(label: string): Promise<{ id: string; label: string }>
+
+  addSkillToProgram(programId: string, skillId: string): Promise<void>
+
+  removeSkillFromProgram(programId: string, skillId: string): Promise<void>
 }

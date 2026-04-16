@@ -28,45 +28,71 @@
     <Card v-if="selectedProgram">
       <div class="program-skills">
         <h2>{{ t("pages.programs.skillsTitle", { name: selectedProgram.name }) }}</h2>
-        <p class="program-skills__hint">{{ t("pages.programs.skillsHint") }}</p>
+        <p class="program-skills__hint">{{ t("pages.programs.skillsProgramHint") }}</p>
 
         <div v-if="isSkillsLoading" class="program-skills__status">
           {{ t("pages.programs.skillsLoading") }}
         </div>
 
-        <div v-else-if="allSkills.length === 0" class="program-skills__status">
-          {{ t("pages.programs.noSkillsAvailable") }}
+        <div v-else-if="programSkills.length === 0" class="program-skills__status">
+          {{ t("pages.programs.noProgramSkills") }}
         </div>
 
-        <div v-else class="program-skills__list">
-          <label
-            v-for="skill in allSkills"
+        <ul v-else class="program-skills__list">
+          <li
+            v-for="skill in programSkills"
             :key="skill.id"
-            class="program-skills__item"
+            class="program-skills__row"
           >
-            <input
-              :checked="selectedSkillIds.includes(skill.id)"
-              type="checkbox"
-              @change="onSkillCheckboxChange(skill.id, $event)"
-            />
-            <span>{{ skill.label }}</span>
-          </label>
-        </div>
+            <span class="program-skills__name">{{ skill.label }}</span>
+            <button
+              type="button"
+              class="program-skills__delete"
+              :disabled="removingSkillId === skill.id"
+              :aria-label="t('global.actions.delete')"
+              :title="t('global.actions.delete')"
+              @click="onRemoveSkill(skill)"
+            >
+              <IconDelete class="icon icon--black" />
+            </button>
+          </li>
+        </ul>
 
-        <div v-if="isSavingSkills" class="program-skills__status">
-          {{ t("pages.programs.skillsSaving") }}
+        <div class="program-skills__actions">
+          <button type="button" class="btn" @click="isAddPopupOpen = true">
+            {{ t("pages.programs.addSkillButton") }}
+          </button>
         </div>
       </div>
     </Card>
+
+    <AddSkillToProgramPopup
+      v-if="isAddPopupOpen && selectedProgramId"
+      :program-id="selectedProgramId"
+      :existing-labels="programSkills.map((s) => s.label)"
+      @close="isAddPopupOpen = false"
+      @added="onSkillAdded"
+    />
+
+    <ConfirmRemoveSkillPopup
+      v-if="skillPendingRemoval"
+      :skill-label="skillPendingRemoval.label"
+      :is-loading="removingSkillId === skillPendingRemoval.id"
+      @close="skillPendingRemoval = null"
+      @confirm="confirmRemoveSkill"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue3-i18n";
 import type { Header } from "vue3-easy-data-table";
 import DataTable from "@/components/layouts/items/DataTable.vue";
 import Card from "@/components/layouts/items/Card.vue";
+import AddSkillToProgramPopup from "@/components/popups/AddSkillToProgramPopup.vue";
+import ConfirmRemoveSkillPopup from "@/components/popups/ConfirmRemoveSkillPopup.vue";
+import IconDelete from "@/assets/icons/icon__delete.svg";
 import { useProgramService } from "@/inversify.config";
 import { notifyError, notifySuccess } from "@/notify";
 
@@ -78,10 +104,11 @@ const programService = useProgramService();
 const programs = ref<ProgramItem[]>([]);
 const newProgramName = ref("");
 const selectedProgramId = ref<string | null>(null);
-const allSkills = ref<SkillItem[]>([]);
-const selectedSkillIds = ref<string[]>([]);
+const programSkills = ref<SkillItem[]>([]);
 const isSkillsLoading = ref(false);
-const isSavingSkills = ref(false);
+const isAddPopupOpen = ref(false);
+const removingSkillId = ref<string | null>(null);
+const skillPendingRemoval = ref<SkillItem | null>(null);
 
 const headers: Header[] = [
   { text: t("pages.programs.columns.name"), value: "name", sortable: true },
@@ -100,7 +127,7 @@ const selectedProgram = computed(() =>
 );
 
 onMounted(async () => {
-  await Promise.all([loadPrograms(), loadSkills()]);
+  await loadPrograms();
 
   if (programs.value.length === 0) {
     await new Promise((r) => setTimeout(r, 500));
@@ -142,25 +169,12 @@ async function onDelete(item: { id: string }) {
     programs.value = programs.value.filter((x) => x.id !== item.id);
     if (selectedProgramId.value === item.id) {
       selectedProgramId.value = null;
-      selectedSkillIds.value = [];
+      programSkills.value = [];
     }
     notifySuccess(t("pages.programs.deleted"));
   } catch (error) {
     console.error(error);
     notifyError(t("pages.programs.deleteError"));
-  }
-}
-
-async function loadSkills() {
-  try {
-    const response = await fetch("/api/skills");
-    if (!response.ok) throw new Error("Failed to load skills");
-    const data = (await response.json()) as SkillItem[];
-    allSkills.value = Array.isArray(data) ? data : [];
-  } catch (error) {
-    console.error(error);
-    allSkills.value = [];
-    notifyError(t("pages.programs.skillsLoadError"));
   }
 }
 
@@ -172,56 +186,40 @@ async function onSelectProgram(item: { id: string }) {
 async function loadProgramSkills(programId: string) {
   isSkillsLoading.value = true;
   try {
-    const skills = await programService.getProgramSkills(programId);
-    selectedSkillIds.value = skills.map((x) => x.id);
+    programSkills.value = await programService.getProgramSkills(programId);
   } catch (error) {
     console.error(error);
-    selectedSkillIds.value = [];
+    programSkills.value = [];
     notifyError(t("pages.programs.skillsLoadError"));
   } finally {
     isSkillsLoading.value = false;
   }
 }
 
-function toggleSkill(skillId: string, checked: boolean) {
-  if (checked) {
-    if (!selectedSkillIds.value.includes(skillId)) {
-      selectedSkillIds.value = [...selectedSkillIds.value, skillId];
-    }
-    return;
-  }
-
-  selectedSkillIds.value = selectedSkillIds.value.filter((id) => id !== skillId);
-}
-
-function onSkillCheckboxChange(skillId: string, event: Event) {
-  const target = event.target as HTMLInputElement | null;
-  toggleSkill(skillId, !!target?.checked);
-  scheduleAutoSave();
-}
-
-let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
-
-function scheduleAutoSave() {
-  if (autoSaveTimer) clearTimeout(autoSaveTimer);
-  autoSaveTimer = setTimeout(() => saveProgramSkills(), 400);
-}
-
-onBeforeUnmount(() => {
-  if (autoSaveTimer) clearTimeout(autoSaveTimer);
-});
-
-async function saveProgramSkills() {
+async function onSkillAdded() {
   if (!selectedProgramId.value) return;
+  await loadProgramSkills(selectedProgramId.value);
+}
 
-  isSavingSkills.value = true;
+function onRemoveSkill(skill: SkillItem) {
+  skillPendingRemoval.value = skill;
+}
+
+async function confirmRemoveSkill() {
+  const skill = skillPendingRemoval.value;
+  if (!skill || !selectedProgramId.value) return;
+
+  removingSkillId.value = skill.id;
   try {
-    await programService.saveProgramSkills(selectedProgramId.value, selectedSkillIds.value);
+    await programService.removeSkillFromProgram(selectedProgramId.value, skill.id);
+    programSkills.value = programSkills.value.filter((x) => x.id !== skill.id);
+    notifySuccess(t("pages.programs.skillRemoved"));
+    skillPendingRemoval.value = null;
   } catch (error) {
     console.error(error);
-    notifyError(t("pages.programs.skillsSaveError"));
+    notifyError(t("pages.programs.skillRemoveError"));
   } finally {
-    isSavingSkills.value = false;
+    removingSkillId.value = null;
   }
 }
 </script>
@@ -252,14 +250,46 @@ async function saveProgramSkills() {
 }
 
 .program-skills__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: grid;
-  gap: 8px;
+  gap: 4px;
 }
 
-.program-skills__item {
+.program-skills__row {
   display: flex;
-  gap: 8px;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.program-skills__name {
+  flex: 1;
+}
+
+.program-skills__delete {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover:not(:disabled) {
+    background: #fee2e2;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 }
 
 .program-skills__actions {

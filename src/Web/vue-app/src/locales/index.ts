@@ -16,4 +16,4 @@ export const messages = {
     [Locales.FR]: fr
 };
 
-export const defaultLocale = Locales.EN;
+export const defaultLocale = Locales.FR;
