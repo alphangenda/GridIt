@@ -56,4 +56,39 @@ export class ProgramService extends ApiService implements IProgramService {
         throw error;
       });
   }
+
+  public async createSkill(label: string): Promise<SkillItem> {
+    const response = await this._httpClient
+      .post<any, AxiosResponse<SkillItem>>(
+        `${import.meta.env.VITE_API_BASE_URL}/skills`,
+        { label },
+        this.headersWithJsonContentType()
+      )
+      .catch((error: AxiosError): AxiosResponse<SkillItem> => error.response as AxiosResponse<SkillItem>);
+
+    if (!response?.data?.id)
+      throw new Error("Failed to create skill.");
+
+    return response.data;
+  }
+
+  public async addSkillToProgram(programId: string, skillId: string): Promise<void> {
+    await this._httpClient
+      .post(
+        `${import.meta.env.VITE_API_BASE_URL}/programs/${programId}/skills/${skillId}`,
+        null,
+        this.headersWithJsonContentType()
+      )
+      .catch((error: AxiosError) => {
+        throw error;
+      });
+  }
+
+  public async removeSkillFromProgram(programId: string, skillId: string): Promise<void> {
+    await this._httpClient
+      .delete(`${import.meta.env.VITE_API_BASE_URL}/programs/${programId}/skills/${skillId}`)
+      .catch((error: AxiosError) => {
+        throw error;
+      });
+  }
 }
