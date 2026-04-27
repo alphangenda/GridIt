@@ -32,6 +32,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
 
@@ -43,6 +44,7 @@ const emit = defineEmits<{
   (event: "close"): void;
 }>();
 
+const router = useRouter();
 const { t } = useI18n();
 const classesStore = useClassesStore();
 
@@ -53,11 +55,15 @@ onMounted(() => {
   inputRef.value?.focus();
 });
 
-function handleSubmit() {
+async function handleSubmit() {
   const trimmed = name.value.trim();
   if (!trimmed) return;
-  classesStore.addExam(props.classId, trimmed);
+  const created = await classesStore.addExam(props.classId, trimmed);
   emit("close");
+  await router.push({
+    name: "classes.examDetailDirect",
+    params: { classId: props.classId, examId: created.id },
+  });
 }
 </script>
 

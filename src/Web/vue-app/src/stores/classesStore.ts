@@ -46,6 +46,7 @@ export const useClassesStore = defineStore("classes", {
       const created = await classService.createExam(classId, name);
       if (!this.examsByClassId[classId]) this.examsByClassId[classId] = [];
       this.examsByClassId[classId].push(created);
+      return created;
     },
     async deleteExam(classId: string, examId: string) {
       const classService = useClassService();

@@ -45,6 +45,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import { useSessionsStore } from "@/stores/sessionsStore";
 import { useClassesStore } from "@/stores/classesStore";
@@ -59,6 +60,7 @@ const props = defineProps<{
   currentClassIds?: string[];
 }>();
 
+const router = useRouter();
 const { t } = useI18n();
 const sessionsStore = useSessionsStore();
 const classesStore = useClassesStore();
@@ -90,10 +92,18 @@ async function handleSubmit() {
     const newClassIds = [...new Set([...currentIds, ...selectedClassIds.value])];
     
     await sessionsStore.updateSession(props.sessionId, session.name || "", newClassIds);
-    await sessionsStore.fetchSessions(); // Reload sessions to update the view
+    await sessionsStore.fetchSessions();
     notifySuccess(t("pages.sessions.classesAdded"));
+    const firstNewClassId = selectedClassIds.value[0];
     emit("close");
     selectedClassIds.value = [];
+
+    if (firstNewClassId) {
+      await router.push({
+        name: "classes.detail",
+        params: { classId: firstNewClassId },
+      });
+    }
   } catch {
     notifyError(t("pages.sessions.addError"));
   }
