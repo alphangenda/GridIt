@@ -29,7 +29,41 @@
 
   &,
   &__bg-waves {
-    background-color: #f5ede6;
+    background-color: $color-grey-darker;
+  }
+
+  &__logo-link {
+    display: block;
+    text-align: center;
+  }
+
+  &__content {
+    color: $color-white;
+
+    .card {
+      background-color: transparent;
+      border: none;
+      box-shadow: none;
+      color: $color-white;
+    }
+
+    .card__title {
+      color: $color-white;
+    }
+
+    label {
+      color: rgba($color-white, 0.9);
+    }
+
+    .back-link,
+    .text-link,
+    a {
+      color: rgba($color-white, 0.85);
+
+      &:hover {
+        color: $color-white;
+      }
+    }
   }
 
   &__bg-waves-container {
