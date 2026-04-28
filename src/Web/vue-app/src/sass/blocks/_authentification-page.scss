@@ -41,9 +41,9 @@
     color: $color-white;
 
     .card {
-      background-color: transparent;
-      border: none;
-      box-shadow: none;
+      background-color: rgba($color-white, 0.06);
+      border: 1px solid rgba($color-white, 0.1);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
       color: $color-white;
     }
 
@@ -53,6 +53,28 @@
 
     label {
       color: rgba($color-white, 0.9);
+    }
+
+    input,
+    textarea,
+    select {
+      background-color: rgba($color-white, 0.08);
+      border-color: rgba($color-white, 0.15);
+      color: $color-white;
+
+      &::placeholder {
+        color: rgba($color-white, 0.4);
+      }
+
+      &:not(:read-only):not(:disabled) {
+        @media (hover: hover) {
+          &:focus,
+          &:hover {
+            background-color: rgba($color-white, 0.12);
+            border-color: $color-green;
+          }
+        }
+      }
     }
 
     .back-link,
