@@ -64,7 +64,7 @@
         <div class="info-modal__layout">
 
           <!-- =========================
-          COLONNE GAUCHE (INCHANGÉE)
+          COLONNE GAUCHE
           ========================== -->
           <div class="info-modal__main">
 
@@ -531,19 +531,18 @@ type DefaultLetter = {
 };
 
 async function loadAvailableCriteria(skillId: string) {
-  if (!examId.value || !skillId) return;
+  console.log("loadAvailableCriteria appelé avec:", skillId);
+  if (!skillId) return;
 
-  const res = await fetch(
-    `/api/exams/${examId.value}/skills/${skillId}/criteria`
-  );
-
-  const data = await res.json();
+  const res = await fetch(`/api/skills/${skillId}/criteria-template`);
+  const all = await res.json();
+  console.log("résultat API:", all);
 
   const existing = new Set(
     (criteria.value[skillId] ?? []).map(c => c.text)
   );
 
-  availableCriteria.value[skillId] = data.filter(
+  availableCriteria.value[skillId] = all.filter(
     (c: any) => !existing.has(c.label)
   );
 }
