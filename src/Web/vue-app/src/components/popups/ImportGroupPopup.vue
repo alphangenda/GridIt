@@ -119,6 +119,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import { notifyError } from "@/notify";
 import * as XLSX from "xlsx";
@@ -130,6 +131,7 @@ const emit = defineEmits<{
   (event: "close"): void;
 }>();
 
+const router = useRouter();
 const { t } = useI18n();
 
 const name = ref("");
@@ -324,6 +326,10 @@ async function handleSubmit() {
       return;
     }
     emit("close");
+    await router.push({
+      name: "classes.groupExams",
+      params: { classId: props.classId, groupId: selectedGroupId.value },
+    });
     return;
   }
 
@@ -375,7 +381,15 @@ async function handleSubmit() {
     return;
   }
 
+  const created = await res.json();
   emit("close");
+
+  if (props.classId) {
+    await router.push({
+      name: "classes.groupExams",
+      params: { classId: props.classId, groupId: created.id },
+    });
+  }
 }
 </script>
 

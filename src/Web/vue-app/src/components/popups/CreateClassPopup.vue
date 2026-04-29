@@ -133,6 +133,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, watch } from "vue";
+import { useRouter } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import { useClassesStore } from "@/stores/classesStore";
 import { useSessionsStore } from "@/stores/sessionsStore";
@@ -150,6 +151,7 @@ const emit = defineEmits<{
   (event: "close"): void;
 }>();
 
+const router = useRouter();
 const { t } = useI18n();
 const classesStore = useClassesStore();
 const sessionsStore = useSessionsStore();
@@ -253,6 +255,11 @@ async function handleSubmit() {
     }
 
     emit("close");
+
+    await router.push({
+      name: "classes.detail",
+      params: { classId: createdClass.id },
+    });
   } catch (error) {
     console.error(error);
     notifyError(t("pages.classes.addError"));
