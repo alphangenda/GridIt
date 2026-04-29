@@ -13,7 +13,7 @@
     font-family: $font-montserrat;
     font-size: rem(12);
     line-height: rem(16);
-    color: rgba($color-white, 0.5);
+    color: rgba($color-white, 0.7);
     padding: 0 20px 12px;
     margin: 0;
     text-transform: uppercase;
@@ -170,7 +170,7 @@
   &__sub-link {
     display: block;
     padding: 6px 12px;
-    color: rgba($color-white, 0.55);
+    color: rgba($color-white, 0.7);
     font-size: rem(12);
     font-weight: 400;
     text-decoration: none;

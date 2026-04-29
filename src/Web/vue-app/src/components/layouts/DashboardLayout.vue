@@ -14,6 +14,7 @@
       <main class="dashboard__content">
         <LogoutPopup />
         <Notifications />
+        <BreadcrumbNav />
         <RouterView v-slot="{ Component }">
           <template v-if="Component">
             <Suspense>
@@ -37,6 +38,7 @@ import ClassesNav from "@/components/navigation/ClassesNav.vue";
 import LogoutPopup from "@/components/layouts/items/LogoutPopup.vue";
 import Notifications from "@/components/layouts/items/Notifications.vue";
 import Loader from "@/components/layouts/items/Loader.vue";
+import BreadcrumbNav from "@/components/navigation/BreadcrumbNav.vue";
 import { Administrator, Member } from "@/types";
 import { Role } from "@/types/enums";
 import { useAdministratorStore } from "@/stores/administratorStore";

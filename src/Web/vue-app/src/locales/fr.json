@@ -216,7 +216,21 @@
     "studentDeleted": "Étudiant supprimé.",
     "deleteStudentConfirm": "Voulez-vous vraiment supprimer cet étudiant ?",
     "studentAddError": "Impossible d'ajouter l'étudiant. Veuillez réessayer.",
-    "studentDeleteError": "Impossible de supprimer l'étudiant. Veuillez réessayer."
+    "studentDeleteError": "Impossible de supprimer l'étudiant. Veuillez réessayer.",
+    "duplicateCourse": "Copier depuis un autre cours",
+    "duplicateFromCourse": "Copier depuis un cours existant",
+    "myCourses": "Mes cours",
+    "sharedCourses": "Cours partagés",
+    "duplicatePreview": "Aperçu du contenu à copier",
+    "duplicateSkills": "compétence(s)",
+    "duplicateExams": "évaluation(s)",
+    "duplicateSkillsTitle": "Compétences",
+    "duplicateExamsTitle": "Évaluations",
+    "duplicateConfirm": "Confirmer la copie",
+    "duplicateSuccess": "Contenu copié avec succès.",
+    "duplicateError": "Impossible de copier le contenu. Veuillez réessayer.",
+    "duplicateLoadError": "Impossible de charger les cours disponibles.",
+    "noDuplicationSources": "Aucun cours disponible pour la duplication."
   },
   "products": {
     "form": {

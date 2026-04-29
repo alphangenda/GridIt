@@ -17,7 +17,7 @@
           >
             &lt;
           </router-link>
-          <h1 class="exam-detail__title">{{ examTitle }}</h1>
+          <h1 class="exam-detail__title">Examen(s)</h1>
         </div>
         <p v-if="!isReadOnly" class="exam-detail__hint">{{ t("pages.examDetail.subtitle") }}</p>
       </div>
@@ -461,10 +461,11 @@ function normalizeSkill(s: any): Skill {
     examSkillId: String(rawExamSkillId),
   };
 }
+const fetchedExamName = ref("");
 const exam = computed(() => {
   return classesStore.getExamsForClass(classId.value)?.find((e) => e.id === examId.value);
 });
-const examTitle = computed(() => String(exam.value?.name ?? route.query.examName ?? t("pages.examDetail.titleFallback")));
+const examTitle = computed(() => String(fetchedExamName.value || exam.value?.name || route.query.examName || t("pages.examDetail.titleFallback")));
 
 const showInfo = ref(false);
 const showResetConfirm = ref(false);
@@ -730,6 +731,20 @@ async function loadAvailableSkills(): Promise<Skill[]> {
 
 onMounted(async () => {
   if (!examId.value) return;
+
+  // Fetch exam name from group exams or class exams endpoint
+  try {
+    const groupId = route.params.groupId as string | undefined;
+    const examsUrl = groupId
+      ? `/api/classes/${classId.value}/groups/${groupId}/exams`
+      : `/api/classes/${classId.value}/exams`;
+    const examsRes = await fetch(examsUrl);
+    if (examsRes.ok) {
+      const examsData = await examsRes.json();
+      const found = (examsData as any[]).find((e: any) => String(e.id) === examId.value);
+      if (found) fetchedExamName.value = String(found.name);
+    }
+  } catch { /* ignore */ }
 
   const [skillsList, defaultLettersRes, examSkillsRes] = await Promise.all([
     loadAvailableSkills(),

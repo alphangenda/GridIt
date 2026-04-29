@@ -9,7 +9,7 @@
         >
           &lt;
         </router-link>
-        <h1>{{ groupName || t('navigation.groups') }}</h1>
+        <h1>{{ className && groupName ? `${className} - ${groupName}` : groupName || t('navigation.groups') }}</h1>
       </div>
       <div class="content-grid__actions">
         <button type="button" class="btn" @click="showCreateExamPopup = true">
@@ -77,6 +77,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue3-i18n';
+import { useClassesStore } from '@/stores/classesStore';
 import Card from '@/components/layouts/items/Card.vue';
 import CreateExamForGroupPopup from '@/components/popups/CreateExamForGroupPopup.vue';
 import ConfirmDeletePopup from '@/components/popups/ConfirmDeletePopup.vue';
@@ -94,9 +95,13 @@ import {
 
 const { t } = useI18n();
 const route = useRoute();
+const classesStore = useClassesStore();
 
 const classId = computed(() => route.params.classId as string);
 const groupId = computed(() => route.params.groupId as string);
+const className = computed(() =>
+  classesStore.getClasses.find((c) => c.id === classId.value)?.name ?? ''
+);
 
 const exams = ref<{ id: string; name: string }[]>([]);
 const groupName = ref('');

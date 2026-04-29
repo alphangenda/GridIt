@@ -46,6 +46,7 @@ export const useClassesStore = defineStore("classes", {
       const created = await classService.createExam(classId, name);
       if (!this.examsByClassId[classId]) this.examsByClassId[classId] = [];
       this.examsByClassId[classId].push(created);
+      return created;
     },
     async deleteExam(classId: string, examId: string) {
       const classService = useClassService();
@@ -55,6 +56,12 @@ export const useClassesStore = defineStore("classes", {
           (e) => e.id !== examId
         );
       }
+    },
+    async duplicateClass(request: import("@/injection/interfaces").IDuplicateClassRequest) {
+      const classService = useClassService();
+      const created = await classService.duplicateClass(request);
+      this.classes.push(created);
+      return created;
     },
   },
 });

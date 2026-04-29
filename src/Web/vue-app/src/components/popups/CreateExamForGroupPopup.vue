@@ -39,10 +39,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue3-i18n';
 
 const props = defineProps<{ classId: string; groupId: string }>();
 const emit = defineEmits<{ (e: 'close'): void }>();
+const router = useRouter();
 const { t } = useI18n();
 
 const examName = ref('');
@@ -67,7 +69,14 @@ async function onSubmit() {
     return;
   }
 
-  if (res.ok) emit('close');
+  if (res.ok) {
+    const created = await res.json();
+    emit('close');
+    await router.push({
+      name: 'classes.examDetail',
+      params: { classId: props.classId, groupId: props.groupId, examId: created.id },
+    });
+  }
 }
 </script>
 

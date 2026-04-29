@@ -14,7 +14,12 @@
         >
           &lt; Retour
         </router-link>
-        <h2 class="evaluation__students-title">{{ t("evaluation.students") }}</h2>
+        <h2 class="evaluation__students-title">
+          {{ t("evaluation.students") }}
+          <span v-if="students.length > 0" class="evaluation__progress-badge">
+            {{ evaluatedCount }}/{{ students.length }}
+          </span>
+        </h2>
         <p v-if="students.length === 0" class="evaluation__empty-msg">
           {{ t("evaluation.noStudents") }}
         </p>
@@ -93,8 +98,6 @@
                     {{ grade }}
                   </th>
                   <th class="grid-th grid-th--note">Note</th>
-                  <th class="grid-th grid-th--valeur">Valeur</th>
-                  <th class="grid-th grid-th--comment">{{ t("evaluation.comments") }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -115,16 +118,6 @@
                     <span v-if="crit.weights[grade] != null" class="grade-cell-pct">{{ crit.weights[grade] }}%</span>
                   </td>
                   <td class="grid-td grid-td--note">{{ criterionNoteDisplay(crit) }}</td>
-                  <td class="grid-td grid-td--valeur">{{ crit.totalValue > 0 ? crit.totalValue : '' }}</td>
-                  <td class="grid-td grid-td--comment">
-                    <input
-                      type="text"
-                      class="evaluation__criterion-comment-input"
-                      :value="getCriterionComment(crit.id)"
-                      :placeholder="t('evaluation.commentPlaceholder')"
-                      @input="setCriterionComment(crit.id, ($event.target as HTMLInputElement).value)"
-                    />
-                  </td>
                 </tr>
                 <!-- Note compétence row (when criteria exist) -->
                 <tr v-if="comp.criteria.length > 0" class="grid-competency-note-row">
@@ -138,16 +131,6 @@
                     <span v-if="getGrade(comp.id) === grade">{{ grade }}</span>
                   </td>
                   <td class="grid-td grid-td--note">{{ compNoteDisplay(comp) }}</td>
-                  <td class="grid-td grid-td--valeur">{{ compTotalValue(comp) > 0 ? compTotalValue(comp) : '' }}</td>
-                  <td class="grid-td grid-td--comment">
-                    <input
-                      type="text"
-                      class="evaluation__comment-input"
-                      :value="getComment(comp.id)"
-                      :placeholder="t('evaluation.commentPlaceholder')"
-                      @input="setComment(comp.id, ($event.target as HTMLInputElement).value)"
-                    />
-                  </td>
                 </tr>
                 <!-- Manual grade row (when no criteria) -->
                 <tr v-if="comp.criteria.length === 0" class="grid-manual-row">
@@ -162,16 +145,6 @@
                     <span class="grade-cell-letter">{{ grade }}</span>
                   </td>
                   <td class="grid-td grid-td--note"></td>
-                  <td class="grid-td grid-td--valeur"></td>
-                  <td class="grid-td grid-td--comment">
-                    <input
-                      type="text"
-                      class="evaluation__comment-input"
-                      :value="getComment(comp.id)"
-                      :placeholder="t('evaluation.commentPlaceholder')"
-                      @input="setComment(comp.id, ($event.target as HTMLInputElement).value)"
-                    />
-                  </td>
                 </tr>
               </tbody>
             </table>
@@ -283,7 +256,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from "vue";
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import {
@@ -446,7 +419,57 @@ onMounted(async () => {
     } catch { /* silently ignore load errors */ }
   } finally {
     loading.value = false;
+    // #6 — Auto-select first student
+    if (students.value.length > 0 && !selectedStudentId.value) {
+      selectedStudentId.value = students.value[0].id;
+    }
   }
+});
+
+// #5 — Keyboard navigation: arrows to switch students, A-E to grade
+function handleKeydown(e: KeyboardEvent) {
+  // Ignore if typing in an input/textarea
+  const tag = (e.target as HTMLElement)?.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
+  const idx = students.value.findIndex((s) => s.id === selectedStudentId.value);
+
+  if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+    e.preventDefault();
+    if (idx < students.value.length - 1) {
+      selectedStudentId.value = students.value[idx + 1].id;
+    }
+    return;
+  }
+  if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+    e.preventDefault();
+    if (idx > 0) {
+      selectedStudentId.value = students.value[idx - 1].id;
+    }
+    return;
+  }
+
+  // A-E to quick-grade: applies to the first competency without criteria that has no grade yet,
+  // or cycles through competencies
+  const letter = e.key.toUpperCase();
+  if (ALL_GRADES.includes(letter as GradeLetter) && selectedStudentId.value) {
+    const sid = selectedStudentId.value;
+    ensureStudentEval(sid);
+    // Find first competency without criteria that doesn't have a grade yet
+    const targetComp = competencies.value.find(
+      (c) => c.criteria.length === 0 && !evaluations[sid][c.id]?.grade
+    );
+    if (targetComp) {
+      setGrade(targetComp.id, letter as GradeLetter);
+    }
+  }
+}
+
+onMounted(() => {
+  window.addEventListener("keydown", handleKeydown);
+});
+onUnmounted(() => {
+  window.removeEventListener("keydown", handleKeydown);
 });
 
 // ── State: evaluations per student ───────────────────────────
@@ -664,6 +687,15 @@ const averageLetter = computed<GradeLetter | null>(() => {
   return numericToLetter(averageNumeric.value);
 });
 
+// #7 — Progress indicator: count students that have at least one grade
+const evaluatedCount = computed(() => {
+  return students.value.filter((s) => {
+    const evals = evaluations[s.id];
+    if (!evals) return false;
+    return Object.values(evals).some((ev) => ev.grade != null);
+  }).length;
+});
+
 // ── Auto-save (debounced) ─────────────────────────────────────
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -715,7 +747,7 @@ watch(saveVersion, () => {
 
 .evaluation__comp-block {
   margin-bottom: 24px;
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 .evaluation__grid-table {
@@ -731,7 +763,8 @@ watch(saveVersion, () => {
   text-align: center;
   border: 1px solid #e0e0e0;
   background-color: #f5f5f5;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .grid-th--element {
@@ -740,13 +773,8 @@ watch(saveVersion, () => {
   max-width: 220px;
 }
 
-.grid-th--note,
-.grid-th--valeur {
+.grid-th--note {
   min-width: 80px;
-}
-
-.grid-th--comment {
-  min-width: 140px;
 }
 
 /* Grade column header colors */
@@ -769,16 +797,11 @@ watch(saveVersion, () => {
   max-width: 220px;
 }
 
-.grid-td--note,
-.grid-td--valeur {
+.grid-td--note {
   text-align: center;
   white-space: nowrap;
   font-size: 0.875rem;
   color: #555;
-}
-
-.grid-td--comment {
-  min-width: 140px;
 }
 
 /* Grade cells (clickable) */

@@ -111,10 +111,8 @@ async function handleSubmit() {
     );
 
     if (created?.id) {
-      // sélectionner la session créée
       sessionsStore.selectSession(created.id);
 
-      // choisir le premier cours de la session
       const firstClassId =
         (created.classIds && created.classIds[0]) ||
         (selectedClassIds.value && selectedClassIds.value[0]);
@@ -123,6 +121,11 @@ async function handleSubmit() {
         await router.push({
           name: "classes.detail",
           params: { classId: firstClassId },
+        });
+      } else {
+        await router.push({
+          name: "sessions.detail",
+          params: { sessionId: created.id },
         });
       }
     }

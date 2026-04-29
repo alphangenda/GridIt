@@ -29,7 +29,63 @@
 
   &,
   &__bg-waves {
-    background-color: #f5ede6;
+    background-color: $color-grey-darker;
+  }
+
+  &__logo-link {
+    display: block;
+    text-align: center;
+  }
+
+  &__content {
+    color: $color-white;
+
+    .card {
+      background-color: rgba($color-white, 0.06);
+      border: 1px solid rgba($color-white, 0.1);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+      color: $color-white;
+    }
+
+    .card__title {
+      color: $color-white;
+    }
+
+    label {
+      color: rgba($color-white, 0.9);
+    }
+
+    input,
+    textarea,
+    select {
+      background-color: rgba($color-white, 0.08);
+      border-color: rgba($color-white, 0.15);
+      color: $color-white;
+
+      &::placeholder {
+        color: rgba($color-white, 0.4);
+      }
+
+      &:not(:read-only):not(:disabled) {
+        @media (hover: hover) {
+          &:focus,
+          &:hover {
+            background-color: rgba($color-white, 0.12);
+            border-color: $color-green;
+          }
+        }
+      }
+    }
+
+    .back-link,
+    .text-link,
+    a {
+      color: rgba($color-white, 0.85);
+
+      &:hover {
+        color: $color-white;
+      }
+    }
   }
 
   &__bg-waves-container {

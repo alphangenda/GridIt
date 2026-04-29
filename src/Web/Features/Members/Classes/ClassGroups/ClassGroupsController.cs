@@ -110,6 +110,15 @@ public class ClassGroupsController : ControllerBase
         link.SetClassId(classId);
         _db.GroupClasses.Add(link);
 
+        // Lier les examens orphelins (sans groupe) de ce cours au nouveau groupe
+        var orphanExams = _db.Exams
+            .Where(e => e.ClassId == classId && e.GroupId == null)
+            .ToList();
+        foreach (var exam in orphanExams)
+        {
+            exam.SetGroupId(groupId);
+        }
+
         await _db.SaveChangesAsync();
         return Ok(new { id = groupId });
     }
@@ -120,6 +129,15 @@ public class ClassGroupsController : ControllerBase
         var link = _db.GroupClasses
             .FirstOrDefault(gc => gc.GroupId == groupId && gc.ClassId == classId);
         if (link == null) return NotFound();
+
+        // Réinitialiser le GroupId des examens qui pointaient vers ce groupe
+        var examsWithGroup = _db.Exams
+            .Where(e => e.ClassId == classId && e.GroupId == groupId)
+            .ToList();
+        foreach (var exam in examsWithGroup)
+        {
+            exam.SetGroupId(null);
+        }
 
         _db.GroupClasses.Remove(link);
         await _db.SaveChangesAsync();
