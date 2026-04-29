@@ -1,7 +1,7 @@
 <template>
   <header class="app-header">
     <div class="app-header__left">
-      <router-link :to="{ name: 'classes' }" class="app-header__logo-link" aria-label="Accueil">
+      <router-link :to="{ name: 'classes.index' }" class="app-header__logo-link" aria-label="Accueil">
         <img :src="logoGridit" alt="GridIt" class="app-header__logo" />
       </router-link>
     </div>

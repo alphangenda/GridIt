@@ -1,4 +1,4 @@
-import {IClassService} from "@/injection/interfaces";
+import {IClassService, IDuplicateClassRequest, IDuplicationSource} from "@/injection/interfaces";
 import {injectable} from "inversify";
 import {ApiService} from "./apiService";
 import {AxiosError, AxiosResponse} from "axios";
@@ -68,5 +68,28 @@ export class ClassService extends ApiService implements IClassService {
       .catch(function (error: AxiosError) {
         return error.response
       })
+  }
+
+  public async getDuplicationSources(): Promise<IDuplicationSource[]> {
+    try {
+      const response = await this._httpClient.get<IDuplicationSource[]>(
+        `${import.meta.env.VITE_API_BASE_URL}/classes/duplication-sources`
+      );
+      return Array.isArray(response.data) ? response.data : [];
+    } catch {
+      return [];
+    }
+  }
+
+  public async duplicateClass(request: IDuplicateClassRequest): Promise<ClassItem> {
+    const response = await this._httpClient.post<ClassItem>(
+      `${import.meta.env.VITE_API_BASE_URL}/classes/duplicate`,
+      request,
+      this.headersWithJsonContentType()
+    );
+    if (response.status < 200 || response.status >= 300 || !response.data) {
+      throw new Error("Failed to duplicate class");
+    }
+    return response.data;
   }
 }

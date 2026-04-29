@@ -69,6 +69,23 @@ export interface IBookService {
   editBook(request: IEditBookRequest): Promise<SucceededOrNotResponse>
 }
 
+export interface IDuplicateClassRequest {
+  name: string
+  programId?: string
+  sourceClassId: string
+  exams: Array<{ sourceExamId: string; name: string }>
+}
+
+export interface IDuplicationSource {
+  classId: string
+  className: string
+  sessionName: string
+  creatorEmail: string
+  isOwner: boolean
+  skills: Array<{ id: string; label: string }>
+  exams: Array<{ id: string; name: string }>
+}
+
 export interface IClassService {
   getAllClasses(): Promise<ClassItem[]>
 
@@ -81,6 +98,10 @@ export interface IClassService {
   createExam(classId: string, name: string): Promise<ExamItem>
 
   deleteExam(examId: string): Promise<void>
+
+  getDuplicationSources(): Promise<IDuplicationSource[]>
+
+  duplicateClass(request: IDuplicateClassRequest): Promise<ClassItem>
 }
 
 export interface ISessionService {

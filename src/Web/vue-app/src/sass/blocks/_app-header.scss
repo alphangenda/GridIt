@@ -21,8 +21,10 @@
   }
 
   &__logo {
-    height: 44px;
+    height: 200px;
     width: auto;
+    margin: -70px -50px -70px -30px;
+    object-fit: cover;
   }
 
   &__right {
