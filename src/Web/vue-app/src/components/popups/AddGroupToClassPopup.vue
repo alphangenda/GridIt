@@ -49,10 +49,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue3-i18n';
 
 const props = defineProps<{ classId: string }>();
 const emit = defineEmits<{ (e: 'close'): void }>();
+const router = useRouter();
 const { t } = useI18n();
 
 const mode = ref<'new' | 'existing'>('new');
@@ -83,7 +85,15 @@ async function onSubmit() {
     body: JSON.stringify(body),
   });
 
-  if (res.ok) emit('close');
+  if (res.ok) {
+    const created = await res.json();
+    const groupId = created.groupId ?? created.id;
+    emit('close');
+    await router.push({
+      name: 'classes.groupExams',
+      params: { classId: props.classId, groupId },
+    });
+  }
 }
 
 onMounted(fetchAllGroups);
