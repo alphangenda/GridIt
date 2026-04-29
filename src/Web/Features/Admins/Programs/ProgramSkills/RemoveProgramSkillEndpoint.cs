@@ -1,6 +1,8 @@
+using Domain.Repositories;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Persistence;
 
 namespace Web.Features.Admins.Programs.ProgramSkills;
@@ -8,10 +10,17 @@ namespace Web.Features.Admins.Programs.ProgramSkills;
 public class RemoveProgramSkillEndpoint : EndpointWithoutRequest
 {
     private readonly GarneauTemplateDbContext _dbContext;
+    private readonly IClassSkillRepository _classSkillRepository;
+    private readonly IConfiguration _configuration;
 
-    public RemoveProgramSkillEndpoint(GarneauTemplateDbContext dbContext)
+    public RemoveProgramSkillEndpoint(
+        GarneauTemplateDbContext dbContext,
+        IClassSkillRepository classSkillRepository,
+        IConfiguration configuration)
     {
         _dbContext = dbContext;
+        _classSkillRepository = classSkillRepository;
+        _configuration = configuration;
     }
 
     public override void Configure()
@@ -34,6 +43,38 @@ public class RemoveProgramSkillEndpoint : EndpointWithoutRequest
         {
             await Send.NoContentAsync(ct);
             return;
+        }
+
+        // Trouver tous les cours liés à ce programme
+        var classIds = await _dbContext.Classes
+            .AsNoTracking()
+            .Where(c => c.ProgramId == programId)
+            .Select(c => c.Id)
+            .ToListAsync(ct);
+
+        if (classIds.Count > 0)
+        {
+            // Supprimer la compétence des exam_skills pour les examens de ces cours
+            var examIds = await _dbContext.Exams
+                .AsNoTracking()
+                .Where(e => classIds.Contains(e.ClassId))
+                .Select(e => e.Id)
+                .ToListAsync(ct);
+
+            if (examIds.Count > 0)
+            {
+                var examSkillsToRemove = await _dbContext.ExamSkills
+                    .Where(es => examIds.Contains(es.ExamId) && es.SkillId == skillId)
+                    .ToListAsync(ct);
+
+                _dbContext.ExamSkills.RemoveRange(examSkillsToRemove);
+            }
+
+            // Supprimer la compétence des class_skills pour ces cours
+            foreach (var classId in classIds)
+            {
+                await _classSkillRepository.DeleteClassSkill(classId, skillId);
+            }
         }
 
         _dbContext.ProgramSkills.Remove(link);

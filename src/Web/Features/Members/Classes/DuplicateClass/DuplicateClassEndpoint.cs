@@ -71,61 +71,75 @@ public class DuplicateClassEndpoint : Endpoint<DuplicateClassRequest, ClassDto>
             }
         }
 
-        // 1. Create the new class
-        var newClass = new Class();
-        newClass.SetId(Guid.NewGuid());
-        newClass.SetName(req.Name.Trim());
-        newClass.SetProgramId(req.ProgramId);
-        await _classRepository.CreateClass(newClass);
+        var exams = req.Exams ?? new List<ExamRenameEntry>();
 
-        // 2. Copy skills from source class
-        var sourceSkillIds = await _classSkillRepository.GetSkillIdsForClass(req.SourceClassId);
-        var skillIdsList = sourceSkillIds.ToList();
+        // Use a transaction via EF to ensure atomicity
+        using var efTransaction = await _context.Database.BeginTransactionAsync(ct);
 
-        if (skillIdsList.Count > 0)
+        try
         {
-            await _classSkillRepository.SaveClassSkills(newClass.Id, skillIdsList);
+            // 1. Create the new class
+            var newClass = new Class();
+            newClass.SetId(Guid.NewGuid());
+            newClass.SetName(req.Name.Trim());
+            newClass.SetProgramId(req.ProgramId);
+            await _classRepository.CreateClass(newClass);
+
+            // 2. Copy skills from source class
+            var sourceSkillIds = await _classSkillRepository.GetSkillIdsForClass(req.SourceClassId);
+            var skillIdsList = sourceSkillIds.ToList();
+
+            if (skillIdsList.Count > 0)
+            {
+                await _classSkillRepository.SaveClassSkills(newClass.Id, skillIdsList);
+            }
+
+            // 3. Copy exams with custom names
+            var sourceExams = _examRepository.GetByClassId(req.SourceClassId);
+            var renameMap = exams.ToDictionary(e => e.SourceExamId, e => e.Name);
+            var cs = _configuration.GetConnectionString("DefaultConnection");
+
+            foreach (var sourceExam in sourceExams)
+            {
+                // Use custom name if provided, otherwise keep original
+                var examName = renameMap.TryGetValue(sourceExam.Id, out var customName)
+                    && !string.IsNullOrWhiteSpace(customName)
+                        ? customName.Trim()
+                        : sourceExam.Name;
+
+                var newExam = new Exam();
+                newExam.SetId(Guid.NewGuid());
+                newExam.SetClassId(newClass.Id);
+                newExam.SetName(examName);
+                await _examRepository.CreateExam(newExam);
+
+                // Copy exam_skills with positions
+                await using var conn = new NpgsqlConnection(cs);
+                await conn.OpenAsync(ct);
+
+                await using var cmd = new NpgsqlCommand(
+                    """
+                    INSERT INTO exam_skills (id, exam_id, skill_id, position)
+                    SELECT gen_random_uuid(), @NewExamId, skill_id, position
+                    FROM exam_skills
+                    WHERE exam_id = @SourceExamId
+                    """,
+                    conn
+                );
+
+                cmd.Parameters.AddWithValue("@NewExamId", newExam.Id);
+                cmd.Parameters.AddWithValue("@SourceExamId", sourceExam.Id);
+
+                await cmd.ExecuteNonQueryAsync(ct);
+            }
+
+            await efTransaction.CommitAsync(ct);
+            await Send.OkAsync(_mapper.Map<ClassDto>(newClass), ct);
         }
-
-        // 3. Copy exams with custom names
-        var sourceExams = _examRepository.GetByClassId(req.SourceClassId);
-        var renameMap = req.Exams.ToDictionary(e => e.SourceExamId, e => e.Name);
-        var cs = _configuration.GetConnectionString("DefaultConnection");
-
-        foreach (var sourceExam in sourceExams)
+        catch
         {
-            // Use custom name if provided, otherwise keep original
-            var examName = renameMap.TryGetValue(sourceExam.Id, out var customName)
-                && !string.IsNullOrWhiteSpace(customName)
-                    ? customName.Trim()
-                    : sourceExam.Name;
-
-            var newExam = new Exam();
-            newExam.SetId(Guid.NewGuid());
-            newExam.SetClassId(newClass.Id);
-            newExam.SetName(examName);
-            await _examRepository.CreateExam(newExam);
-
-            // Copy exam_skills with positions
-            await using var conn = new NpgsqlConnection(cs);
-            await conn.OpenAsync(ct);
-
-            await using var cmd = new NpgsqlCommand(
-                """
-                INSERT INTO exam_skills (id, exam_id, skill_id, position)
-                SELECT gen_random_uuid(), @NewExamId, skill_id, position
-                FROM exam_skills
-                WHERE exam_id = @SourceExamId
-                """,
-                conn
-            );
-
-            cmd.Parameters.AddWithValue("@NewExamId", newExam.Id);
-            cmd.Parameters.AddWithValue("@SourceExamId", sourceExam.Id);
-
-            await cmd.ExecuteNonQueryAsync(ct);
+            await efTransaction.RollbackAsync(ct);
+            throw;
         }
-
-        await Send.OkAsync(_mapper.Map<ClassDto>(newClass), ct);
     }
 }

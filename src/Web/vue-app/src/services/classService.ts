@@ -39,26 +39,26 @@ export class ClassService extends ApiService implements IClassService {
   }
 
   public async getExamsByClass(classId: string): Promise<ExamItem[]> {
-    const response = await this
-      ._httpClient
-      .get<AxiosResponse<ExamItem[]>>(`${import.meta.env.VITE_API_BASE_URL}/classes/${classId}/exams`)
-      .catch(function (error: AxiosError): AxiosResponse<ExamItem[]> {
-        return error.response as AxiosResponse<ExamItem[]>
-      })
-    return response.data as ExamItem[]
+    try {
+      const response = await this._httpClient.get<ExamItem[]>(
+        `${import.meta.env.VITE_API_BASE_URL}/classes/${classId}/exams`
+      );
+      return Array.isArray(response.data) ? response.data : [];
+    } catch {
+      return [];
+    }
   }
 
   public async createExam(classId: string, name: string): Promise<ExamItem> {
-    const response = await this
-      ._httpClient
-      .post<any, AxiosResponse<ExamItem>>(
-        `${import.meta.env.VITE_API_BASE_URL}/classes/${classId}/exams`,
-        { classId, name },
-        this.headersWithJsonContentType())
-      .catch(function (error: AxiosError): AxiosResponse<ExamItem> {
-        return error.response as AxiosResponse<ExamItem>
-      })
-    return response.data as ExamItem
+    const response = await this._httpClient.post<ExamItem>(
+      `${import.meta.env.VITE_API_BASE_URL}/classes/${classId}/exams`,
+      { classId, name },
+      this.headersWithJsonContentType()
+    );
+    if (response.status < 200 || response.status >= 300 || !response.data) {
+      throw new Error("Failed to create exam");
+    }
+    return response.data;
   }
 
   public async deleteExam(examId: string): Promise<void> {

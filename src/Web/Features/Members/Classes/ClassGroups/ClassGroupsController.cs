@@ -130,6 +130,15 @@ public class ClassGroupsController : ControllerBase
             .FirstOrDefault(gc => gc.GroupId == groupId && gc.ClassId == classId);
         if (link == null) return NotFound();
 
+        // Réinitialiser le GroupId des examens qui pointaient vers ce groupe
+        var examsWithGroup = _db.Exams
+            .Where(e => e.ClassId == classId && e.GroupId == groupId)
+            .ToList();
+        foreach (var exam in examsWithGroup)
+        {
+            exam.SetGroupId(null);
+        }
+
         _db.GroupClasses.Remove(link);
         await _db.SaveChangesAsync();
         return Ok();
