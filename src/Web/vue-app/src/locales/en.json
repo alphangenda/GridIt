@@ -216,7 +216,21 @@
     "studentDeleted": "Student deleted.",
     "deleteStudentConfirm": "Are you sure you want to delete this student?",
     "studentAddError": "Unable to add student. Please try again.",
-    "studentDeleteError": "Unable to delete student. Please try again."
+    "studentDeleteError": "Unable to delete student. Please try again.",
+    "duplicateCourse": "Copy from another course",
+    "duplicateFromCourse": "Copy from an existing course",
+    "myCourses": "My courses",
+    "sharedCourses": "Shared courses",
+    "duplicatePreview": "Content preview",
+    "duplicateSkills": "skill(s)",
+    "duplicateExams": "evaluation(s)",
+    "duplicateSkillsTitle": "Skills",
+    "duplicateExamsTitle": "Evaluations",
+    "duplicateConfirm": "Confirm copy",
+    "duplicateSuccess": "Content copied successfully.",
+    "duplicateError": "Unable to copy content. Please try again.",
+    "duplicateLoadError": "Unable to load available courses.",
+    "noDuplicationSources": "No courses available for duplication."
   },
   "products": {
     "form": {

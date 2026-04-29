@@ -7,7 +7,9 @@
         <div class="grid__row grid__row--jcc">
           <div class="grid__col grid__col--sm-8 grid__col--md-6">
             <div class="authentication-page__content">
-              <img :src="logoGridit" alt="GridIt" class="authentication-page__logo" />
+              <router-link to="/" class="authentication-page__logo-link">
+                <img :src="logoGridit" alt="GridIt" class="authentication-page__logo" />
+              </router-link>
               <Notifications :is-in-page-flow="true" />
 
               <RouterView v-slot="{Component}">

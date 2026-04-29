@@ -26,6 +26,9 @@
   }
 
   &__students-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     font-weight: 600;
     font-family: $font-montserrat;
     font-size: rem(12);
@@ -36,6 +39,18 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     border-bottom: 1px solid $color-border;
+  }
+
+  &__progress-badge {
+    font-family: $font-montserrat;
+    font-size: rem(11);
+    font-weight: 700;
+    color: $color-green-dark;
+    background-color: $color-green-light;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: none;
+    letter-spacing: 0;
   }
 
   &__students-list {
@@ -142,7 +157,7 @@
     background-color: $color-white;
     border: 1px solid $color-border;
     border-radius: $common-border-radius;
-    overflow-x: auto;
+    overflow-x: hidden;
   }
 
   &__table {

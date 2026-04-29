@@ -179,6 +179,17 @@ public class GroupsController : ControllerBase
         var group = await _db.Groups.FindAsync(groupId);
         if (group == null) return NotFound();
 
+        // Supprimer les étudiants du groupe dans group_students
+        var cs = _config.GetConnectionString("DefaultConnection");
+        using var conn = new NpgsqlConnection(cs);
+        conn.Open();
+        EnsureGroupStudentsTable(conn);
+
+        using var deleteStudents = new NpgsqlCommand(
+            "DELETE FROM group_students WHERE group_id = @groupId", conn);
+        deleteStudents.Parameters.AddWithValue("@groupId", groupId);
+        deleteStudents.ExecuteNonQuery();
+
         var links = _db.GroupClasses.Where(gc => gc.GroupId == groupId);
         _db.GroupClasses.RemoveRange(links);
         _db.Groups.Remove(group);

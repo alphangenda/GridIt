@@ -1,17 +1,17 @@
 <template>
   <header class="app-header">
     <div class="app-header__left">
-      <LangSwitcher v-if="!isMobile" class="app-header__lang" />
-      <div v-if="!isMobile" class="app-header__session">
-        <label
-          v-if="sessions.length"
-          class="app-header__session-label"
-          for="header-session-select"
-        >
+      <router-link :to="{ name: 'classes.index' }" class="app-header__logo-link" aria-label="Accueil">
+        <img :src="logoGridit" alt="GridIt" class="app-header__logo" />
+      </router-link>
+    </div>
+
+    <div class="app-header__right">
+      <div v-if="!isMobile && sessions.length" class="app-header__session">
+        <label class="app-header__session-label" for="header-session-select">
           {{ t("navigation.sessions") }}
         </label>
         <select
-          v-if="sessions.length"
           id="header-session-select"
           v-model="selectedSessionId"
           class="app-header__session-select"
@@ -32,33 +32,88 @@
           {{ t("navigation.addSession") }}
         </button>
       </div>
-      <button
-        v-if="!isMobile"
-        type="button"
-        class="app-header__grids-btn"
-        @click="goToGrids"
-      >
-        {{ t("routes.grids.name") }}
-      </button>
-      <button
-        v-if="!isMobile"
-        type="button"
-        class="app-header__grids-btn"
-        @click="goToGroupes"
-      >
-        {{ t("navigation.groups") }}
-      </button>
-      <button
-        v-if="!isMobile && isSuperAdmin"
-        type="button"
-        class="app-header__grids-btn"
-        @click="goToPrograms"
-      >
-        {{ t("routes.admin.children.programs.name") }}
-      </button>
-    </div>
 
-    <div class="app-header__right">
+      <div v-if="!isMobile" class="app-header__nav-menu" ref="navMenuRef">
+        <button
+          type="button"
+          class="app-header__nav-trigger"
+          @click="toggleNavMenu"
+          aria-haspopup="true"
+          :aria-expanded="isNavMenuOpen"
+          aria-label="Navigation principale"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <span>{{ t("global.menu") }}</span>
+        </button>
+        <Transition name="dropdown">
+          <div v-show="isNavMenuOpen" class="app-header__dropdown app-header__dropdown--nav">
+            <button
+              type="button"
+              class="app-header__dropdown-item"
+              :class="{ 'app-header__dropdown-item--disabled': isCurrentRoute('grids') }"
+              :disabled="isCurrentRoute('grids')"
+              @click="goToGrids"
+            >
+              {{ t("routes.grids.name") }}
+            </button>
+            <button
+              type="button"
+              class="app-header__dropdown-item"
+              :class="{ 'app-header__dropdown-item--disabled': isCurrentRoute('groupes') }"
+              :disabled="isCurrentRoute('groupes')"
+              @click="goToGroupes"
+            >
+              {{ t("navigation.groups") }}
+            </button>
+            <button
+              v-if="isSuperAdmin"
+              type="button"
+              class="app-header__dropdown-item"
+              :class="{ 'app-header__dropdown-item--disabled': isCurrentRoute('admin.children.programs') }"
+              :disabled="isCurrentRoute('admin.children.programs')"
+              @click="goToPrograms"
+            >
+              {{ t("routes.admin.children.programs.name") }}
+            </button>
+          </div>
+        </Transition>
+      </div>
+
+      <div v-if="!isMobile" class="app-header__settings" ref="settingsRef">
+        <button
+          type="button"
+          class="app-header__settings-trigger"
+          @click="toggleSettings"
+          aria-haspopup="true"
+          :aria-expanded="isSettingsOpen"
+          aria-label="Paramètres et langue"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+        <Transition name="dropdown">
+          <div v-show="isSettingsOpen" class="app-header__dropdown app-header__dropdown--settings">
+            <div class="app-header__lang-section">
+              <button
+                type="button"
+                class="app-header__lang-btn"
+                :class="{ 'app-header__lang-btn--active': currentLocale === 'fr' }"
+                @click="switchLang('fr')"
+              >
+                FR
+              </button>
+              <button
+                type="button"
+                class="app-header__lang-btn"
+                :class="{ 'app-header__lang-btn--active': currentLocale === 'en' }"
+                @click="switchLang('en')"
+              >
+                EN
+              </button>
+            </div>
+          </div>
+        </Transition>
+      </div>
+
       <div class="app-header__profile" ref="profileRef">
         <button
           type="button"
@@ -87,11 +142,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useI18n } from "vue3-i18n";
 import IconFaceMan from "vue-material-design-icons/FaceMan.vue";
 import IconChevron from "@/assets/icons/icon__chevron.svg";
-import LangSwitcher from "@/components/layouts/items/LangSwitcher.vue";
+import logoGridit from "@/assets/icons/logo__gridit.png";
 import { usePersonStore } from "@/stores/personStore";
 import { useUserStore } from "@/stores/userStore";
 import { useAuthenticationService } from "@/inversify.config";
@@ -100,8 +155,9 @@ import { useAdministratorStore } from "@/stores/administratorStore";
 import { useSessionsStore } from "@/stores/sessionsStore";
 import { Role } from "@/types/enums";
 
-const { t } = useI18n();
+const { t, getLocale, setLocale } = useI18n();
 const router = useRouter();
+const route = useRoute();
 const personStore = usePersonStore();
 const userStore = useUserStore();
 const memberStore = useMemberStore();
@@ -110,27 +166,26 @@ const authenticationService = useAuthenticationService();
 const sessionsStore = useSessionsStore();
 
 const isDropdownOpen = ref(false);
+const isNavMenuOpen = ref(false);
+const isSettingsOpen = ref(false);
 const profileRef = ref<HTMLElement | null>(null);
+const navMenuRef = ref<HTMLElement | null>(null);
+const settingsRef = ref<HTMLElement | null>(null);
 
-const isMobile = computed(() => window.innerWidth < 768);
+const windowWidth = ref(window.innerWidth);
+const isMobile = computed(() => windowWidth.value < 768);
 const isSuperAdmin = computed(() => userStore.hasRole(Role.Admin));
+const currentLocale = computed(() => getLocale());
 
 const sessions = computed(() => sessionsStore.getSessions);
 
 const selectedSessionId = computed({
   get: () => sessionsStore.getSelectedSessionId ?? sessions.value[0]?.id ?? "",
   set: async (value: string) => {
-    if (!value) {
-      return;
-    }
-
-    // sélectionner la session
+    if (!value) return;
     sessionsStore.selectSession(value);
-
-    // trouver le premier cours lié à cette session
     const session = sessions.value.find((s) => s.id === value);
     const firstClassId = session?.classIds && session.classIds[0];
-
     if (firstClassId) {
       await router.push({
         name: "classes.detail",
@@ -140,16 +195,36 @@ const selectedSessionId = computed({
   },
 });
 
-function toggleDropdown() {
-  isDropdownOpen.value = !isDropdownOpen.value;
+function isCurrentRoute(routeName: string): boolean {
+  return route.name === routeName;
 }
 
-function closeDropdown() {
+function toggleDropdown() {
+  isDropdownOpen.value = !isDropdownOpen.value;
+  isNavMenuOpen.value = false;
+  isSettingsOpen.value = false;
+}
+
+function toggleNavMenu() {
+  isNavMenuOpen.value = !isNavMenuOpen.value;
   isDropdownOpen.value = false;
+  isSettingsOpen.value = false;
+}
+
+function toggleSettings() {
+  isSettingsOpen.value = !isSettingsOpen.value;
+  isDropdownOpen.value = false;
+  isNavMenuOpen.value = false;
+}
+
+function closeAll() {
+  isDropdownOpen.value = false;
+  isNavMenuOpen.value = false;
+  isSettingsOpen.value = false;
 }
 
 async function logout() {
-  closeDropdown();
+  closeAll();
   await authenticationService.logout().catch(() => {});
   userStore.reset();
   personStore.reset();
@@ -158,14 +233,33 @@ async function logout() {
   await router.push(t("routes.login.path"));
 }
 
+function switchLang(locale: string) {
+  setLocale(locale);
+  document.documentElement.lang = locale;
+  document.cookie = "lang=" + locale + ";path=/";
+  closeAll();
+}
+
 function handleClickOutside(event: MouseEvent) {
-  if (profileRef.value && !profileRef.value.contains(event.target as Node)) {
-    closeDropdown();
+  const target = event.target as Node;
+  if (profileRef.value && !profileRef.value.contains(target)) {
+    isDropdownOpen.value = false;
   }
+  if (navMenuRef.value && !navMenuRef.value.contains(target)) {
+    isNavMenuOpen.value = false;
+  }
+  if (settingsRef.value && !settingsRef.value.contains(target)) {
+    isSettingsOpen.value = false;
+  }
+}
+
+function onResize() {
+  windowWidth.value = window.innerWidth;
 }
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
+  window.addEventListener("resize", onResize);
   sessionsStore.fetchSessions();
 });
 
@@ -182,81 +276,26 @@ watch(
 
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
+  window.removeEventListener("resize", onResize);
 });
 
 async function goToSessions() {
+  closeAll();
   await router.push({ name: "sessions.index" });
 }
 
 async function goToGrids() {
+  closeAll();
   await router.push({ name: "grids" });
 }
 
 async function goToGroupes() {
+  closeAll();
   await router.push({ name: "groupes" });
 }
 
 async function goToPrograms() {
+  closeAll();
   await router.push({ name: "admin.children.programs" });
 }
 </script>
-
-<style scoped lang="scss">
-.app-header__left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.app-header__session {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.app-header__session-label {
-  font-size: 0.875rem;
-  opacity: 0.9;
-}
-
-.app-header__session-select {
-  min-width: 180px;
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  background-color: #ffffff;
-  color: #111827;
-}
-
-.app-header__session-add-btn {
-  padding: 0.35rem 0.8rem;
-  border-radius: 4px;
-  border: 1px solid transparent;
-  background-color: #4b9e6b;
-  color: #ffffff;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.app-header__session-add-btn:hover {
-  background-color: #3b8156;
-}
-
-.app-header__grids-btn {
-  padding: 0.35rem 0.8rem;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  background-color: transparent;
-  color: #ffffff;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.app-header__grids-btn:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-}
-</style>

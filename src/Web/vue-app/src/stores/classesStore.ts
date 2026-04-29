@@ -57,5 +57,11 @@ export const useClassesStore = defineStore("classes", {
         );
       }
     },
+    async duplicateClass(request: import("@/injection/interfaces").IDuplicateClassRequest) {
+      const classService = useClassService();
+      const created = await classService.duplicateClass(request);
+      this.classes.push(created);
+      return created;
+    },
   },
 });
