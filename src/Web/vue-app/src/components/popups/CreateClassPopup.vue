@@ -297,22 +297,22 @@ async function handleSubmit() {
   width: 100%;
   padding: 12px 16px;
   margin-bottom: 8px;
-  border: 2px dashed $color-green;
+  border: 2px dashed $color-beige;
   border-radius: $common-border-radius;
-  background-color: rgba($color-green, 0.04);
-  color: $color-green;
+  background-color: rgba($color-beige, 0.04);
+  color: $color-beige;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s, border-color 0.2s;
 
   &:hover {
-    background-color: rgba($color-green, 0.1);
+    background-color: rgba($color-beige, 0.1);
   }
 
   &--active {
     border-style: solid;
-    background-color: rgba($color-green, 0.08);
+    background-color: rgba($color-beige, 0.08);
   }
 
   &__icon {
@@ -327,9 +327,9 @@ async function handleSubmit() {
 }
 
 .btn--active {
-  background-color: $color-green;
+  background-color: $color-beige;
   color: $color-white;
-  border-color: $color-green;
+  border-color: $color-beige;
 }
 
 .duplicate-loading {
@@ -358,12 +358,12 @@ async function handleSubmit() {
   transition: border-color 0.2s, background-color 0.2s;
 
   &:hover {
-    border-color: $color-green;
+    border-color: $color-beige;
   }
 
   &--selected {
-    border-color: $color-green;
-    background-color: rgba($color-green, 0.05);
+    border-color: $color-beige;
+    background-color: rgba($color-beige, 0.05);
   }
 
   &__info {
@@ -440,7 +440,7 @@ async function handleSubmit() {
           content: "•";
           position: absolute;
           left: 0;
-          color: $color-green;
+          color: $color-beige;
         }
       }
     }

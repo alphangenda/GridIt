@@ -13,6 +13,11 @@ body {
   background-color: $color-grey-lighter;
 }
 
+::selection {
+  background-color: rgba($color-beige, 0.25);
+  color: $color-black;
+}
+
 hr {
   border: none;
   border-top: 1px solid $color-border;
@@ -22,11 +27,58 @@ hr {
 
 // ── Accessible focus ring ───────────────────────────────────
 :focus-visible {
-  outline: 2px solid $color-green;
+  outline: 2px solid $color-beige;
   outline-offset: 2px;
 }
 
 // Remove default outline for mouse users
 :focus:not(:focus-visible) {
   outline: none;
+}
+
+// ── Page transitions ────────────────────────────────────────
+.page-enter-active {
+  transition: opacity 0.2s cb(ease-out-cubic), transform 0.2s cb(ease-out-cubic);
+}
+.page-leave-active {
+  transition: opacity 0.12s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.page-leave-to {
+  opacity: 0;
+}
+
+// ── Popup transitions ───────────────────────────────────────
+.popup-enter-active {
+  transition: opacity 0.2s ease;
+
+  .popup__container {
+    transition: transform 0.25s cb(ease-out-cubic), opacity 0.2s ease;
+  }
+}
+.popup-enter-from {
+  opacity: 0;
+
+  .popup__container {
+    transform: scale(0.96) translateY(8px);
+    opacity: 0;
+  }
+}
+.popup-leave-active {
+  transition: opacity 0.15s ease;
+
+  .popup__container {
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+}
+.popup-leave-to {
+  opacity: 0;
+
+  .popup__container {
+    transform: scale(0.98);
+    opacity: 0;
+  }
 }

@@ -7,7 +7,8 @@
   line-height: rem(18);
   font-weight: 600;
   border-radius: 20px;
-  background-color: $color-green-lighter;
-  color: $color-green-dark;
-  transition: background-color 0.2s cb(snappy);
+  background-color: $color-beige-lighter;
+  color: $color-beige-dark;
+  border: 1px solid rgba($color-beige, 0.15);
+  transition: background-color 0.2s cb(snappy), border-color 0.2s cb(snappy);
 }

@@ -45,8 +45,8 @@
     font-family: $font-montserrat;
     font-size: rem(11);
     font-weight: 700;
-    color: $color-green-dark;
-    background-color: $color-green-light;
+    color: $color-beige-dark;
+    background-color: $color-beige-light;
     padding: 2px 8px;
     border-radius: 10px;
     text-transform: none;
@@ -61,8 +61,15 @@
     flex: 1;
   }
 
+  &__check-icon {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
   &__student-btn {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     width: 100%;
     padding: 10px 14px;
     text-align: left;
@@ -83,8 +90,8 @@
     }
 
     &--active {
-      background-color: $color-green-light;
-      color: $color-green-dark;
+      background-color: $color-beige-light;
+      color: $color-beige-dark;
       font-weight: 600;
     }
   }
@@ -386,7 +393,7 @@
 
     &:focus {
       outline: none;
-      border-color: $color-green;
+      border-color: $color-beige;
       background-color: $color-white;
     }
   }
@@ -431,7 +438,7 @@
 
     &:focus {
       outline: none;
-      border-color: $color-green;
+      border-color: $color-beige;
       background-color: $color-white;
     }
   }
@@ -442,16 +449,16 @@
     font-family: $font-montserrat;
     font-weight: 600;
     font-size: rem(13);
-    color: $color-green-dark;
-    background-color: $color-green-light;
-    border: 1px solid $color-green;
+    color: $color-beige-dark;
+    background-color: $color-beige-light;
+    border: 1px solid $color-beige;
     border-radius: $common-border-radius;
     cursor: pointer;
     transition: background-color 0.15s ease;
 
     @media (hover: hover) {
       &:hover {
-        background-color: darken($color-green-light, 5%);
+        background-color: darken($color-beige-light, 5%);
       }
     }
   }

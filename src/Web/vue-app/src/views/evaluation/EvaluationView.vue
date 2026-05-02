@@ -32,6 +32,7 @@
               @click="selectedStudentId = student.id"
             >
               {{ student.name }}
+              <svg v-if="isStudentComplete(student.id)" class="evaluation__check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#10b981"/><path d="M8 12.5l2.5 2.5 5.5-5.5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
           </li>
         </ul>
@@ -695,6 +696,14 @@ const evaluatedCount = computed(() => {
     return Object.values(evals).some((ev) => ev.grade != null);
   }).length;
 });
+
+function isStudentComplete(studentId: string): boolean {
+  const evals = evaluations[studentId];
+  if (!evals) return false;
+  const comps = competencies.value;
+  if (comps.length === 0) return false;
+  return comps.every((c) => evals[c.id]?.grade != null);
+}
 
 // ── Auto-save (debounced) ─────────────────────────────────────
 
