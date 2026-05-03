@@ -20,8 +20,11 @@
     flex-direction: column;
   }
 
-  &__back-link {
-    padding: 12px 20px;
+  &__students-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 12px;
     border-bottom: 1px solid $color-border;
   }
 
@@ -29,24 +32,23 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex: 1;
     font-weight: 600;
     font-family: $font-montserrat;
     font-size: rem(12);
     line-height: rem(16);
     color: $color-grey-medium;
-    padding: 16px 20px 12px;
     margin: 0;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border-bottom: 1px solid $color-border;
   }
 
   &__progress-badge {
     font-family: $font-montserrat;
     font-size: rem(11);
     font-weight: 700;
-    color: $color-green-dark;
-    background-color: $color-green-light;
+    color: $color-beige-dark;
+    background-color: $color-beige-light;
     padding: 2px 8px;
     border-radius: 10px;
     text-transform: none;
@@ -61,8 +63,15 @@
     flex: 1;
   }
 
+  &__check-icon {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
   &__student-btn {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     width: 100%;
     padding: 10px 14px;
     text-align: left;
@@ -83,8 +92,8 @@
     }
 
     &--active {
-      background-color: $color-green-light;
-      color: $color-green-dark;
+      background-color: $color-beige-light;
+      color: $color-beige-dark;
       font-weight: 600;
     }
   }
@@ -386,7 +395,7 @@
 
     &:focus {
       outline: none;
-      border-color: $color-green;
+      border-color: $color-beige;
       background-color: $color-white;
     }
   }
@@ -431,7 +440,7 @@
 
     &:focus {
       outline: none;
-      border-color: $color-green;
+      border-color: $color-beige;
       background-color: $color-white;
     }
   }
@@ -442,16 +451,16 @@
     font-family: $font-montserrat;
     font-weight: 600;
     font-size: rem(13);
-    color: $color-green-dark;
-    background-color: $color-green-light;
-    border: 1px solid $color-green;
+    color: $color-beige-dark;
+    background-color: $color-beige-light;
+    border: 1px solid $color-beige;
     border-radius: $common-border-radius;
     cursor: pointer;
     transition: background-color 0.15s ease;
 
     @media (hover: hover) {
       &:hover {
-        background-color: darken($color-green-light, 5%);
+        background-color: darken($color-beige-light, 5%);
       }
     }
   }
@@ -524,12 +533,6 @@
     &--D { color: #f97316; }
     &--E { color: #ef4444; }
 
-    &--comment {
-      text-align: left;
-      width: 18%;
-      font-size: rem(11);
-      color: $color-grey-medium;
-    }
   }
 
   &__preview-td {
@@ -545,14 +548,6 @@
       font-weight: 500;
       font-size: rem(13);
       vertical-align: middle;
-    }
-
-    &--comment {
-      text-align: left;
-      font-size: rem(12);
-      color: $color-grey-medium;
-      vertical-align: middle;
-      font-style: italic;
     }
 
     &--summary {

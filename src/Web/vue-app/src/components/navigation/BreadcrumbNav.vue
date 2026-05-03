@@ -135,7 +135,7 @@ async function buildCrumbs() {
           result.push({ label: examName });
         } else {
           result.push({ label: className, to: { name: "classes.detail", params: { classId } } });
-          const examName = await fetchExamName(classId, examId);
+          const examName = getExamNameFromQuery() ?? await fetchExamName(classId, examId);
           result.push({ label: examName });
         }
       }
@@ -172,8 +172,6 @@ async function buildCrumbs() {
       result.push({ label: t("routes.sessions.name") });
     }
   } else if (name?.startsWith("admin")) {
-    result.push({ label: t("routes.admin.name"), to: { name: "admin" } });
-
     if (name.includes("members")) {
       result.push({ label: t("routes.admin.children.members.name"), to: { name: "admin.children.members.index" } });
       if (name === "admin.children.members.add") {
@@ -239,20 +237,20 @@ const crumbs = computed(() => asyncCrumbs.value);
 .breadcrumb__link {
   color: #6b7280;
   text-decoration: none;
+  transition: color 0.15s ease;
 
   &:hover {
-    color: #374151;
-    text-decoration: underline;
+    color: #7a6a55;
   }
 }
 
 .breadcrumb__current {
-  color: #111827;
-  font-weight: 500;
+  color: #1a1a2e;
+  font-weight: 600;
 }
 
 .breadcrumb__separator {
-  color: #9ca3af;
-  font-size: 1rem;
+  color: #d1d5db;
+  font-size: 0.75rem;
 }
 </style>
