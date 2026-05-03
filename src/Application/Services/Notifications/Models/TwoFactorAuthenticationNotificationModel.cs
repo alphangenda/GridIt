@@ -13,8 +13,8 @@ public class TwoFactorAuthenticationNotificationModel : NotificationModel
     public override string TemplateId()
     {
         if (Locale == "fr")
-            return "d-c954f7e0b2614e5da6d9173e8d8c10ac";
-        return "d-64fdc9a790224be7a0ae8ecea5a63372";
+            return "d-8769cf9127e441f1b6e43fa2bc578b6d";
+        return "d-ad8652c741784647aaf496571548b48f";
     }
 
     public override object TemplateData()
