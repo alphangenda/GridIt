@@ -76,7 +76,6 @@ public class GetDuplicationSourcesEndpoint : EndpointWithoutRequest<List<Duplica
                 skills ?? new List<DuplicationSkillDto>()
             );
         })
-        .Where(c => c.Skills.Count > 0)
         .OrderByDescending(c => c.IsOwner)
         .ThenBy(c => c.SessionName)
         .ThenBy(c => c.ClassName)
