@@ -8,18 +8,21 @@
     <template v-else>
       <!-- Left panel: student list -->
       <aside class="evaluation__students">
-        <router-link
-          :to="{ name: 'classes.examDetail', params: { classId: props.classId, examId: props.examId } }"
-          class="back-link evaluation__back-link"
-        >
-          &lt; Retour
-        </router-link>
-        <h2 class="evaluation__students-title">
-          {{ t("evaluation.students") }}
+        <div class="evaluation__students-header">
+          <router-link
+            :to="backRoute"
+            class="content-grid__back-link"
+            aria-label="Retour"
+          >
+            &lt;
+          </router-link>
+          <h2 class="evaluation__students-title">
+            {{ t("evaluation.students") }}
           <span v-if="students.length > 0" class="evaluation__progress-badge">
             {{ evaluatedCount }}/{{ students.length }}
           </span>
-        </h2>
+          </h2>
+        </div>
         <p v-if="students.length === 0" class="evaluation__empty-msg">
           {{ t("evaluation.noStudents") }}
         </p>
@@ -199,9 +202,6 @@
                   >
                     {{ grade }}
                   </th>
-                  <th class="evaluation__preview-th evaluation__preview-th--comment">
-                    {{ t("evaluation.comments") }}
-                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -223,9 +223,6 @@
                       {{ crit.weights[grade] }}%
                     </div>
                   </td>
-                  <td class="evaluation__preview-td evaluation__preview-td--comment">
-                    {{ getCriterionComment(crit.id) }}
-                  </td>
                 </tr>
                 <!-- Summary row -->
                 <tr class="evaluation__preview-summary">
@@ -242,9 +239,6 @@
                     }"
                   >
                     <span v-if="getGrade(comp.id) === grade">{{ grade }}</span>
-                  </td>
-                  <td class="evaluation__preview-td evaluation__preview-td--comment">
-                    {{ getComment(comp.id) }}
                   </td>
                 </tr>
               </tbody>
@@ -275,6 +269,14 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const route = useRoute();
+
+const backRoute = computed(() => {
+  const groupId = route.query.groupId as string | undefined;
+  if (groupId) {
+    return { name: 'classes.groupExams', params: { classId: props.classId, groupId } };
+  }
+  return { name: 'classes.examDetail', params: { classId: props.classId, examId: props.examId } };
+});
 
 // E → A (left to right), matching cégep grille convention
 const GRADES_DISPLAY = ALL_GRADES.slice().reverse() as GradeLetter[];

@@ -60,6 +60,11 @@
       border-color: rgba($color-beige, 0.4);
       background-color: rgba($color-white, 0.12);
     }
+
+    option {
+      background-color: $color-grey-darker;
+      color: $color-white;
+    }
   }
 
   &__session-add-btn {

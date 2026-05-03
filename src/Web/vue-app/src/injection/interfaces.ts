@@ -73,7 +73,7 @@ export interface IDuplicateClassRequest {
   name: string
   programId?: string
   sourceClassId: string
-  exams: Array<{ sourceExamId: string; name: string }>
+  examNames: string[]
 }
 
 export interface IDuplicationSource {
@@ -82,8 +82,8 @@ export interface IDuplicationSource {
   sessionName: string
   creatorEmail: string
   isOwner: boolean
+  programName: string | null
   skills: Array<{ id: string; label: string }>
-  exams: Array<{ id: string; name: string }>
 }
 
 export interface IClassService {

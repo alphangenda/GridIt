@@ -20,8 +20,11 @@
     flex-direction: column;
   }
 
-  &__back-link {
-    padding: 12px 20px;
+  &__students-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 12px;
     border-bottom: 1px solid $color-border;
   }
 
@@ -29,16 +32,15 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex: 1;
     font-weight: 600;
     font-family: $font-montserrat;
     font-size: rem(12);
     line-height: rem(16);
     color: $color-grey-medium;
-    padding: 16px 20px 12px;
     margin: 0;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border-bottom: 1px solid $color-border;
   }
 
   &__progress-badge {
@@ -531,12 +533,6 @@
     &--D { color: #f97316; }
     &--E { color: #ef4444; }
 
-    &--comment {
-      text-align: left;
-      width: 18%;
-      font-size: rem(11);
-      color: $color-grey-medium;
-    }
   }
 
   &__preview-td {
@@ -552,14 +548,6 @@
       font-weight: 500;
       font-size: rem(13);
       vertical-align: middle;
-    }
-
-    &--comment {
-      text-align: left;
-      font-size: rem(12);
-      color: $color-grey-medium;
-      vertical-align: middle;
-      font-style: italic;
     }
 
     &--summary {

@@ -34,8 +34,8 @@
     transition: color 0.15s ease, background-color 0.15s ease;
 
     &:hover {
-      background: rgba($color-white, 0.04);
-      color: rgba($color-white, 0.9);
+      background: rgba($color-beige, 0.15);
+      color: $color-beige-light;
     }
   }
 

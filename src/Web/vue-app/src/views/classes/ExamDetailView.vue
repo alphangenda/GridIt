@@ -341,9 +341,6 @@
                 {{ grade }}
               </th>
 
-              <th class="evaluation__preview-th evaluation__preview-th--comment">
-                {{ t("evaluation.comments") }}
-              </th>
             </tr>
           </thead>
 
@@ -369,10 +366,6 @@
                   {{ crit.weights[grade] }}%
                 </div>
               </td>
-
-              <td class="evaluation__preview-td evaluation__preview-td--comment">
-                —
-              </td>
             </tr>
 
             <tr class="evaluation__preview-summary">
@@ -385,10 +378,6 @@
                 :key="grade"
                 class="evaluation__preview-td evaluation__preview-td--summary"
               >
-                —
-              </td>
-
-              <td class="evaluation__preview-td evaluation__preview-td--comment">
                 —
               </td>
             </tr>
