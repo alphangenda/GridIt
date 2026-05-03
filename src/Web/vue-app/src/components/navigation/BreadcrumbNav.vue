@@ -135,7 +135,7 @@ async function buildCrumbs() {
           result.push({ label: examName });
         } else {
           result.push({ label: className, to: { name: "classes.detail", params: { classId } } });
-          const examName = await fetchExamName(classId, examId);
+          const examName = getExamNameFromQuery() ?? await fetchExamName(classId, examId);
           result.push({ label: examName });
         }
       }
