@@ -13,8 +13,8 @@ public class RegisterConfirmationNotificationModel : NotificationModel
     public override string TemplateId()
     {
         if (Locale == "fr")
-            return "d-c41370e579eb471c8088ce1a00d4e6b4";
-        return "d-d97cfe7e5a0e45c595f6097aa454f2d5";
+            return "d-3bb310eb4473484a9ce437f8d1cbe12c";
+        return "d-e927b1c9689a4bc688dcc6cba985f512";
     }
 
     public override object TemplateData()

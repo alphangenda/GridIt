@@ -64,7 +64,7 @@
         <div class="info-modal__layout">
 
           <!-- =========================
-          COLONNE GAUCHE (INCHANGÉE)
+          COLONNE GAUCHE
           ========================== -->
           <div class="info-modal__main">
 
@@ -137,11 +137,42 @@
                         type="button"
                         class="btn btn--secondary"
                         :disabled="!activeSkill"
-                        @click="addCriterion"
+                        @click="() => {
+                          showCriteriaPicker = true;
+                          loadAvailableCriteria(activeSkillId);
+                        }"
                       >
                         + {{ t("pages.examDetail.add") }}
                       </button>
                     </div>
+                    <div v-if="showCriteriaPicker" class="picker">
+                      <div class="picker__title">
+                        Critères disponibles
+                      </div>
+
+                      <div class="picker__list">
+                        <div
+                          v-for="c in availableCriteria[activeSkillId] ?? []"
+                          :key="c.id"
+                          class="picker__item"
+                        >
+                          <span>{{ c.label }}</span>
+
+                          <button
+                            type="button"
+                            class="btn btn--secondary"
+                            @click="addExistingCriterion(activeSkillId, c)"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        <div v-if="(availableCriteria[activeSkillId] ?? []).length === 0">
+                          Aucun critère disponible
+                        </div>
+                      </div>
+                    </div>
+
 
                     <div v-if="!activeSkill" class="hint">
                       {{ t("pages.examDetail.chooseSkillHint") }}
@@ -401,6 +432,8 @@ const { t } = useI18n();
 const route = useRoute();
 const classesStore = useClassesStore();
 const programService = useProgramService();
+const showCriteriaPicker = ref(false);
+const availableCriteria = ref<Record<string, any[]>>({});
 
 const isReadOnly = computed(() => route.query.readOnly === '1');
 const classId = computed(() => String(route.params.classId ?? ""));
@@ -486,6 +519,50 @@ type DefaultLetter = {
   defaultPercent: number;
   isEnabled: boolean;
 };
+
+async function loadAvailableCriteria(skillId: string) {
+  console.log("loadAvailableCriteria appelé avec:", skillId);
+  if (!skillId) return;
+
+  const res = await fetch(`/api/skills/${skillId}/criteria-template`);
+  const all = await res.json();
+  console.log("résultat API:", all);
+
+  const existing = new Set(
+    (criteria.value[skillId] ?? []).map(c => c.text)
+  );
+
+  availableCriteria.value[skillId] = all.filter(
+    (c: any) => !existing.has(c.label)
+  );
+}
+
+function addExistingCriterion(skillId: string, c: any) {
+  const id =
+    crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+
+  const evaluations = WEIGHTS.map((w) => {
+    const found = defaultLetters.value.find(x => x.letter === w);
+
+    return {
+      weight: w,
+      value: 0,
+      description: found?.description ?? "",
+      enabled: found?.isEnabled ?? (w === "A"),
+    };
+  });
+
+  criteria.value[skillId].push({
+    id,
+    text: c.label,
+    totalValue: c.totalValue ?? 0,
+    valuePreset: c.totalValue ?? 0,
+    evaluations,
+  });
+
+  availableCriteria.value[skillId] =
+    availableCriteria.value[skillId].filter(x => x.label !== c.label);
+}
 
 const defaultLetters = ref<DefaultLetter[]>([]);
 async function loadDefaultLetters() {

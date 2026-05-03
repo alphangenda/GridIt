@@ -15,7 +15,7 @@ const router = useRouter();
 const userStore = useUserStore();
 const userService = useUserService();
 
-const authenticationRoutes = ['login', 'twoFactor', 'forgotPassword', 'resetPassword', 'register', 'confirmEmail']
+const authenticationRoutes = ['login', 'twoFactor', 'forgotPassword', 'resetPassword', 'confirmEmail', 'register']
 let isAuthenticationPath = computed(() => {
   return authenticationRoutes.includes(router.currentRoute.value.name as string)
 });
