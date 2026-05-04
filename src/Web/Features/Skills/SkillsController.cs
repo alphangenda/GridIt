@@ -43,18 +43,18 @@ public class SkillsController : ControllerBase
         return Ok(skills);
     }
 
-    [HttpGet("{skillId}/criteria-template")]
-    public IActionResult GetCriteriaTemplate(Guid skillId)
+    [HttpGet("{skillId}/subcompetencies")]
+    public IActionResult GetSubcompetencies(Guid skillId)
     {
-        var templates = new List<object>();
+        var subcompetencies = new List<object>();
         var connectionString = _config.GetConnectionString("DefaultConnection");
 
         using var conn = new NpgsqlConnection(connectionString);
         conn.Open();
 
         using var cmd = new NpgsqlCommand(@"
-            SELECT id, skill_id, label, default_total_value, position
-            FROM skill_criteria_template
+            SELECT id, skill_id, label, position
+            FROM  skill_subskills
             WHERE skill_id = @skillId
             ORDER BY position
         ", conn);
@@ -65,16 +65,15 @@ public class SkillsController : ControllerBase
 
         while (reader.Read())
         {
-            templates.Add(new
+            subcompetencies.Add(new
             {
                 id = reader.GetGuid(0),
                 skillId = reader.GetGuid(1),
                 label = reader.GetString(2),
-                totalValue = reader.GetInt32(3),
-                position = reader.GetInt32(4)
+                position = reader.GetInt32(3)
             });
         }
 
-        return Ok(templates);
+        return Ok(subcompetencies);
     }
 }

@@ -22,8 +22,8 @@
         <p v-if="!isReadOnly" class="exam-detail__hint">{{ t("pages.examDetail.subtitle") }}</p>
       </div>
 
-      <div class="exam-detail__actions">
-        <button v-if="!isReadOnly" type="button" class="btn btn--secondary" @click="showInfo = true">
+      <div class="exam-detail__actions" >
+        <button v-if="!isReadOnly" type="button" class="btn btn--secondary" @click="showInfo = true" style="margin-right: 8px;">
           {{ t("pages.examDetail.skillGrid") }}
         </button>
         <router-link
@@ -137,15 +137,16 @@
                         type="button"
                         class="btn btn--secondary"
                         :disabled="!activeSkill"
-                        @click="() => {
-                          showCriteriaPicker = true;
-                          loadAvailableCriteria(activeSkillId);
-                        }"
+                        @click="toggleCriteriaPicker"
                       >
                         + {{ t("pages.examDetail.add") }}
                       </button>
                     </div>
-                    <div v-if="showCriteriaPicker" class="picker">
+                    <div
+                      v-if="showCriteriaPicker"
+                      class="picker"
+                      @mouseleave="showCriteriaPicker = false"
+                    >
                       <div class="picker__title">
                         Critères disponibles
                       </div>
@@ -535,8 +536,9 @@ async function loadAvailableCriteria(skillId: string) {
   console.log("loadAvailableCriteria appelé avec:", skillId);
   if (!skillId) return;
 
-  const res = await fetch(`/api/skills/${skillId}/criteria-template`);
+  const res = await fetch(`/api/skills/${skillId}/subcompetencies`);
   const all = await res.json();
+
   console.log("résultat API:", all);
 
   const existing = new Set(
@@ -546,6 +548,14 @@ async function loadAvailableCriteria(skillId: string) {
   availableCriteria.value[skillId] = all.filter(
     (c: any) => !existing.has(c.label)
   );
+}
+
+function toggleCriteriaPicker() {
+  if (!activeSkillId.value) return;
+  showCriteriaPicker.value = !showCriteriaPicker.value;
+  if (showCriteriaPicker.value) {
+    loadAvailableCriteria(activeSkillId.value);
+  }
 }
 
 function addExistingCriterion(skillId: string, c: any) {
@@ -732,7 +742,6 @@ async function loadAvailableSkills(): Promise<Skill[]> {
 onMounted(async () => {
   if (!examId.value) return;
 
-  // Fetch exam name from group exams or class exams endpoint
   try {
     const groupId = route.params.groupId as string | undefined;
     const examsUrl = groupId
@@ -744,7 +753,7 @@ onMounted(async () => {
       const found = (examsData as any[]).find((e: any) => String(e.id) === examId.value);
       if (found) fetchedExamName.value = String(found.name);
     }
-  } catch { /* ignore */ }
+  } catch { }
 
   const [skillsList, defaultLettersRes, examSkillsRes] = await Promise.all([
     loadAvailableSkills(),
