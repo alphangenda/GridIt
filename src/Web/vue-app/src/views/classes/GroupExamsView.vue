@@ -333,6 +333,9 @@ async function onExportPdf(exam: { id: string; name: string }) {
         headStyles: { fillColor: [45, 45, 68], textColor: 255, fontSize: 7 },
         columnStyles: {
           0: { cellWidth: 38 },
+          ...Object.fromEntries(
+            GRADES_DISPLAY.map((_, i) => [i + 1, { cellWidth: 30 }])
+          ),
           [noteColIdx]: { cellWidth: 16, halign: 'center' as const, fontStyle: 'bold' as const },
           [valueColIdx]: { cellWidth: 16, halign: 'center' as const },
         },
