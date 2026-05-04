@@ -6,29 +6,44 @@
   font-size: rem(13);
   line-height: rem(16);
   font-weight: 600;
-  background-color: $color-green;
-  border: 1px solid $color-green;
+  background-color: $color-beige;
+  border: 1px solid $color-beige;
   border-radius: $common-border-radius;
   cursor: pointer;
   width: fit-content;
   text-transform: none;
-  color: $color-white;
+  color: $color-black;
   align-items: center;
   transition: all 0.2s cb(snappy);
+  box-shadow: 0 1px 2px rgba($color-beige-dark, 0.15);
 
   @media (hover: hover) {
     &:hover {
-      background-color: $color-green-dark;
-      border-color: $color-green-dark;
+      background-color: $color-beige-dark;
+      border-color: $color-beige-dark;
+      color: $color-white;
+      box-shadow: 0 4px 12px rgba($color-beige-dark, 0.25);
+      transform: translateY(-1px);
+
+      .icon * {
+        fill: $color-white;
+      }
     }
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba($color-beige-dark, 0.15);
   }
 
   .icon {
     width: 16px;
     height: 16px;
+    transition: transform 0.2s cb(snappy);
 
     * {
-      fill: $color-white;
+      fill: $color-black;
+      transition: fill 0.2s cb(snappy);
     }
   }
 
@@ -36,13 +51,27 @@
   &--red {
     background-color: $color-red;
     border-color: $color-red;
-    @include btnHover(darken($color-red, 8%), $color-white)
+    color: $color-white;
+    box-shadow: 0 1px 2px rgba($color-red, 0.2);
+
+    .icon * {
+      fill: $color-white;
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: darken($color-red, 8%);
+        border-color: darken($color-red, 8%);
+        box-shadow: 0 4px 12px rgba($color-red, 0.3);
+      }
+    }
   }
 
   &--secondary {
     background-color: $color-white;
     border-color: $color-border;
     color: $color-text;
+    box-shadow: $small-shadow;
 
     .icon * {
       fill: $color-text;
@@ -52,6 +81,12 @@
       &:hover {
         background-color: $color-grey-lighter;
         border-color: $color-grey;
+        box-shadow: $bold-shadow;
+        color: $color-text;
+
+        .icon * {
+          fill: $color-text;
+        }
       }
     }
   }
@@ -68,23 +103,26 @@
   &--link {
     padding: 0;
     font-weight: 600;
-    color: $color-green;
+    color: $color-beige-dark;
     border: none;
     text-decoration: none;
     background-color: unset;
+    box-shadow: none;
 
     .icon * {
-      fill: $color-green;
+      fill: $color-beige-dark;
     }
 
     @media (hover: hover) {
       &:hover {
-        color: $color-green-dark;
+        color: $color-beige-medium;
         background-color: unset;
         border-color: unset;
+        box-shadow: none;
+        transform: none;
 
         .icon * {
-          fill: $color-green-dark;
+          fill: $color-beige-medium;
         }
       }
     }
@@ -96,6 +134,7 @@
     background-color: $color-grey-light;
     border-color: $color-grey-light;
     color: $color-grey;
+    box-shadow: none;
   }
 
   &--fullscreen {
@@ -107,7 +146,7 @@
     @media (hover: hover) {
       &:hover {
         .icon {
-          transform: translate3d(2px, 0, 0);
+          transform: translate3d(3px, 0, 0);
         }
       }
     }

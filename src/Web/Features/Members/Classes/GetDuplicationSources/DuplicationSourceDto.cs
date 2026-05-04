@@ -6,10 +6,9 @@ public record DuplicationSourceDto(
     string SessionName,
     string CreatorEmail,
     bool IsOwner,
-    List<DuplicationSkillDto> Skills,
-    List<DuplicationExamDto> Exams
+    string? ProgramName,
+    List<DuplicationSkillDto> Skills
 );
 
 public record DuplicationSkillDto(Guid Id, string Label);
 
-public record DuplicationExamDto(Guid Id, string Name);

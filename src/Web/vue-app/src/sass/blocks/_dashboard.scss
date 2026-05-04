@@ -15,23 +15,27 @@
   &__nav-wrap {
     overflow: hidden;
     flex-shrink: 0;
-    transition: width 0.25s ease;
+    transition: width 0.25s cb(snappy);
   }
 
   &__nav-toggle {
     display: none;
     background: $color-grey-dark;
-    color: #fff;
+    color: rgba($color-white, 0.5);
     border: none;
+    border-right: 1px solid rgba($color-white, 0.06);
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 1rem;
     line-height: 1;
     padding: 0;
     align-self: stretch;
     width: 20px;
     flex-shrink: 0;
+    transition: color 0.15s ease, background-color 0.15s ease;
+
     &:hover {
-      background: $color-grey-darker;
+      background: rgba($color-beige, 0.15);
+      color: $color-beige-light;
     }
   }
 

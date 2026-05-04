@@ -266,7 +266,7 @@ async function onExportPdf(exam: { id: string; name: string }) {
       doc.text(comp.name, 14, startY);
       startY += 2;
 
-      const headers = ['Critere', ...GRADES_DISPLAY, 'Note attribuee', 'Valeur', 'Commentaire'];
+      const headers = ['Critere', ...GRADES_DISPLAY, 'Note attribuee', 'Valeur'];
       const body: string[][] = [];
 
       const sid = norm(student.id);
@@ -276,7 +276,6 @@ async function onExportPdf(exam: { id: string; name: string }) {
         for (const crit of comp.criteria) {
           const cid = norm(crit.id);
           const critGrade = critEvalMap[sid]?.[cid]?.grade ?? null;
-          const critComment = critEvalMap[sid]?.[cid]?.comment ?? '';
           const valueStr =
             critGrade && crit.rawWeights[critGrade] != null
               ? `${crit.rawWeights[critGrade]}/${crit.totalValue}`
@@ -285,18 +284,20 @@ async function onExportPdf(exam: { id: string; name: string }) {
           const row = [crit.label];
           for (const g of GRADES_DISPLAY) {
             if (critGrade === g) {
-              const pct = crit.weights[g] != null ? `${g} (${crit.weights[g]}%)` : g;
-              row.push(pct);
+              const desc = crit.descriptions[g] ?? '';
+              const pct = crit.weights[g] != null ? `${crit.weights[g]}%` : '';
+              row.push(desc ? `${desc}\n${pct}` : `${g} (${pct})`);
             } else {
-              row.push('');
+              const desc = crit.descriptions[g] ?? '';
+              const pct = crit.weights[g] != null ? `${crit.weights[g]}%` : '';
+              row.push(desc ? `${desc}\n${pct}` : '');
             }
           }
-          row.push(critGrade ?? '—', valueStr, critComment);
+          row.push(critGrade ?? '—', valueStr);
           body.push(row);
         }
 
         const compGrade = compEvalMap[sid]?.[compId]?.grade ?? null;
-        const compComment = compEvalMap[sid]?.[compId]?.comment ?? '';
         const totalMax = comp.criteria.reduce((s, c) => s + (c.totalValue ?? 0), 0);
         let obtained = 0;
         for (const crit of comp.criteria) {
@@ -308,22 +309,20 @@ async function onExportPdf(exam: { id: string; name: string }) {
         for (const g of GRADES_DISPLAY) {
           summaryRow.push(compGrade === g ? g : '');
         }
-        summaryRow.push(compGrade ?? '—', valueStr, compComment);
+        summaryRow.push(compGrade ?? '—', valueStr);
         body.push(summaryRow);
       } else {
         const compGrade = compEvalMap[sid]?.[compId]?.grade ?? null;
-        const compComment = compEvalMap[sid]?.[compId]?.comment ?? '';
         const row = ['Note directe'];
         for (const g of GRADES_DISPLAY) {
           row.push(compGrade === g ? g : '');
         }
-        row.push(compGrade ?? '—', '', compComment);
+        row.push(compGrade ?? '—', '');
         body.push(row);
       }
 
       const noteColIdx = GRADES_DISPLAY.length + 1;
       const valueColIdx = GRADES_DISPLAY.length + 2;
-      const commentColIdx = GRADES_DISPLAY.length + 3;
 
       autoTable(doc, {
         startY,
@@ -336,7 +335,6 @@ async function onExportPdf(exam: { id: string; name: string }) {
           0: { cellWidth: 38 },
           [noteColIdx]: { cellWidth: 16, halign: 'center' as const, fontStyle: 'bold' as const },
           [valueColIdx]: { cellWidth: 16, halign: 'center' as const },
-          [commentColIdx]: { cellWidth: 32 },
         },
         didParseCell: (data: any) => {
           if (
@@ -345,9 +343,15 @@ async function onExportPdf(exam: { id: string; name: string }) {
             data.column.index <= GRADES_DISPLAY.length
           ) {
             if (data.cell.raw && data.cell.raw !== '') {
-              data.cell.styles.fillColor = [76, 175, 80];
-              data.cell.styles.textColor = 255;
-              data.cell.styles.fontStyle = 'bold';
+              const rowIdx = data.row.index;
+              const isSelected = rowIdx < comp.criteria.length
+                ? critEvalMap[sid]?.[norm(comp.criteria[rowIdx].id)]?.grade === GRADES_DISPLAY[data.column.index - 1]
+                : body[rowIdx][data.column.index] !== '';
+              if (isSelected && (rowIdx >= comp.criteria.length || critEvalMap[sid]?.[norm(comp.criteria[rowIdx].id)]?.grade)) {
+                data.cell.styles.fillColor = [76, 175, 80];
+                data.cell.styles.textColor = 255;
+                data.cell.styles.fontStyle = 'bold';
+              }
             }
           }
           if (data.section === 'body' && data.column.index === noteColIdx) {

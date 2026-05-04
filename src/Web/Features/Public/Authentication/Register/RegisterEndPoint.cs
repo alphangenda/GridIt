@@ -66,10 +66,7 @@ public class RegisterEndpoint : EndpointWithSanitizedRequest<RegisterRequest, Su
 
         if (_userRepository.UserWithEmailExists(req.Email))
         {
-            await Send.OkAsync(
-                new SucceededOrNotResponse(false,
-                    new Error("EmailAlreadyExists", "A user with this email already exists.")
-                ), ct);
+            await Send.OkAsync(new SucceededOrNotResponse(true), ct);
             return;
         }
 

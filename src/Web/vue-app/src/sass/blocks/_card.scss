@@ -6,7 +6,27 @@
   padding: 16px;
   height: auto;
   box-shadow: $small-shadow;
-  transition: box-shadow 0.2s cb(snappy);
+  transition: box-shadow 0.25s cb(snappy), transform 0.25s cb(snappy);
+
+  &--clickable {
+    cursor: pointer;
+
+    @media (hover: hover) {
+      &:hover {
+        box-shadow: $bold-shadow;
+        transform: translateY(-2px);
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: $small-shadow;
+    }
+  }
+
+  &--accent {
+    border-left: 3px solid $color-beige;
+  }
 
   &__expand-trigger {
     display: flex;
