@@ -23,15 +23,6 @@
         <div class="dsm-body" v-if="!isLoading">
           <section class="dsm-section">
             <div class="dsm-section-head">
-              <h3>{{ t("pages.defaultSettingsModal.baseSkills") }}</h3>
-              <p>
-                {{ t("pages.defaultSettingsModal.baseSkillsHelp") }}
-              </p>
-            </div>
-          </section>
-
-          <section class="dsm-section">
-            <div class="dsm-section-head">
               <h3>{{ t("pages.defaultSettingsModal.defaultLetters") }}</h3>
               <p>
                 {{ t("pages.defaultSettingsModal.defaultLettersHelp") }}
@@ -46,11 +37,12 @@
                     <th>{{ t("pages.defaultSettingsModal.table.description") }}</th>
                     <th>{{ t("pages.defaultSettingsModal.table.defaultPercent") }}</th>
                     <th>{{ t("pages.defaultSettingsModal.table.isEnabled") }}</th>
+                    <th></th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  <tr v-for="letter in letters" :key="letter.letter">
+                  <tr v-for="(letter, index) in letters" :key="letter.letter">
                     <td class="dsm-letter-cell">
                       <span class="dsm-letter-badge">{{ letter.letter }}</span>
                     </td>
@@ -82,9 +74,26 @@
                         @change="scheduleAutoSave"
                       />
                     </td>
+
+                    <td class="dsm-remove-cell">
+                      <button
+                        v-if="!isCoreLetter(letter.letter)"
+                        class="dsm-close"
+                        type="button"
+                        @click="removeLetter(index)"
+                      >
+                        ✕
+                      </button>
+                    </td>
                   </tr>
                 </tbody>
               </table>
+            </div>
+
+            <div class="dsm-add-letter">
+              <button class="dsm-btn dsm-btn--primary" type="button" @click="addLetter">
+                + Ajouter une lettre
+              </button>
             </div>
           </section>
         </div>
@@ -186,6 +195,44 @@ function scheduleAutoSave() {
   autoSaveTimer = setTimeout(() => {
     saveAll();
   }, 700);
+}
+
+function addLetter() {
+  if (letters.value.length === 0) {
+    letters.value.push({
+      letter: "A",
+      description: "",
+      defaultPercent: 0,
+      isEnabled: true,
+    });
+    scheduleAutoSave();
+    return;
+  }
+
+  const last = letters.value[letters.value.length - 1].letter;
+  const nextCharCode = last.charCodeAt(0) + 1;
+  if (nextCharCode > 90) return;
+  const nextLetter = String.fromCharCode(nextCharCode);
+
+  letters.value.push({
+    letter: nextLetter,
+    description: "",
+    defaultPercent: 0,
+    isEnabled: true,
+  });
+
+  scheduleAutoSave();
+}
+
+function removeLetter(index: number) {
+  const row = letters.value[index];
+  if (!row || isCoreLetter(row.letter)) return;
+  letters.value.splice(index, 1);
+  scheduleAutoSave();
+}
+
+function isCoreLetter(letter: string) {
+  return ["A", "B", "C", "D", "E", "F"].includes(letter);
 }
 
 async function loadLetters() {
@@ -396,6 +443,10 @@ onBeforeUnmount(() => {
   overflow-x: auto;
 }
 
+.dsm-add-letter {
+  margin-top: 12px;
+}
+
 .dsm-table {
   width: 100%;
   border-collapse: collapse;
@@ -450,6 +501,10 @@ onBeforeUnmount(() => {
 
 .dsm-checkbox-cell {
   text-align: center;
+}
+
+.dsm-remove-cell {
+  text-align: right;
 }
 
 .dsm-footer {
