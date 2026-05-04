@@ -764,7 +764,7 @@ watch(saveVersion, () => {
 .evaluation__grid-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 /* Header cells */
@@ -824,6 +824,8 @@ watch(saveVersion, () => {
   vertical-align: top;
   min-width: 150px;
   max-width: 200px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .grade-cell:hover:not(.grade-cell--disabled):not(.grade-cell--summary) {
