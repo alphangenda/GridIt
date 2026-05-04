@@ -46,7 +46,6 @@ public class DuplicateClassEndpoint : Endpoint<DuplicateClassRequest, ClassDto>
 
     public override async Task HandleAsync(DuplicateClassRequest req, CancellationToken ct)
     {
-        // Validate source class exists
         var sourceClass = await _context.Classes
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == req.SourceClassId, ct);
@@ -71,75 +70,60 @@ public class DuplicateClassEndpoint : Endpoint<DuplicateClassRequest, ClassDto>
             }
         }
 
-        var exams = req.Exams ?? new List<ExamRenameEntry>();
+        var examNames = req.ExamNames?
+            .Select(n => n.Trim())
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .ToList() ?? new List<string>();
 
-        // Use a transaction via EF to ensure atomicity
-        using var efTransaction = await _context.Database.BeginTransactionAsync(ct);
+        // 1. Create the new class
+        var newClass = new Class();
+        newClass.SetId(Guid.NewGuid());
+        newClass.SetName(req.Name.Trim());
+        newClass.SetProgramId(req.ProgramId);
+        await _classRepository.CreateClass(newClass);
 
-        try
+        // 2. Copy skills from source class
+        var sourceSkillIds = await _classSkillRepository.GetSkillIdsForClass(req.SourceClassId);
+        var skillIdsList = sourceSkillIds.ToList();
+
+        if (skillIdsList.Count > 0)
         {
-            // 1. Create the new class
-            var newClass = new Class();
-            newClass.SetId(Guid.NewGuid());
-            newClass.SetName(req.Name.Trim());
-            newClass.SetProgramId(req.ProgramId);
-            await _classRepository.CreateClass(newClass);
+            await _classSkillRepository.SaveClassSkills(newClass.Id, skillIdsList);
+        }
 
-            // 2. Copy skills from source class
-            var sourceSkillIds = await _classSkillRepository.GetSkillIdsForClass(req.SourceClassId);
-            var skillIdsList = sourceSkillIds.ToList();
+        // 3. Create exams with all class skills
+        var cs = _configuration.GetConnectionString("DefaultConnection");
+
+        foreach (var examName in examNames)
+        {
+            var newExam = new Exam();
+            newExam.SetId(Guid.NewGuid());
+            newExam.SetClassId(newClass.Id);
+            newExam.SetName(examName);
+            await _examRepository.CreateExam(newExam);
 
             if (skillIdsList.Count > 0)
             {
-                await _classSkillRepository.SaveClassSkills(newClass.Id, skillIdsList);
-            }
-
-            // 3. Copy exams with custom names
-            var sourceExams = _examRepository.GetByClassId(req.SourceClassId);
-            var renameMap = exams.ToDictionary(e => e.SourceExamId, e => e.Name);
-            var cs = _configuration.GetConnectionString("DefaultConnection");
-
-            foreach (var sourceExam in sourceExams)
-            {
-                // Use custom name if provided, otherwise keep original
-                var examName = renameMap.TryGetValue(sourceExam.Id, out var customName)
-                    && !string.IsNullOrWhiteSpace(customName)
-                        ? customName.Trim()
-                        : sourceExam.Name;
-
-                var newExam = new Exam();
-                newExam.SetId(Guid.NewGuid());
-                newExam.SetClassId(newClass.Id);
-                newExam.SetName(examName);
-                await _examRepository.CreateExam(newExam);
-
-                // Copy exam_skills with positions
                 await using var conn = new NpgsqlConnection(cs);
                 await conn.OpenAsync(ct);
 
                 await using var cmd = new NpgsqlCommand(
                     """
                     INSERT INTO exam_skills (id, exam_id, skill_id, position)
-                    SELECT gen_random_uuid(), @NewExamId, skill_id, position
-                    FROM exam_skills
-                    WHERE exam_id = @SourceExamId
+                    SELECT gen_random_uuid(), @NewExamId, cs.skill_id, ROW_NUMBER() OVER (ORDER BY cs.skill_id)
+                    FROM class_skills cs
+                    WHERE cs.class_id = @ClassId
                     """,
                     conn
                 );
 
                 cmd.Parameters.AddWithValue("@NewExamId", newExam.Id);
-                cmd.Parameters.AddWithValue("@SourceExamId", sourceExam.Id);
+                cmd.Parameters.AddWithValue("@ClassId", newClass.Id);
 
                 await cmd.ExecuteNonQueryAsync(ct);
             }
+        }
 
-            await efTransaction.CommitAsync(ct);
-            await Send.OkAsync(_mapper.Map<ClassDto>(newClass), ct);
-        }
-        catch
-        {
-            await efTransaction.RollbackAsync(ct);
-            throw;
-        }
+        await Send.OkAsync(_mapper.Map<ClassDto>(newClass), ct);
     }
 }

@@ -7,23 +7,25 @@
     </div>
 
     <div class="app-header__right">
-      <div v-if="!isMobile && sessions.length" class="app-header__session">
-        <label class="app-header__session-label" for="header-session-select">
-          {{ t("navigation.sessions") }}
-        </label>
-        <select
-          id="header-session-select"
-          v-model="selectedSessionId"
-          class="app-header__session-select"
-        >
-          <option
-            v-for="session in sessions"
-            :key="session.id"
-            :value="session.id"
+      <div v-if="!isMobile" class="app-header__session">
+        <template v-if="sessions.length">
+          <label class="app-header__session-label" for="header-session-select">
+            {{ t("navigation.sessions") }}
+          </label>
+          <select
+            id="header-session-select"
+            v-model="selectedSessionId"
+            class="app-header__session-select"
           >
-            {{ session.name }}
-          </option>
-        </select>
+            <option
+              v-for="session in sessions"
+              :key="session.id"
+              :value="session.id"
+            >
+              {{ session.name }}
+            </option>
+          </select>
+        </template>
         <button
           type="button"
           class="app-header__session-add-btn"

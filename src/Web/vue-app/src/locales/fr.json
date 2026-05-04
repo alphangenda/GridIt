@@ -166,6 +166,8 @@
     "deleteExamConfirm": "Êtes-vous sûr de vouloir supprimer cette évaluation ?",
     "sessions": "Sessions",
     "addSession": "Ajouter une session",
+    "noSessionWarning": "Vous devez créer une session avant de pouvoir ajouter un cours.",
+    "goToSessions": "Créer une session",
     "sessionName": "Nom de la session",
     "sessionYear": "Année",
     "sessionSeason": "Session",
@@ -223,14 +225,21 @@
     "sharedCourses": "Cours partagés",
     "duplicatePreview": "Aperçu du contenu à copier",
     "duplicateSkills": "compétence(s)",
-    "duplicateExams": "évaluation(s)",
     "duplicateSkillsTitle": "Compétences",
     "duplicateExamsTitle": "Évaluations",
     "duplicateConfirm": "Confirmer la copie",
     "duplicateSuccess": "Contenu copié avec succès.",
     "duplicateError": "Impossible de copier le contenu. Veuillez réessayer.",
     "duplicateLoadError": "Impossible de charger les cours disponibles.",
-    "noDuplicationSources": "Aucun cours disponible pour la duplication."
+    "noDuplicationSources": "Aucun cours disponible pour la duplication.",
+    "normalAdd": "Créer un cours",
+    "copyFromExisting": "Copier un cours",
+    "addExamPlaceholder": "Nom de l'évaluation",
+    "addExam": "Ajouter une évaluation",
+    "clearSelection": "Retirer la sélection",
+    "noProgram": "Aucun programme",
+    "copiedSkills": "Compétences copiées",
+    "examsToCreate": "Évaluations à créer"
   },
   "products": {
     "form": {

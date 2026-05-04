@@ -90,6 +90,12 @@ public class GarneauTemplateDbContextInitializer
                 is_selected BOOL NOT NULL
             );
 
+            CREATE TABLE IF NOT EXISTS class_skills (
+                class_id UUID NOT NULL,
+                skill_id UUID NOT NULL,
+                PRIMARY KEY (class_id, skill_id)
+            );
+
             CREATE TABLE IF NOT EXISTS exam_groups (
                 id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
                 exam_id UUID NOT NULL,

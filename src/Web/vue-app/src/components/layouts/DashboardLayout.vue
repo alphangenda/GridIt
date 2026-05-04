@@ -15,22 +15,24 @@
         <LogoutPopup />
         <Notifications />
         <BreadcrumbNav />
-        <RouterView v-slot="{ Component }">
-          <template v-if="Component">
-            <Suspense>
-              <component :is="Component" />
-              <template #fallback>
-                <Loader />
-              </template>
-            </Suspense>
-          </template>
+        <RouterView v-slot="{ Component, route: viewRoute }">
+          <Transition name="page" mode="out-in">
+            <div :key="viewRoute.name" v-if="Component">
+              <Suspense>
+                <component :is="Component" />
+                <template #fallback>
+                  <Loader />
+                </template>
+              </Suspense>
+            </div>
+          </Transition>
         </RouterView>
       </main>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useAdministratorService, useMemberService } from "@/inversify.config";
 import AppHeader from "@/components/layouts/AppHeader.vue";

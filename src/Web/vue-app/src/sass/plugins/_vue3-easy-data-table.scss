@@ -93,12 +93,15 @@
     justify-content: center;
     padding: 4px;
     border-radius: 6px;
-    background-color: $color-green;
-    transition: background-color 0.15s ease;
+    background-color: $color-beige;
+    transition: all 0.15s cb(snappy);
+    box-shadow: 0 1px 2px rgba($color-beige-dark, 0.15);
 
     @media (hover: hover) {
       &:hover {
-        background-color: $color-green-dark;
+        background-color: $color-beige-dark;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba($color-beige-dark, 0.25);
       }
     }
 
@@ -148,7 +151,7 @@
 
     @media (hover: hover) {
       &:hover {
-        border-color: $color-green;
+        border-color: $color-beige;
       }
     }
 
@@ -195,13 +198,13 @@
 
       @media (hover: hover) {
         &:hover {
-          background-color: $color-green-lighter;
+          background-color: $color-beige-lighter;
         }
       }
 
       &.active {
-        background-color: $color-green-lighter;
-        color: $color-green-dark;
+        background-color: $color-beige-lighter;
+        color: $color-beige-dark;
         pointer-events: none;
       }
     }
@@ -216,7 +219,7 @@
   @media(hover:hover){
     tr:hover {
       .tag {
-        background-color: $color-green-light;
+        background-color: $color-beige-light;
       }
     }
   }

@@ -1,7 +1,7 @@
 @use "../tools" as *;
 .lang-switcher {
   gap: 8px;
-  color: $color-green;
+  color: $color-beige;
   font-size: rem(16);
   line-height: rem(24);
   text-transform: capitalize;
@@ -10,7 +10,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    @include colorHover($color-green-light);
+    @include colorHover($color-beige-light);
   }
 
   &__option-text {
@@ -19,10 +19,10 @@
 
   //States ---------------------------------
   &--green-light {
-    color: $color-green-light;
+    color: $color-beige-light;
 
     .lang-switcher__option {
-      @include colorHover($color-green-lighter);
+      @include colorHover($color-beige-lighter);
     }
   }
 
@@ -30,13 +30,13 @@
     color: $color-white;
 
     .lang-switcher__option {
-      @include colorHover($color-green-lighter);
+      @include colorHover($color-beige-lighter);
     }
   }
 
   &--green {
     * {
-      fill: $color-green;
+      fill: $color-beige;
     }
   }
 

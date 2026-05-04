@@ -182,7 +182,7 @@ const tableItems = computed(() =>
       view: {
         name: "classes.examDetailDirect",
         params: { classId: g.classId, examId: g.id },
-        query: g.isOwner ? {} : { readOnly: "1", examName: g.name, courseName: g.courseCode, professor: g.creatorEmail },
+        query: g.isOwner ? { examName: g.name } : { readOnly: "1", examName: g.name, courseName: g.courseCode, professor: g.creatorEmail },
       },
     },
   }))
