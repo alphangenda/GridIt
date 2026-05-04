@@ -49,20 +49,27 @@ public class DefaultCriterionLettersController : ControllerBase
     [HttpPost]
     public IActionResult Save(SaveDefaultCriterionLettersRequest dto)
     {
+        if (dto?.Letters is null)
+        {
+            return BadRequest("Letters payload is required.");
+        }
+
         var cs = _config.GetConnectionString("DefaultConnection");
 
         using var conn = new NpgsqlConnection(cs);
         conn.Open();
+        using var tx = conn.BeginTransaction();
 
         foreach (var letter in dto.Letters)
         {
             var cmd = new NpgsqlCommand(@"
-                UPDATE default_criterion_letters
-                SET description = @description,
-                    default_percent = @defaultPercent,
-                    is_enabled = @isEnabled
-                WHERE letter = @letter
-            ", conn);
+                INSERT INTO default_criterion_letters (letter, description, default_percent, is_enabled)
+                VALUES (@letter, @description, @defaultPercent, @isEnabled)
+                ON CONFLICT (letter) DO UPDATE
+                SET description = EXCLUDED.description,
+                    default_percent = EXCLUDED.default_percent,
+                    is_enabled = EXCLUDED.is_enabled
+            ", conn, tx);
 
             cmd.Parameters.AddWithValue("@letter", letter.Letter);
             cmd.Parameters.AddWithValue("@description", letter.Description);
@@ -72,6 +79,23 @@ public class DefaultCriterionLettersController : ControllerBase
             cmd.ExecuteNonQuery();
         }
 
+        var lettersToKeep = dto.Letters.Select(x => x.Letter).ToArray();
+        if (lettersToKeep.Length == 0)
+        {
+            var deleteAllCmd = new NpgsqlCommand("DELETE FROM default_criterion_letters", conn, tx);
+            deleteAllCmd.ExecuteNonQuery();
+        }
+        else
+        {
+            var deleteRemovedCmd = new NpgsqlCommand(@"
+                DELETE FROM default_criterion_letters
+                WHERE letter <> ALL(@lettersToKeep)
+            ", conn, tx);
+            deleteRemovedCmd.Parameters.AddWithValue("@lettersToKeep", lettersToKeep);
+            deleteRemovedCmd.ExecuteNonQuery();
+        }
+
+        tx.Commit();
         return Ok();
     }
 }
