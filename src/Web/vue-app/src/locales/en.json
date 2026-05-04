@@ -597,7 +597,6 @@
     "examDetail": {
       "back": "Back",
       "titleFallback": "Exam",
-      "subtitle": "Exam detail.",
       "skillGrid": "Skill grid",
       "evaluate": "Evaluate",
       "reset": "Reset",
@@ -629,7 +628,7 @@
     },
     "defaultSettingsModal": {
       "title": "Default settings",
-      "subtitle": "Choose base skills and configure letters A to F.",
+      "subtitle": "Configure letters A to F.",
       "close": "Close",
       "baseSkills": "Base skills",
       "baseSkillsHelp": "Checked skills will be selected by default in new exams.",
