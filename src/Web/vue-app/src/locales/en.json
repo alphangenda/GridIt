@@ -165,7 +165,7 @@
     "deleteClassConfirm": "Are you sure you want to delete this class?",
     "deleteExamConfirm": "Are you sure you want to delete this evaluation?",
     "sessions": "Sessions",
-    "addSession": "Add a session",
+    "addSession": "Session(s)",
     "noSessionWarning": "You must create a session before adding a class.",
     "goToSessions": "Create a session",
     "sessionName": "Session name",
@@ -579,7 +579,12 @@
       "skillTooLong": "Name cannot exceed {max} characters.",
       "skillInvalidChars": "Invalid characters. Use letters, numbers and simple punctuation only.",
       "skillDuplicate": "This skill is already linked to the program.",
-      "skillInvalid": "Skill name is invalid."
+      "skillInvalid": "Skill name is invalid.",
+      "subSkillsLabel": "Sub-competencies (criteria)",
+      "addSubSkill": "Add",
+      "noSubSkills": "No sub-competencies. Add some to enable student evaluation.",
+      "subSkillPlaceholder": "Sub-competency name",
+      "subSkillValuePlaceholder": "Value"
     },
     "sessions": {
       "homeTitle": "Homepage",

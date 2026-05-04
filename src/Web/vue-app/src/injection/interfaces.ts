@@ -142,4 +142,9 @@ export interface IProgramService {
   addSkillToProgram(programId: string, skillId: string): Promise<void>
 
   removeSkillFromProgram(programId: string, skillId: string): Promise<void>
+
+  saveCriteriaTemplates(
+    skillId: string,
+    templates: Array<{ label: string; defaultTotalValue: number }>
+  ): Promise<void>
 }

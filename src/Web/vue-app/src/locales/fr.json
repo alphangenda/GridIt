@@ -165,7 +165,7 @@
     "deleteClassConfirm": "Êtes-vous sûr de vouloir supprimer cette classe ?",
     "deleteExamConfirm": "Êtes-vous sûr de vouloir supprimer cette évaluation ?",
     "sessions": "Sessions",
-    "addSession": "Ajouter une session",
+    "addSession": "Session(s)",
     "noSessionWarning": "Vous devez créer une session avant de pouvoir ajouter un cours.",
     "goToSessions": "Créer une session",
     "sessionName": "Nom de la session",
@@ -579,7 +579,12 @@
       "skillTooLong": "Le nom ne peut pas dépasser {max} caractères.",
       "skillInvalidChars": "Caractères non autorisés. Lettres, chiffres et ponctuation simple uniquement.",
       "skillDuplicate": "Cette compétence est déjà associée au programme.",
-      "skillInvalid": "Le nom de la compétence est invalide."
+      "skillInvalid": "Le nom de la compétence est invalide.",
+      "subSkillsLabel": "Sous-compétences (critères)",
+      "addSubSkill": "Ajouter",
+      "noSubSkills": "Aucune sous-compétence. Ajoutez-en pour pouvoir évaluer les élèves.",
+      "subSkillPlaceholder": "Nom de la sous-compétence",
+      "subSkillValuePlaceholder": "Valeur"
     },
     "sessions": {
       "homeTitle": "Page d'accueil",
