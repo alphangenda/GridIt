@@ -542,6 +542,8 @@
     vertical-align: top;
     border: 1px solid $color-border;
     color: $color-text;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 
     &--label {
       text-align: left;
