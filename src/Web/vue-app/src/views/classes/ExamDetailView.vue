@@ -222,6 +222,7 @@
                             class="criterion-name"
                             :placeholder="t('pages.examDetail.criterionName')"
                             :disabled="isReadOnly"
+                            readonly
                           />
 
                           <button

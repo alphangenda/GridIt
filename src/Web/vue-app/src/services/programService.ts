@@ -91,4 +91,19 @@ export class ProgramService extends ApiService implements IProgramService {
         throw error;
       });
   }
+
+  public async saveCriteriaTemplates(
+    skillId: string,
+    templates: Array<{ label: string; defaultTotalValue: number }>
+  ): Promise<void> {
+    await this._httpClient
+      .post(
+        `${import.meta.env.VITE_API_BASE_URL}/skills/${skillId}/criteria-template`,
+        { templates },
+        this.headersWithJsonContentType()
+      )
+      .catch((error: AxiosError) => {
+        throw error;
+      });
+  }
 }
