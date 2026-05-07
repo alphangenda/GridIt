@@ -83,19 +83,19 @@
 
             <div class="form__submit">
               <button
-                class="btn btn--fullscreen"
-                type="submit"
-                :disabled="!isValid || isSaving"
-              >
-                {{ isSaving ? t("pages.programs.skillsSaving") : t("global.add") }}
-              </button>
-              <button
                 class="btn btn--fullscreen btn--red"
                 type="button"
                 :disabled="isSaving"
                 @click="emitClose"
               >
                 {{ t("global.cancel") }}
+              </button>
+              <button
+                class="btn btn--fullscreen"
+                type="submit"
+                :disabled="!isValid || isSaving"
+              >
+                {{ isSaving ? t("pages.programs.skillsSaving") : t("global.add") }}
               </button>
             </div>
           </div>

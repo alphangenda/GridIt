@@ -12,6 +12,9 @@
               {{ t("pages.examDetail.resetConfirmMessage") }}
             </p>
             <div class="form__submit confirm-reset__actions">
+              <button class="btn btn--fullscreen" type="button" :disabled="isLoading" @click="emit('close')">
+                {{ t("global.cancel") }}
+              </button>
               <button
                 class="btn btn--fullscreen btn--red"
                 type="button"
@@ -19,9 +22,6 @@
                 @click="emit('confirm')"
               >
                 {{ isLoading ? t("pages.examDetail.resetting") : t("pages.examDetail.resetConfirmAction") }}
-              </button>
-              <button class="btn btn--fullscreen" type="button" :disabled="isLoading" @click="emit('close')">
-                {{ t("global.cancel") }}
               </button>
             </div>
           </div>

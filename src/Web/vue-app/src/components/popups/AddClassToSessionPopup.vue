@@ -29,11 +29,11 @@
               <small class="form__help">{{ t("navigation.selectMultipleClasses") }}</small>
             </div>
             <div class="form__submit">
-              <button class="btn btn--fullscreen" type="submit" :disabled="selectedClassIds.length === 0">
-                {{ t("global.add") }}
-              </button>
               <button class="btn btn--fullscreen btn--red" type="button" @click="emit('close')">
                 {{ t("global.cancel") }}
+              </button>
+              <button class="btn btn--fullscreen" type="submit" :disabled="selectedClassIds.length === 0">
+                {{ t("global.add") }}
               </button>
             </div>
           </div>

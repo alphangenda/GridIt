@@ -24,8 +24,8 @@
                      type="url"
                      @validated="handleValidation"/>
           <div class="form__submit">
-            <button class="btn btn--fullscreen">{{ t('global.add') }}</button>
             <button class="btn btn--fullscreen btn--red" type="button" @click="closePopup">{{ t('global.cancel') }}</button>
+            <button class="btn btn--fullscreen">{{ t('global.add') }}</button>
           </div>
         </div>
       </div>
