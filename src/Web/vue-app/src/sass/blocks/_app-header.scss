@@ -181,6 +181,28 @@
     }
   }
 
+  // ── Theme toggle ────────────────────────────────────────
+  &__theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba($color-white, 0.06);
+    color: rgba($color-white, 0.7);
+    cursor: pointer;
+    transition: all 0.2s cb(snappy);
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: rgba($color-white, 0.12);
+        color: $color-white;
+      }
+    }
+  }
+
   // ── Profile ─────────────────────────────────────────────
   &__avatar {
     overflow: hidden;

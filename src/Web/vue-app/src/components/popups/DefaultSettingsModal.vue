@@ -357,7 +357,7 @@ onBeforeUnmount(() => {
   max-height: 90vh;
   background: #ffffff;
   border-radius: 18px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 24px 70px rgba(22, 22, 42, 0.18);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -365,7 +365,7 @@ onBeforeUnmount(() => {
 
 .dsm-header {
   padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(184, 160, 136, 0.2);
   display: flex;
   justify-content: space-between;
   gap: 20px;
@@ -376,7 +376,7 @@ onBeforeUnmount(() => {
   margin: 0;
   font-size: 1.35rem;
   font-weight: 800;
-  color: #111827;
+  color: #1a1a2e;
 }
 
 .dsm-subtitle {
@@ -387,12 +387,13 @@ onBeforeUnmount(() => {
 
 .dsm-close {
   border: none;
-  background: #f3f4f6;
+  background: #f5f0ea;
   border-radius: 10px;
   width: 38px;
   height: 38px;
   cursor: pointer;
   font-size: 1rem;
+  color: #1a1a2e;
 }
 
 .dsm-body {
@@ -403,16 +404,16 @@ onBeforeUnmount(() => {
 }
 
 .dsm-section {
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(184, 160, 136, 0.25);
   border-radius: 16px;
   padding: 18px;
-  background: #fafafa;
+  background: #f9fafb;
 }
 
 .dsm-section-head h3 {
   margin: 0;
   font-size: 1.05rem;
-  color: #111827;
+  color: #1a1a2e;
 }
 
 .dsm-section-head p {
@@ -458,14 +459,14 @@ onBeforeUnmount(() => {
 .dsm-table th,
 .dsm-table td {
   padding: 12px 14px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(184, 160, 136, 0.2);
   text-align: left;
   vertical-align: middle;
 }
 
 .dsm-table th {
-  background: #f3f4f6;
-  color: #374151;
+  background: #f5f0ea;
+  color: #1a1a2e;
   font-size: 0.92rem;
 }
 
@@ -481,18 +482,19 @@ onBeforeUnmount(() => {
   height: 36px;
   padding: 0 10px;
   border-radius: 10px;
-  background: #111827;
+  background: #1a1a2e;
   color: white;
   font-weight: 700;
 }
 
 .dsm-input {
   width: 100%;
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(184, 160, 136, 0.4);
   border-radius: 10px;
   padding: 10px 12px;
   outline: none;
   background: white;
+  color: #1a1a2e;
 }
 
 .dsm-input--small {
@@ -509,7 +511,7 @@ onBeforeUnmount(() => {
 
 .dsm-footer {
   padding: 18px 24px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid rgba(184, 160, 136, 0.2);
   display: flex;
   justify-content: space-between;
   gap: 16px;
@@ -536,13 +538,13 @@ onBeforeUnmount(() => {
 }
 
 .dsm-btn--ghost {
-  background: #f3f4f6;
-  color: #111827;
+  background: #f5f0ea;
+  color: #1a1a2e;
 }
 
 .dsm-btn--primary {
-  background: #111827;
-  color: white;
+  background: #b8a088;
+  color: #1a1a2e;
 }
 
 .dsm-btn:disabled {
@@ -553,5 +555,96 @@ onBeforeUnmount(() => {
 .dsm-loading {
   padding: 40px 24px;
   color: #6b7280;
+}
+</style>
+
+<style>
+[data-theme="dark"] .dsm-modal {
+  background: #2d2d44;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .dsm-header {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .dsm-title {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .dsm-subtitle {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+[data-theme="dark"] .dsm-close {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .dsm-body {
+  background: #2d2d44;
+}
+
+[data-theme="dark"] .dsm-section {
+  background: #1f1f35;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .dsm-section-head h3 {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .dsm-section-head p {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+[data-theme="dark"] .dsm-table {
+  background: #2d2d44;
+}
+
+[data-theme="dark"] .dsm-table th {
+  background: #16162a;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .dsm-table th,
+[data-theme="dark"] .dsm-table td {
+  border-color: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .dsm-letter-badge {
+  background: #b8a088;
+  color: #1a1a2e;
+}
+
+[data-theme="dark"] .dsm-input {
+  background: #16162a !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  color-scheme: dark;
+}
+
+[data-theme="dark"] .dsm-status {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+[data-theme="dark"] .dsm-footer {
+  background: #2d2d44;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .dsm-btn--ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .dsm-btn--primary {
+  background: #b8a088;
+  color: #1a1a2e;
+}
+
+[data-theme="dark"] .dsm-loading {
+  color: rgba(255, 255, 255, 0.45);
 }
 </style>

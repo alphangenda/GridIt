@@ -82,8 +82,8 @@
               </div>
 
               <div class="form__submit">
-                <button class="btn btn--fullscreen" type="submit" :disabled="!name.trim() || students.length === 0">{{ t("global.add") }}</button>
                 <button class="btn btn--fullscreen btn--red" type="button" @click="emit('close')">{{ t("global.cancel") }}</button>
+                <button class="btn btn--fullscreen" type="submit" :disabled="!name.trim() || students.length === 0">{{ t("global.add") }}</button>
               </div>
             </template>
 
@@ -105,8 +105,8 @@
               </div>
 
               <div class="form__submit">
-                <button class="btn btn--fullscreen" type="submit" :disabled="!selectedGroupId">{{ t("global.add") }}</button>
                 <button class="btn btn--fullscreen btn--red" type="button" @click="emit('close')">{{ t("global.cancel") }}</button>
+                <button class="btn btn--fullscreen" type="submit" :disabled="!selectedGroupId">{{ t("global.add") }}</button>
               </div>
             </template>
 
