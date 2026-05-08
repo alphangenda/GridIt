@@ -206,7 +206,7 @@ async function buildCrumbs() {
   asyncCrumbs.value = result;
 }
 
-watch(() => [route.name, route.params], () => buildCrumbs(), { immediate: true, deep: true });
+watch(() => [route.name, route.params, classesStore.getClasses], () => buildCrumbs(), { immediate: true, deep: true });
 
 const crumbs = computed(() => asyncCrumbs.value);
 </script>
