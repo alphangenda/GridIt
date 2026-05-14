@@ -11,20 +11,20 @@
             <p class="confirm-delete__text">{{ message }}</p>
             <div class="form__submit confirm-delete__actions">
               <button
-                class="btn btn--fullscreen btn--red"
-                type="button"
-                :disabled="isLoading"
-                @click="emit('confirm')"
-              >
-                {{ isLoading ? t("global.loading") : t("global.actions.delete") }}
-              </button>
-              <button
                 class="btn btn--fullscreen"
                 type="button"
                 :disabled="isLoading"
                 @click="onClose"
               >
                 {{ t("global.cancel") }}
+              </button>
+              <button
+                class="btn btn--fullscreen btn--red"
+                type="button"
+                :disabled="isLoading"
+                @click="emit('confirm')"
+              >
+                {{ isLoading ? t("global.loading") : t("global.actions.delete") }}
               </button>
             </div>
           </div>

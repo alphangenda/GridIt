@@ -23,11 +23,11 @@
               <div v-if="errorMessage" class="form__error">{{ errorMessage }}</div>
             </div>
             <div class="form__submit">
-              <button class="btn btn--fullscreen" type="submit" :disabled="!examName.trim()">
-                {{ t('global.add') }}
-              </button>
               <button class="btn btn--fullscreen btn--red" type="button" @click="$emit('close')">
                 {{ t('global.cancel') }}
+              </button>
+              <button class="btn btn--fullscreen" type="submit" :disabled="!examName.trim()">
+                {{ t('global.add') }}
               </button>
             </div>
           </div>

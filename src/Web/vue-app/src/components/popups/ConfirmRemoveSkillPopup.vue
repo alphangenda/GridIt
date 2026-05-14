@@ -13,20 +13,20 @@
             </p>
             <div class="form__submit confirm-remove__actions">
               <button
-                class="btn btn--fullscreen btn--red"
-                type="button"
-                :disabled="isLoading"
-                @click="emit('confirm')"
-              >
-                {{ isLoading ? t("pages.programs.skillsSaving") : t("global.actions.delete") }}
-              </button>
-              <button
                 class="btn btn--fullscreen"
                 type="button"
                 :disabled="isLoading"
                 @click="onClose"
               >
                 {{ t("global.cancel") }}
+              </button>
+              <button
+                class="btn btn--fullscreen btn--red"
+                type="button"
+                :disabled="isLoading"
+                @click="emit('confirm')"
+              >
+                {{ isLoading ? t("pages.programs.skillsSaving") : t("global.actions.delete") }}
               </button>
             </div>
           </div>

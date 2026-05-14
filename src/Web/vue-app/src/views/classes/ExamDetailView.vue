@@ -22,8 +22,8 @@
         <p v-if="!isReadOnly" class="exam-detail__hint">{{ t("pages.examDetail.subtitle") }}</p>
       </div>
 
-      <div class="exam-detail__actions">
-        <button v-if="!isReadOnly" type="button" class="btn btn--secondary" @click="showInfo = true">
+      <div class="exam-detail__actions" >
+        <button v-if="!isReadOnly" type="button" class="btn btn--secondary" @click="showInfo = true" style="margin-right: 8px;">
           {{ t("pages.examDetail.skillGrid") }}
         </button>
         <router-link
@@ -137,15 +137,16 @@
                         type="button"
                         class="btn btn--secondary"
                         :disabled="!activeSkill"
-                        @click="() => {
-                          showCriteriaPicker = true;
-                          loadAvailableCriteria(activeSkillId);
-                        }"
+                        @click="toggleCriteriaPicker"
                       >
                         + {{ t("pages.examDetail.add") }}
                       </button>
                     </div>
-                    <div v-if="showCriteriaPicker" class="picker">
+                    <div
+                      v-if="showCriteriaPicker"
+                      class="picker"
+                      @mouseleave="showCriteriaPicker = false"
+                    >
                       <div class="picker__title">
                         Critères disponibles
                       </div>
@@ -525,8 +526,9 @@ async function loadAvailableCriteria(skillId: string) {
   console.log("loadAvailableCriteria appelé avec:", skillId);
   if (!skillId) return;
 
-  const res = await fetch(`/api/skills/${skillId}/criteria-template`);
+  const res = await fetch(`/api/skills/${skillId}/subcompetencies`);
   const all = await res.json();
+
   console.log("résultat API:", all);
 
   const existing = new Set(
@@ -536,6 +538,14 @@ async function loadAvailableCriteria(skillId: string) {
   availableCriteria.value[skillId] = all.filter(
     (c: any) => !existing.has(c.label)
   );
+}
+
+function toggleCriteriaPicker() {
+  if (!activeSkillId.value) return;
+  showCriteriaPicker.value = !showCriteriaPicker.value;
+  if (showCriteriaPicker.value) {
+    loadAvailableCriteria(activeSkillId.value);
+  }
 }
 
 function addExistingCriterion(skillId: string, c: any) {
@@ -722,7 +732,6 @@ async function loadAvailableSkills(): Promise<Skill[]> {
 onMounted(async () => {
   if (!examId.value) return;
 
-  // Fetch exam name from group exams or class exams endpoint
   try {
     const groupId = route.params.groupId as string | undefined;
     const examsUrl = groupId
@@ -734,7 +743,7 @@ onMounted(async () => {
       const found = (examsData as any[]).find((e: any) => String(e.id) === examId.value);
       if (found) fetchedExamName.value = String(found.name);
     }
-  } catch { /* ignore */ }
+  } catch { }
 
   const [skillsList, defaultLettersRes, examSkillsRes] = await Promise.all([
     loadAvailableSkills(),
@@ -1140,7 +1149,7 @@ ACTION HAUT DROITE
   display: flex;
   justify-content: flex-end;
   margin-bottom: 40px;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.12);
+  border-bottom: 2px solid rgba(184, 160, 136, 0.3);
   padding-bottom: 20px;
 }
 
@@ -1182,8 +1191,8 @@ LAYOUT PRINCIPAL
   width: 320px;
   padding: 16px;
   border-radius: 14px;
-  border: 2px solid rgba(0,0,0,0.12);
-  background: rgba(0,0,0,0.04);
+  border: 2px solid rgba(184, 160, 136, 0.3);
+  background: rgba(232, 221, 208, 0.2);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1234,7 +1243,7 @@ COMPÉTENCES
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 12px;
   margin-bottom: 40px;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.12);
+  border-bottom: 2px solid rgba(184, 160, 136, 0.3);
   padding-bottom: 40px;
 }
 
@@ -1244,15 +1253,15 @@ COMPÉTENCES
   gap: 10px;
   padding: 16px;
   border-radius: 14px;
-  border: 2px solid rgba(0, 0, 0, 0.2);
-  background: rgba(0, 0, 0, 0.06);
+  border: 2px solid rgba(184, 160, 136, 0.4);
+  background: rgba(232, 221, 208, 0.2);
   cursor: pointer;
   text-align: left;
 }
 
 .skill-card--active {
-  border-color: rgba(70, 85, 160, 0.95);
-  box-shadow: rgba(70, 85, 160, 0.2) inset;
+  border-color: #b8a088;
+  box-shadow: rgba(184, 160, 136, 0.25) inset;
 }
 
 .skill-card__dot {
@@ -1260,7 +1269,7 @@ COMPÉTENCES
   width: 12px;
   height: 12px;
   border-radius: 999px;
-  border: 3px solid rgba(0, 0, 0, 0.85);
+  border: 3px solid #1a1a2e;
 }
 
 .skill-card__label {
@@ -1283,7 +1292,7 @@ COMPÉTENCES
   place-items: center;
   font-size: 22px;
   font-weight: 900;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(184, 160, 136, 0.3);
 }
 
 /* =========================
@@ -1347,9 +1356,9 @@ PICKER COMPÉTENCES
   margin-bottom: 18px;
   padding: 14px;
   border-radius: 14px;
-  border: 2px solid rgba(0, 0, 0, 0.12);
+  border: 2px solid rgba(184, 160, 136, 0.3);
   background: #fff;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 12px 30px rgba(26, 26, 46, 0.12);
 }
 
 .picker__title {
@@ -1368,7 +1377,7 @@ PICKER COMPÉTENCES
   align-items: center;
   padding: 10px 12px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(232, 221, 208, 0.25);
 }
 
 /* =========================
@@ -1418,7 +1427,7 @@ CRITÈRES
 }
 
 .criterion-block {
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(184, 160, 136, 0.35);
   border-radius: 12px;
   padding: 14px;
   background: #fff;
@@ -1436,8 +1445,8 @@ CRITÈRES
   padding: 8px 10px;
   text-align: center;
   border-radius: 12px;
-  border: 2px solid rgba(0, 0, 0, 0.15);
-  background: #fff;
+  border: 2px solid rgba(184, 160, 136, 0.4);
+  background: #f9fafb;
   font-weight: 800;
 }
 
@@ -1451,7 +1460,7 @@ CRITÈRES
   height: 38px;
   border-radius: 12px;
   border: 0;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(184, 160, 136, 0.2);
   cursor: pointer;
   font-weight: 900;
 }
@@ -1583,6 +1592,176 @@ RESPONSIVE
   .info-modal__side {
     width: 100%;
   }
+}
+</style>
+
+<style>
+/* ── ExamDetailView — Mode sombre ──────────────────────────── */
+
+[data-theme="dark"] .exam-detail__back-link {
+  color: rgba(255, 255, 255, 0.5);
+}
+[data-theme="dark"] .exam-detail__back-link:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .info-modal__top-actions {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .info-modal__section-title {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Panneau latéral (stats) */
+[data-theme="dark"] .info-modal__side {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .side-title {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .side-hint {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Boutons de compétences */
+[data-theme="dark"] .skill-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .skill-card--active {
+  border-color: rgba(120, 140, 220, 0.9);
+  background: rgba(70, 85, 160, 0.15);
+  box-shadow: rgba(70, 85, 160, 0.25) inset;
+}
+
+[data-theme="dark"] .skill-card__dot {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .skill-card__plus {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .skill-card__label {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Séparateur entre compétences et description */
+[data-theme="dark"] .skills-list {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Picker (liste déroulante des compétences / critères) */
+[data-theme="dark"] .picker {
+  background: #2d2d44;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .picker__title {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .picker__item {
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Critères */
+[data-theme="dark"] .description-title {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .criteria-title {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .hint {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .criterion-block {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .criterion-total {
+  background: #16162a;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .criterion-name {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .criterion-x {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .weight-letter {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .weight-percent {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] input.weight-value,
+[data-theme="dark"] input.weight-description {
+  background: #16162a !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  color-scheme: dark;
+}
+
+[data-theme="dark"] .criterion-weight-row {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .criterion-weight-row--disabled {
+  opacity: 0.45;
+}
+
+/* Donut (cercle de progression) */
+[data-theme="dark"] .donut-bg {
+  stroke: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .donut__inner {
+  background: #16162a;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .donut {
+  background: conic-gradient(
+    rgba(120, 140, 220, 0.95) calc(var(--p) * 1%),
+    rgba(255, 255, 255, 0.08) 0
+  );
+}
+
+[data-theme="dark"] .donut-hint {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Légende donut compétences */
+[data-theme="dark"] .legend-item {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .legend-value {
+  color: rgba(255, 255, 255, 0.55);
 }
 </style>
 

@@ -206,7 +206,7 @@ async function buildCrumbs() {
   asyncCrumbs.value = result;
 }
 
-watch(() => [route.name, route.params], () => buildCrumbs(), { immediate: true, deep: true });
+watch(() => [route.name, route.params, classesStore.getClasses], () => buildCrumbs(), { immediate: true, deep: true });
 
 const crumbs = computed(() => asyncCrumbs.value);
 </script>
@@ -252,5 +252,23 @@ const crumbs = computed(() => asyncCrumbs.value);
 .breadcrumb__separator {
   color: #d1d5db;
   font-size: 0.75rem;
+}
+</style>
+
+<style>
+[data-theme="dark"] .breadcrumb__current {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .breadcrumb__link {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+[data-theme="dark"] .breadcrumb__link:hover {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+[data-theme="dark"] .breadcrumb__separator {
+  color: rgba(255, 255, 255, 0.2);
 }
 </style>

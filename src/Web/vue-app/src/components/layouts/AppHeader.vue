@@ -81,6 +81,29 @@
         </Transition>
       </div>
 
+      <button
+        type="button"
+        class="app-header__theme-toggle"
+        @click="toggleDarkMode"
+        :aria-label="isDarkMode ? 'Passer au mode clair' : 'Passer au mode sombre'"
+        :title="isDarkMode ? 'Mode clair' : 'Mode sombre'"
+      >
+        <svg v-if="isDarkMode" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+
       <div v-if="!isMobile" class="app-header__settings" ref="settingsRef">
         <button
           type="button"
@@ -170,6 +193,7 @@ const sessionsStore = useSessionsStore();
 const isDropdownOpen = ref(false);
 const isNavMenuOpen = ref(false);
 const isSettingsOpen = ref(false);
+const isDarkMode = ref(localStorage.getItem("theme") === "dark");
 const profileRef = ref<HTMLElement | null>(null);
 const navMenuRef = ref<HTMLElement | null>(null);
 const settingsRef = ref<HTMLElement | null>(null);
@@ -259,10 +283,20 @@ function onResize() {
   windowWidth.value = window.innerWidth;
 }
 
+function toggleDarkMode() {
+  isDarkMode.value = !isDarkMode.value;
+  const theme = isDarkMode.value ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+}
+
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
   window.addEventListener("resize", onResize);
   sessionsStore.fetchSessions();
+  if (isDarkMode.value) {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }
 });
 
 watch(

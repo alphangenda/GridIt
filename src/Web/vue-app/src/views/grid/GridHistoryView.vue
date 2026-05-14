@@ -275,3 +275,48 @@ async function onToggleVisibility(item: { id: string; rawIsPublic: boolean }) {
   color: #888;
 }
 </style>
+
+<style lang="scss">
+[data-theme="dark"] {
+  .grids-filters__field {
+    label {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    select {
+      background-color: #2d2d44;
+      border-color: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.9);
+
+      option {
+        background-color: #2d2d44;
+        color: rgba(255, 255, 255, 0.9);
+      }
+    }
+  }
+
+  .btn-toggle {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.8);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .grids-empty {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .tag--public {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #6ee7b7;
+  }
+
+  .tag--private {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+  }
+}
+</style>
