@@ -181,6 +181,53 @@
     }
   }
 
+  // ── Help button ─────────────────────────────────────────
+  &__help-section {
+    display: flex;
+    justify-content: center;
+    padding: 6px 16px 10px;
+    border-top: 1px solid $color-border;
+  }
+
+  &__help-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: none;
+    border: none;
+    color: $color-text;
+    font-size: rem(13);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    width: 100%;
+    justify-content: center;
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: $color-grey-lighter;
+      }
+    }
+  }
+
+  &__help-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid $color-beige;
+    background-color: rgba($color-beige, 0.12);
+    color: $color-beige-dark;
+    font-size: rem(14);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
   // ── Profile ─────────────────────────────────────────────
   &__avatar {
     overflow: hidden;

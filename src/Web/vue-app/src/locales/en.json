@@ -185,6 +185,7 @@
     "removeClassFromSessionConfirm": "Are you sure you want to remove this class from this session?",
     "myAccount": "My account",
     "logout": "Log out",
+    "help": "Help",
     "darkMode": "Dark mode",
     "lightMode": "Light mode",
     "importStudents": "Import students",

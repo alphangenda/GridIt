@@ -777,6 +777,23 @@ $dk-text-muted: rgba(255, 255, 255, 0.5);
     }
   }
 
+  .app-header__help-section {
+    border-top-color: $dk-border;
+  }
+
+  .app-header__help-btn {
+    color: $dk-text;
+    @media (hover: hover) {
+      &:hover { background-color: $dk-elevated; }
+    }
+  }
+
+  .app-header__help-icon {
+    border-color: $color-beige;
+    background-color: rgba($color-beige, 0.15);
+    color: $color-beige-light;
+  }
+
   // ── Navbar title (mobile) ──────────────────────────────────
   .navbar__title {
     background-color: $dk-card;
