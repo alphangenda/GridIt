@@ -193,22 +193,3 @@ async function handleSubmit() {
   border-color: rgba(59, 130, 246, 0.7);
 }
 </style>
-
-<style>
-[data-theme="dark"] .season-option {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.85);
-}
-
-[data-theme="dark"] .season-option:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.1);
-}
-
-[data-theme="dark"] .season-option--selected {
-  border-color: #b8a088;
-  background: rgba(184, 160, 136, 0.15);
-  box-shadow: 0 0 0 2px rgba(184, 160, 136, 0.3), 0 4px 12px rgba(184, 160, 136, 0.1);
-}
-</style>

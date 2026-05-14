@@ -185,6 +185,8 @@
     "removeClassFromSessionConfirm": "Voulez-vous vraiment supprimer le cours de cette session ?",
     "myAccount": "Mon compte",
     "logout": "Déconnexion",
+    "darkMode": "Mode sombre",
+    "lightMode": "Mode clair",
     "importStudents": "Import étudiant",
     "studentsImported": "{count} étudiant(s) importé(s)",
     "importStudentsFormatError": "Fichier JSON invalide. Format attendu: [{\"number\": \"...\", \"firstName\": \"...\", \"lastName\": \"...\"}]",

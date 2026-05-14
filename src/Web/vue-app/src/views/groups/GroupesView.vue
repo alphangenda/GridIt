@@ -124,9 +124,3 @@ onMounted(fetchGroups);
   font-weight: 600;
 }
 </style>
-
-<style>
-[data-theme="dark"] .groups-empty {
-  color: rgba(255, 255, 255, 0.35);
-}
-</style>

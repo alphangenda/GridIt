@@ -60,15 +60,6 @@
                   :maxlength="MAX_LENGTH"
                   :disabled="isSaving"
                 />
-                <input
-                  v-model.number="sub.defaultTotalValue"
-                  class="form__input sub-competencies__value"
-                  type="number"
-                  min="1"
-                  max="999"
-                  :placeholder="t('pages.programs.subSkillValuePlaceholder')"
-                  :disabled="isSaving"
-                />
                 <button
                   type="button"
                   class="sub-competencies__remove"
@@ -118,7 +109,6 @@ const VALID_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N} \-''().,/&]*$/u;
 interface SubSkill {
   key: number;
   label: string;
-  defaultTotalValue: number;
 }
 
 const props = defineProps<{
@@ -144,7 +134,7 @@ let nextKey = 0;
 onMounted(() => inputRef.value?.focus());
 
 function addSubSkill() {
-  subSkills.value.push({ key: nextKey++, label: "", defaultTotalValue: 15 });
+  subSkills.value.push({ key: nextKey++, label: "" });
 }
 
 function removeSubSkill(idx: number) {
@@ -196,7 +186,7 @@ async function onSubmit() {
         skill.id,
         validSubs.map((s) => ({
           label: s.label.trim(),
-          defaultTotalValue: s.defaultTotalValue > 0 ? s.defaultTotalValue : 15,
+          defaultTotalValue: 15,
         }))
       );
     }
@@ -269,12 +259,6 @@ async function onSubmit() {
 
 .sub-competencies__input {
   flex: 1;
-}
-
-.sub-competencies__value {
-  width: 80px;
-  flex: none;
-  text-align: center;
 }
 
 .sub-competencies__remove {
