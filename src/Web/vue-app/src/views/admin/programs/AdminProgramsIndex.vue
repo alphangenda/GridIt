@@ -315,20 +315,3 @@ async function confirmRemoveSkill() {
   margin-top: 8px;
 }
 </style>
-
-<style>
-[data-theme="dark"] .program-skills__hint,
-[data-theme="dark"] .program-skills__status {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-[data-theme="dark"] .program-skills__row {
-  background-color: #1f1f35;
-  border-color: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.85);
-}
-
-[data-theme="dark"] .program-skills__delete:hover:not(:disabled) {
-  background-color: rgba(239, 68, 68, 0.15);
-}
-</style>

@@ -1261,4 +1261,121 @@ $dk-text-muted: rgba(255, 255, 255, 0.5);
     .icon * { fill: $dk-text !important; }
   }
 
+  // ══════════════════════════════════════════════════════════
+  // GRIDS FILTERS (GridHistoryView scoped)
+  // ══════════════════════════════════════════════════════════
+  .grids-filters__field {
+    label {
+      color: $dk-text-muted !important;
+    }
+
+    select {
+      background-color: $dk-card !important;
+      border-color: $dk-border !important;
+      color: $dk-text !important;
+
+      option {
+        background-color: $dk-card;
+        color: $dk-text;
+      }
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // GROUPS EMPTY (GroupesView scoped)
+  // ══════════════════════════════════════════════════════════
+  .groups-empty {
+    color: $dk-text-muted !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // SESSION LINKS (SessionsIndexView scoped)
+  // ══════════════════════════════════════════════════════════
+  .class-link {
+    color: $color-beige !important;
+    &:hover {
+      color: $color-beige-light !important;
+    }
+  }
+
+  .class-link-separator {
+    color: $dk-text-muted !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // BREADCRUMB NAV (BreadcrumbNav scoped — singular class names)
+  // ══════════════════════════════════════════════════════════
+  .breadcrumb__current {
+    color: $dk-text !important;
+  }
+
+  .breadcrumb__link {
+    color: $dk-text-muted !important;
+    &:hover {
+      color: $dk-text-secondary !important;
+    }
+  }
+
+  .breadcrumb__separator {
+    color: $dk-text-muted !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // SEASON OPTIONS (CreateSessionPopup scoped)
+  // ══════════════════════════════════════════════════════════
+  .season-option {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: $dk-border-strong !important;
+    color: $dk-text !important;
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.25) !important;
+      background: rgba(255, 255, 255, 0.1) !important;
+    }
+  }
+
+  .season-option--selected {
+    border-color: $color-beige !important;
+    background: rgba($color-beige, 0.15) !important;
+    box-shadow: 0 0 0 2px rgba($color-beige, 0.3), 0 4px 12px rgba($color-beige, 0.1) !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // DEFAULT SETTINGS MODAL — extra selectors from inline
+  // ══════════════════════════════════════════════════════════
+  .dsm-body {
+    background: $dk-card !important;
+  }
+
+  .dsm-letter-badge {
+    background: $color-beige !important;
+    color: $color-black !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // EXAM DETAIL — weight inputs & rows (inline selectors)
+  // ══════════════════════════════════════════════════════════
+  input.weight-value,
+  input.weight-description {
+    background: $dk-inset !important;
+    border-color: $dk-border-strong !important;
+    color: $dk-text !important;
+    color-scheme: dark;
+  }
+
+  .criterion-weight-row {
+    color: $dk-text !important;
+  }
+
+  .criterion-weight-row--disabled {
+    opacity: 0.45;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // NATIVE CONTROLS (dark color-scheme for spinners, scrollbars)
+  // ══════════════════════════════════════════════════════════
+  input[type="number"] {
+    color-scheme: dark;
+  }
+
 }

@@ -129,17 +129,3 @@ function onDeleteSession(item: { id: string }) {
   color: #666;
 }
 </style>
-
-<style>
-[data-theme="dark"] .class-link {
-  color: #b8a088;
-}
-
-[data-theme="dark"] .class-link:hover {
-  color: #d4c0a8;
-}
-
-[data-theme="dark"] .class-link-separator {
-  color: rgba(255, 255, 255, 0.35);
-}
-</style>

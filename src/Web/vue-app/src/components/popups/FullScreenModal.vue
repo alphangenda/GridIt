@@ -123,20 +123,3 @@ watch(
   overflow: auto;
 }
 </style>
-
-<style>
-[data-theme="dark"] .fs-panel {
-  background: #2d2d44;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-[data-theme="dark"] .fs-close {
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.7);
-}
-
-[data-theme="dark"] .fs-close:hover {
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-}
-</style>
