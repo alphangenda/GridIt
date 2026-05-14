@@ -185,6 +185,7 @@
     "removeClassFromSessionConfirm": "Voulez-vous vraiment supprimer le cours de cette session ?",
     "myAccount": "Mon compte",
     "logout": "Déconnexion",
+    "help": "Aide",
     "darkMode": "Mode sombre",
     "lightMode": "Mode clair",
     "importStudents": "Import étudiant",

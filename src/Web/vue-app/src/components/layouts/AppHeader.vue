@@ -112,6 +112,18 @@
                 EN
               </button>
             </div>
+            <div class="app-header__help-section">
+              <a
+                :href="helpGuideUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="app-header__help-btn"
+                @click="closeAll"
+              >
+                <span class="app-header__help-icon">?</span>
+                <span>{{ t("navigation.help") }}</span>
+              </a>
+            </div>
           </div>
         </Transition>
       </div>
@@ -178,6 +190,9 @@ const windowWidth = ref(window.innerWidth);
 const isMobile = computed(() => windowWidth.value < 768);
 const isSuperAdmin = computed(() => userStore.hasRole(Role.Admin));
 const currentLocale = computed(() => getLocale());
+const helpGuideUrl = computed(() =>
+  isSuperAdmin.value ? "/docs/guide-administrateur.pdf" : "/docs/guide-utilisateur.pdf"
+);
 
 const sessions = computed(() => sessionsStore.getSessions);
 
