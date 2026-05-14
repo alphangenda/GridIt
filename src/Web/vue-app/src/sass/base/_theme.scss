@@ -1,0 +1,1264 @@
+@use "../tools" as *;
+
+// ═══════════════════════════════════════════════════════════════
+// DARK THEME
+// WCAG 2.1 AA: min 4.5:1 contrast for normal text, 3:1 for large
+// Base surfaces: #121222 (page), #1e1e36 (card), #16162a (inset)
+// Text: #ffffff on #121222 = 15.4:1 ✓
+// Text: #ffffff on #1e1e36 = 12.8:1 ✓
+// Muted: rgba(255,255,255,0.6) on #1e1e36 ≈ 7.7:1 ✓
+// ═══════════════════════════════════════════════════════════════
+
+$dk-page: #121222;
+$dk-card: #1e1e36;
+$dk-inset: #16162a;
+$dk-elevated: #2a2a44;
+$dk-border: rgba(255, 255, 255, 0.1);
+$dk-border-strong: rgba(255, 255, 255, 0.18);
+$dk-text: #ffffff;
+$dk-text-secondary: rgba(255, 255, 255, 0.7);
+$dk-text-muted: rgba(255, 255, 255, 0.5);
+
+[data-theme="dark"] {
+
+  // ── Body & global ──────────────────────────────────────────
+  body {
+    background-color: $dk-page;
+    color: $dk-text;
+  }
+
+  ::selection {
+    background-color: rgba($color-beige, 0.35);
+    color: $dk-text;
+  }
+
+  hr {
+    border-top-color: $dk-border;
+  }
+
+  // ── Typography ─────────────────────────────────────────────
+  h1, .h1-like,
+  h2, .h2-like,
+  h3, .h3-like {
+    color: $dk-text;
+  }
+
+  h4, .h4-like {
+    color: $dk-text-secondary;
+  }
+
+  h5, .h5-like {
+    color: $dk-text-muted;
+  }
+
+  // ── Dashboard ──────────────────────────────────────────────
+  .dashboard__content {
+    background-color: $dk-page;
+    color: $dk-text;
+  }
+
+  .dashboard__nav-toggle {
+    background: $dk-card;
+    border-right-color: $dk-border;
+  }
+
+  // ── Cards ──────────────────────────────────────────────────
+  .card {
+    background-color: $dk-card;
+    border-color: $dk-border;
+    color: $dk-text;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  .card__title {
+    color: $dk-text;
+  }
+
+  // ── Forms (global) ─────────────────────────────────────────
+  form,
+  .form {
+    label,
+    .form__fields-title {
+      color: $dk-text-muted;
+    }
+
+    input,
+    textarea,
+    select {
+      background-color: $dk-inset !important;
+      border-color: $dk-border-strong !important;
+      color: $dk-text !important;
+
+      &:not(:read-only):not(:disabled) {
+        &:focus,
+        &:hover {
+          background-color: lighten($dk-inset, 3%) !important;
+          box-shadow: 0 0 0 3px rgba($color-beige, 0.15);
+        }
+      }
+
+      &::placeholder {
+        color: $dk-text-muted !important;
+      }
+    }
+
+    input,
+    textarea {
+      &:read-only {
+        color: $dk-text-muted !important;
+      }
+    }
+
+    select option {
+      background-color: $dk-card;
+      color: $dk-text;
+    }
+
+    .form__tooltip {
+      color: $dk-text-muted;
+    }
+
+    .form__link {
+      color: $color-beige;
+    }
+
+    .form__input {
+      background-color: $dk-inset !important;
+      border-color: $dk-border-strong !important;
+      color: $dk-text !important;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      & + label {
+        color: $dk-text;
+
+        &::before {
+          border-color: $dk-border-strong;
+        }
+      }
+
+      &:checked + label {
+        &::before {
+          border-color: $color-beige;
+          background-color: rgba($color-beige, 0.15);
+        }
+      }
+    }
+  }
+
+  // ── Buttons ────────────────────────────────────────────────
+  .btn--secondary {
+    background-color: $dk-card;
+    border-color: $dk-border-strong;
+    color: $dk-text;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+    .icon * { fill: $dk-text; }
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: $dk-elevated;
+        border-color: rgba(255, 255, 255, 0.25);
+        color: $dk-text;
+        .icon * { fill: $dk-text; }
+      }
+    }
+  }
+
+  .btn:disabled,
+  .btn--disabled {
+    background-color: $dk-elevated;
+    border-color: $dk-elevated;
+    color: $dk-text-muted;
+  }
+
+  // ── Popup / Modal ──────────────────────────────────────────
+  .popup__container {
+    background-color: $dk-card;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 20px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid $dk-border;
+  }
+
+  .popup__header {
+    border-bottom-color: $dk-border;
+  }
+
+  .popup__title {
+    color: $dk-text;
+  }
+
+  .popup__bg {
+    background-color: #000;
+    opacity: 0.75;
+  }
+
+  // ── Tags ───────────────────────────────────────────────────
+  .tag {
+    background-color: rgba($color-beige, 0.15);
+    border-color: rgba($color-beige, 0.25);
+    color: $color-beige-light;
+  }
+
+  // ── Breadcrumbs ────────────────────────────────────────────
+  .breadcrumbs {
+    color: $dk-text-muted;
+  }
+
+  .breadcrumbs a {
+    color: $dk-text-secondary;
+    &:hover { color: $color-beige-light; }
+  }
+
+  .breadcrumbs__active {
+    color: $dk-text;
+  }
+
+  // ── Search input ───────────────────────────────────────────
+  .search-input {
+    background-color: $dk-inset;
+    border-color: $dk-border-strong;
+    color: $dk-text;
+
+    input::placeholder {
+      color: $dk-text-muted;
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // DATA TABLE PLUGIN (vue3-easy-data-table)
+  // Uses CSS custom properties — override them + cell styles
+  // ══════════════════════════════════════════════════════════
+  .vue3-easy-data-table {
+    --easy-table-border: 1px solid #{$dk-border} !important;
+    --easy-table-row-border: 1px solid #{$dk-border} !important;
+    --easy-table-header-font-color: #{$dk-text-secondary} !important;
+    --easy-table-body-row-font-color: #{$dk-text} !important;
+    --easy-table-body-row-hover-font-color: #{$dk-text} !important;
+    --easy-table-body-row-hover-background-color: #{$dk-elevated} !important;
+    --easy-table-body-row-background-color: #{$dk-card} !important;
+    --easy-table-body-even-row-background-color: #{$dk-inset} !important;
+    --easy-table-scrollbar-track-color: #{$dk-inset} !important;
+    --easy-table-scrollbar-thumb-color: #{$dk-elevated} !important;
+    --easy-table-footer-font-color: #{$dk-text-secondary} !important;
+
+    background-color: $dk-card !important;
+    color: $dk-text !important;
+
+    th {
+      background-color: $dk-inset !important;
+      color: $dk-text-secondary !important;
+    }
+
+    td {
+      color: $dk-text !important;
+    }
+
+    .vue3-easy-data-table__footer {
+      background-color: $dk-inset !important;
+      color: $dk-text-secondary !important;
+    }
+
+    .item.button {
+      color: $dk-text-secondary !important;
+      &:hover { background-color: $dk-elevated !important; }
+      &.active {
+        background-color: rgba($color-beige, 0.15) !important;
+        color: $color-beige-light !important;
+      }
+    }
+
+    .previous-page__click-button,
+    .next-page__click-button {
+      border-color: $dk-border-strong !important;
+    }
+
+    .pagination__items-index {
+      color: $dk-text-muted !important;
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // EVALUATION VIEW (scoped styles — need !important)
+  // ══════════════════════════════════════════════════════════
+  .evaluation__students {
+    background-color: $dk-card;
+    border-right-color: $dk-border;
+  }
+
+  .evaluation__students-header {
+    border-bottom-color: $dk-border;
+  }
+
+  .evaluation__students-title {
+    color: $dk-text-muted;
+  }
+
+  .evaluation__student-btn {
+    color: $dk-text;
+    @media (hover: hover) {
+      &:hover { background-color: rgba(255, 255, 255, 0.06); }
+    }
+    &--active {
+      background-color: rgba($color-beige, 0.15);
+      color: $color-beige-light;
+    }
+  }
+
+  .evaluation__grading-title {
+    color: $dk-text;
+  }
+
+  .evaluation__table-wrapper {
+    background-color: $dk-card;
+    border-color: $dk-border;
+  }
+
+  .evaluation__th {
+    color: $dk-text-muted;
+    border-bottom-color: $dk-border;
+  }
+
+  .evaluation__td {
+    border-bottom-color: $dk-border;
+    color: $dk-text;
+  }
+
+  .evaluation__competency-header {
+    background-color: $dk-inset;
+  }
+
+  .evaluation__criterion-row {
+    background-color: $dk-card;
+  }
+
+  .evaluation__criterion-name {
+    color: $dk-text-muted;
+  }
+
+  .evaluation__grade-btn {
+    border-color: $dk-border-strong;
+    background-color: $dk-inset;
+    color: $dk-text;
+    @media (hover: hover) {
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.25);
+        background-color: $dk-elevated;
+      }
+    }
+  }
+
+  .evaluation__grade-btn-letter {
+    background-color: $dk-elevated;
+    color: $dk-text;
+  }
+
+  .evaluation__grade-btn-desc {
+    color: $dk-text-muted;
+  }
+
+  .evaluation__comment-input,
+  .evaluation__criterion-comment-input {
+    background-color: $dk-inset !important;
+    border-color: $dk-border !important;
+    color: $dk-text !important;
+    &::placeholder { color: $dk-text-muted !important; }
+    &:focus { background-color: lighten($dk-inset, 3%) !important; }
+  }
+
+  .evaluation__average,
+  .evaluation__preview-average {
+    background-color: $dk-card;
+    border-color: $dk-border;
+  }
+
+  .evaluation__average-label,
+  .evaluation__average-numeric {
+    color: $dk-text-muted;
+  }
+
+  .evaluation__computed-grade--empty {
+    color: $dk-text-muted;
+    border-color: $dk-border-strong;
+  }
+
+  .evaluation__preview-title {
+    color: $dk-text;
+  }
+
+  .evaluation__preview-table {
+    border-color: $dk-border;
+  }
+
+  .evaluation__preview-th {
+    background-color: $dk-inset;
+    color: $dk-text;
+    border-color: $dk-border;
+  }
+
+  .evaluation__preview-td {
+    border-color: $dk-border;
+    color: $dk-text;
+  }
+
+  .evaluation__preview-desc {
+    color: $dk-text-muted;
+  }
+
+  .evaluation__preview-pts {
+    color: $dk-text-muted;
+  }
+
+  .evaluation__preview-summary {
+    background-color: $dk-inset;
+  }
+
+  .evaluation__preview-btn {
+    background-color: rgba($color-beige, 0.15);
+    border-color: rgba($color-beige, 0.3);
+    color: $color-beige-light;
+  }
+
+  // ── Evaluation grid table (EvaluationView scoped) ──────────
+  .grid-th {
+    background-color: $dk-inset !important;
+    border-color: $dk-border-strong !important;
+    color: $dk-text-secondary !important;
+  }
+
+  .grid-td {
+    border-color: $dk-border-strong !important;
+    color: $dk-text !important;
+  }
+
+  .grid-td--element {
+    color: $dk-text !important;
+  }
+
+  .grid-td--note {
+    color: $dk-text-secondary !important;
+  }
+
+  .grade-cell {
+    border-color: $dk-border-strong !important;
+    color: $dk-text !important;
+  }
+
+  .grade-cell:hover:not(.grade-cell--disabled):not(.grade-cell--summary) {
+    background-color: rgba(76, 175, 80, 0.15) !important;
+  }
+
+  .grade-cell.grade-selected {
+    background-color: #4caf50 !important;
+    color: #fff !important;
+  }
+
+  .grade-cell--disabled {
+    background-color: $dk-inset !important;
+    color: $dk-text-muted !important;
+  }
+
+  .grade-cell-desc {
+    color: $dk-text-secondary !important;
+  }
+
+  .grade-cell-pct {
+    color: $dk-text-muted !important;
+  }
+
+  .grid-competency-note-row td {
+    background-color: $dk-inset !important;
+    color: $dk-text !important;
+  }
+
+  .evaluation__video-url {
+    background-color: $dk-card !important;
+    border-color: $dk-border-strong !important;
+  }
+
+  .evaluation__video-url-label {
+    color: $dk-text-secondary !important;
+  }
+
+  .evaluation__video-url-input {
+    background-color: $dk-inset !important;
+    border-color: $dk-border-strong !important;
+    color: $dk-text !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // EXAM DETAIL VIEW (scoped — competence cards, donut, picker)
+  // ══════════════════════════════════════════════════════════
+  .exam-detail__back-link {
+    color: $dk-text-muted !important;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+      color: $dk-text !important;
+    }
+  }
+
+  .info-modal {
+    color: $dk-text !important;
+  }
+
+  .info-modal__section-title {
+    color: $dk-text !important;
+  }
+
+  .info-modal__top-actions {
+    border-bottom-color: $dk-border-strong !important;
+  }
+
+  .info-modal__side {
+    border-color: $dk-border-strong !important;
+    background: $dk-inset !important;
+  }
+
+  .side-title {
+    color: $dk-text !important;
+  }
+
+  .side-hint {
+    color: $dk-text-secondary !important;
+  }
+
+  .side-list {
+    color: $dk-text !important;
+  }
+
+  .skills-list {
+    border-bottom-color: $dk-border-strong !important;
+  }
+
+  .skill-card {
+    border-color: $dk-border-strong !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: $dk-text !important;
+  }
+
+  .skill-card--active {
+    border-color: rgba(120, 130, 200, 0.7) !important;
+  }
+
+  .skill-card__dot {
+    border-color: $dk-text !important;
+  }
+
+  .skill-card__label {
+    color: $dk-text !important;
+  }
+
+  .skill-card__plus {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: $dk-text !important;
+  }
+
+  .donut-bg {
+    stroke: $dk-elevated !important;
+  }
+
+  .donut__inner {
+    background: $dk-card !important;
+    color: $dk-text !important;
+  }
+
+  .donut-hint {
+    color: $dk-text-secondary !important;
+  }
+
+  .legend-item {
+    color: $dk-text !important;
+  }
+
+  .legend-value {
+    color: $dk-text-secondary !important;
+  }
+
+  .picker {
+    background: $dk-card !important;
+    border-color: $dk-border-strong !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .picker__title {
+    color: $dk-text !important;
+  }
+
+  .picker__item {
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: $dk-text !important;
+  }
+
+  .description-title {
+    color: $dk-text !important;
+  }
+
+  .criterion-block {
+    border-color: $dk-border-strong !important;
+    background: $dk-card !important;
+    color: $dk-text !important;
+  }
+
+  .criterion-total {
+    border-color: $dk-border-strong !important;
+    background: $dk-inset !important;
+    color: $dk-text !important;
+  }
+
+  .criterion-name {
+    color: $dk-text !important;
+  }
+
+  .criterion-x {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: $dk-text !important;
+  }
+
+  .weight-letter {
+    color: $dk-text !important;
+  }
+
+  .weight-percent {
+    color: $dk-text-secondary !important;
+  }
+
+  .hint {
+    color: $dk-text-secondary !important;
+  }
+
+  .criteria-title {
+    color: $dk-text !important;
+  }
+
+  .description-section {
+    color: $dk-text !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // DEFAULT SETTINGS MODAL (scoped — all hardcoded whites)
+  // ══════════════════════════════════════════════════════════
+  .dsm-modal {
+    background: $dk-card !important;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .dsm-header {
+    border-bottom-color: $dk-border !important;
+  }
+
+  .dsm-title {
+    color: $dk-text !important;
+  }
+
+  .dsm-subtitle {
+    color: $dk-text-muted !important;
+  }
+
+  .dsm-close {
+    background: $dk-elevated !important;
+    color: $dk-text !important;
+  }
+
+  .dsm-section {
+    border-color: $dk-border !important;
+    background: $dk-inset !important;
+  }
+
+  .dsm-section-head h3 {
+    color: $dk-text !important;
+  }
+
+  .dsm-section-head p {
+    color: $dk-text-muted !important;
+  }
+
+  .dsm-skill-card {
+    background: $dk-card !important;
+    border-color: $dk-border-strong !important;
+    color: $dk-text !important;
+  }
+
+  .dsm-table {
+    background: $dk-card !important;
+  }
+
+  .dsm-table th {
+    background: $dk-inset !important;
+    color: $dk-text-secondary !important;
+    border-bottom-color: $dk-border !important;
+  }
+
+  .dsm-table td {
+    color: $dk-text !important;
+    border-bottom-color: $dk-border !important;
+  }
+
+  .dsm-input {
+    background: $dk-inset !important;
+    border-color: $dk-border-strong !important;
+    color: $dk-text !important;
+  }
+
+  .dsm-footer {
+    background: $dk-card !important;
+    border-top-color: $dk-border !important;
+  }
+
+  .dsm-status {
+    color: $dk-text-muted !important;
+  }
+
+  .dsm-btn--ghost {
+    background: $dk-elevated !important;
+    color: $dk-text !important;
+  }
+
+  .dsm-btn--primary {
+    background: $color-beige !important;
+    color: $color-black !important;
+  }
+
+  .dsm-loading {
+    color: $dk-text-muted !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // ADMIN PROGRAMS (scoped — skill rows)
+  // ══════════════════════════════════════════════════════════
+  .program-skills__hint,
+  .program-skills__status {
+    color: $dk-text-muted !important;
+  }
+
+  .program-skills__row {
+    border-color: $dk-border-strong !important;
+    background: $dk-card !important;
+    color: $dk-text !important;
+  }
+
+  .program-skills__name {
+    color: $dk-text !important;
+  }
+
+  .program-skills__delete:hover:not(:disabled) {
+    background: rgba($color-red, 0.15) !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // HEADER DROPDOWNS
+  // ══════════════════════════════════════════════════════════
+  .app-header__dropdown {
+    background-color: $dk-card;
+    border-color: $dk-border;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 20px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .app-header__dropdown-item {
+    color: $dk-text;
+    @media (hover: hover) {
+      &:hover:not(:disabled) {
+        background-color: rgba($color-beige, 0.1);
+      }
+    }
+    &--action { color: $color-red; }
+  }
+
+  .app-header__lang-btn {
+    background-color: $dk-inset;
+    border-color: $dk-border-strong;
+    color: $dk-text;
+    @media (hover: hover) {
+      &:hover { background-color: $dk-elevated; }
+    }
+    &--active {
+      background-color: $color-beige;
+      color: $color-black;
+      border-color: $color-beige;
+    }
+  }
+
+  // ── Navbar title (mobile) ──────────────────────────────────
+  .navbar__title {
+    background-color: $dk-card;
+    color: $dk-text;
+    border-top-color: $dk-border;
+  }
+
+  // ── Tooltip block ──────────────────────────────────────────
+  .tooltip {
+    background-color: rgba($color-beige, 0.12);
+    border-color: rgba($color-beige, 0.25);
+    color: $color-beige-light;
+  }
+
+  .tooltip--warning {
+    background-color: rgba($color-yellow, 0.12);
+    border-color: rgba($color-yellow, 0.25);
+    color: $color-yellow;
+  }
+
+  .tooltip--error {
+    background-color: rgba($color-red, 0.12);
+    border-color: rgba($color-red, 0.25);
+    color: $color-red-light;
+  }
+
+  // ── Tippy ──────────────────────────────────────────────────
+  .tippy-box {
+    background-color: $dk-card !important;
+    color: $dk-text !important;
+  }
+
+  // ── Form select multiple ───────────────────────────────────
+  .form-select-multiple__selection {
+    background-color: $dk-inset;
+    border-color: $dk-border-strong;
+  }
+
+  .form-select-multiple__options {
+    background-color: $dk-card;
+    border-color: $dk-border-strong;
+  }
+
+  .form-select-multiple__option {
+    color: $dk-text;
+    &.selected {
+      background-color: $color-beige;
+      color: $color-black;
+    }
+    @media (hover: hover) {
+      &:hover {
+        background-color: rgba($color-beige, 0.2);
+        color: $dk-text;
+      }
+    }
+  }
+
+  // ── Quill editor ───────────────────────────────────────────
+  .ql-container {
+    background-color: $dk-inset !important;
+    color: $dk-text !important;
+  }
+
+  .ql-toolbar {
+    border-color: $dk-border-strong !important;
+    background-color: $dk-card !important;
+
+    .ql-stroke { stroke: $dk-text-secondary !important; }
+    .ql-fill { fill: $dk-text-secondary !important; }
+    .ql-picker-label { color: $dk-text-secondary !important; }
+  }
+
+  .ql-editor {
+    color: $dk-text !important;
+  }
+
+  // ── Loader ─────────────────────────────────────────────────
+  .loader {
+    color: $dk-text-muted;
+  }
+
+  // ── Text link / Back link ──────────────────────────────────
+  .text-link {
+    color: $color-beige;
+  }
+
+  .back-link,
+  .back-link-title {
+    color: $dk-text-secondary;
+    &:hover { color: $dk-text; }
+  }
+
+  // ── Content grid ───────────────────────────────────────────
+  .content-grid__text {
+    color: $dk-text-muted;
+  }
+
+  .content-grid__back-link {
+    color: $dk-text-muted;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.06);
+      color: $dk-text;
+    }
+  }
+
+  // ── Popup scoped overrides (AddSkillToProgramPopup) ────────
+  .sub-competencies {
+    border-top-color: $dk-border !important;
+  }
+
+  .sub-competencies__empty {
+    color: $dk-text-muted !important;
+  }
+
+  .sub-competencies__remove {
+    border-color: $dk-border-strong !important;
+    color: $color-red-light !important;
+    &:hover:not(:disabled) {
+      background: rgba($color-red, 0.15) !important;
+    }
+  }
+
+  .form__error {
+    background: rgba($color-red, 0.12) !important;
+    border-color: rgba($color-red, 0.3) !important;
+    color: $color-red-light !important;
+  }
+
+  .form__hint {
+    color: $dk-text-muted !important;
+  }
+
+  .btn--outline {
+    border-color: $dk-border-strong !important;
+    color: $dk-text !important;
+    background: transparent !important;
+    &:hover {
+      background: rgba(255, 255, 255, 0.08) !important;
+    }
+  }
+
+  // ── Notifications ──────────────────────────────────────────
+  .vue-notification {
+    background-color: $dk-card !important;
+    border-left-color: $color-beige !important;
+    color: $dk-text !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // SESSION DETAIL (scoped)
+  // ══════════════════════════════════════════════════════════
+  .session-class-link {
+    color: $color-beige !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // CLASS GROUPS (scoped)
+  // ══════════════════════════════════════════════════════════
+  .group-list-item {
+    border-color: $dk-border !important;
+  }
+
+  .group-link:hover {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // GLOBAL CATCH-ALL for remaining dark text on dark backgrounds
+  // Any scoped component that uses rgba(0,0,0,...) text
+  // ══════════════════════════════════════════════════════════
+  .donut {
+    background: conic-gradient(
+      rgba(120, 130, 200, 0.9) calc(var(--p) * 1%),
+      $dk-border 0
+    ) !important;
+  }
+
+  .description-card__content {
+    color: $dk-text !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // ICONS — icon--black must become white in dark mode
+  // ══════════════════════════════════════════════════════════
+  .icon--black *,
+  .icon--black {
+    fill: $dk-text !important;
+    color: $dk-text !important;
+  }
+
+  .icon--grey *,
+  .icon--grey {
+    fill: $dk-text-secondary !important;
+    color: $dk-text-secondary !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // GRID HISTORY VIEW (scoped — "Rendre publique" button, tags)
+  // ══════════════════════════════════════════════════════════
+  .btn-toggle {
+    background: $dk-elevated !important;
+    border-color: $dk-border-strong !important;
+    color: $dk-text !important;
+    &:hover {
+      background: lighten($dk-elevated, 5%) !important;
+    }
+  }
+
+  .tag--public {
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #6ee7b7 !important;
+  }
+
+  .tag--private {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #fca5a5 !important;
+  }
+
+  .grids-empty {
+    color: $dk-text-muted !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // EXAM DETAIL — remaining card/stat areas not yet covered
+  // ══════════════════════════════════════════════════════════
+
+  // The selected skill cards (after picking from the picker)
+  .skill-card--add {
+    color: $dk-text-secondary !important;
+  }
+
+  // Skills list border bottom
+  .skills-list {
+    border-bottom-color: $dk-border-strong !important;
+  }
+
+  // Completion donut (conic-gradient version)
+  .donut__inner {
+    background: $dk-card !important;
+    color: $dk-text !important;
+  }
+
+  // Ensure the description-left section text is visible
+  .description-left {
+    color: $dk-text !important;
+  }
+
+  .description-right {
+    color: $dk-text !important;
+  }
+
+  // The popup/modal close button (X) at top-right
+  .popup__container .btn--square,
+  .popup__close {
+    color: $dk-text !important;
+    .icon * { fill: $dk-text !important; }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // DATA TABLE — action buttons (red-bg trash icon)
+  // ══════════════════════════════════════════════════════════
+  .vue3-easy-data-table__action {
+    .icon * { fill: $dk-text !important; }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // FULLSCREEN MODAL (scoped — white panel, close button)
+  // ══════════════════════════════════════════════════════════
+  .fs-panel {
+    background: $dk-card !important;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  .fs-close {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: $dk-text !important;
+    &:hover {
+      background: rgba(255, 255, 255, 0.2) !important;
+    }
+  }
+
+  .fs-backdrop {
+    background: rgba(0, 0, 0, 0.75) !important;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // EXAM DETAIL — statistics sidebar (scoped rgba(0,0,0,...))
+  // ══════════════════════════════════════════════════════════
+  .info-modal__side {
+    border-color: $dk-border-strong !important;
+    background: $dk-inset !important;
+  }
+
+  .side-title {
+    color: $dk-text !important;
+  }
+
+  .side-hint {
+    color: $dk-text-secondary !important;
+  }
+
+  .side-list {
+    color: $dk-text !important;
+  }
+
+  .side-list li {
+    color: $dk-text !important;
+  }
+
+  // ── Exam detail: remaining scoped elements ────────────────
+  .info-modal__top-actions {
+    border-bottom-color: $dk-border-strong !important;
+  }
+
+  .btn--reset {
+    border-color: #e53935 !important;
+    color: #e53935 !important;
+    background: transparent !important;
+    &:hover {
+      background: rgba(229, 57, 53, 0.15) !important;
+    }
+  }
+
+  .skill-card {
+    border-color: $dk-border-strong !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: $dk-text !important;
+  }
+
+  .skill-card--active {
+    border-color: rgba(120, 130, 200, 0.7) !important;
+    background: rgba(120, 130, 200, 0.12) !important;
+  }
+
+  .skill-card__dot {
+    border-color: $dk-text-secondary !important;
+  }
+
+  .skill-card__label {
+    color: $dk-text !important;
+  }
+
+  .skill-card__plus {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: $dk-text !important;
+  }
+
+  .skill-card--add {
+    color: $dk-text-secondary !important;
+  }
+
+  .skills-list {
+    border-bottom-color: $dk-border-strong !important;
+  }
+
+  // ── Donut completion ──────────────────────────────────────
+  .donut {
+    background: conic-gradient(
+      rgba(120, 130, 200, 0.9) calc(var(--p) * 1%),
+      $dk-border 0
+    ) !important;
+  }
+
+  .donut__inner {
+    background: $dk-card !important;
+    color: $dk-text !important;
+  }
+
+  .donut-hint {
+    color: $dk-text-secondary !important;
+  }
+
+  // ── Donut competences (skills donut in sidebar) ───────────
+  .donut-bg {
+    stroke: $dk-elevated !important;
+  }
+
+  .legend-item {
+    color: $dk-text !important;
+  }
+
+  .legend-value {
+    color: $dk-text-secondary !important;
+  }
+
+  // ── Description area ──────────────────────────────────────
+  .description-left {
+    color: $dk-text !important;
+  }
+
+  .description-right {
+    color: $dk-text !important;
+  }
+
+  .description-title {
+    color: $dk-text !important;
+  }
+
+  .description-card__content {
+    color: $dk-text !important;
+  }
+
+  .description-section {
+    color: $dk-text !important;
+  }
+
+  // ── Criteria blocks ───────────────────────────────────────
+  .criterion-block {
+    border-color: $dk-border-strong !important;
+    background: $dk-card !important;
+    color: $dk-text !important;
+  }
+
+  .criterion-total {
+    border-color: $dk-border-strong !important;
+    background: $dk-inset !important;
+    color: $dk-text !important;
+  }
+
+  .criterion-name {
+    color: $dk-text !important;
+  }
+
+  .criterion-x {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: $dk-text !important;
+  }
+
+  .criteria-title {
+    color: $dk-text !important;
+  }
+
+  // ── Weights ───────────────────────────────────────────────
+  .weight-letter {
+    color: $dk-text !important;
+  }
+
+  .weight-percent {
+    color: $dk-text-secondary !important;
+  }
+
+  .hint {
+    color: $dk-text-secondary !important;
+  }
+
+  // ── Picker ────────────────────────────────────────────────
+  .picker {
+    background: $dk-card !important;
+    border-color: $dk-border-strong !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .picker__title {
+    color: $dk-text !important;
+  }
+
+  .picker__item {
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: $dk-text !important;
+  }
+
+  // ── Info modal text ───────────────────────────────────────
+  .info-modal {
+    color: $dk-text !important;
+  }
+
+  .info-modal__section-title {
+    color: $dk-text !important;
+  }
+
+  // ── Popup close button ────────────────────────────────────
+  .popup__container .btn--square,
+  .popup__close {
+    color: $dk-text !important;
+    .icon * { fill: $dk-text !important; }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // DATA TABLE — action buttons (red-bg trash icon)
+  // ══════════════════════════════════════════════════════════
+  .vue3-easy-data-table__action {
+    .icon * { fill: $dk-text !important; }
+  }
+
+}

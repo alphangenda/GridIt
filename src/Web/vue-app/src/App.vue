@@ -7,12 +7,14 @@
 import {computed, onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import {useUserStore} from "@/stores/userStore";
+import {useThemeStore} from "@/stores/themeStore";
 import AuthenticationLayout from "@/components/layouts/AuthenticationLayout.vue";
 import DashboardLayout from "@/components/layouts/DashboardLayout.vue";
 import {useUserService} from "@/inversify.config";
 
 const router = useRouter();
 const userStore = useUserStore();
+const themeStore = useThemeStore();
 const userService = useUserService();
 
 const authenticationRoutes = ['login', 'twoFactor', 'forgotPassword', 'resetPassword', 'confirmEmail', 'register']
@@ -24,6 +26,8 @@ let isAuthenticationPath = computed(() => {
 const isCheckingAuth = ref(!isAuthenticationPath.value && !!userStore.user.email);
 
 onMounted(async () => {
+  themeStore.applyTheme();
+
   // Skip on auth pages: user is not logged in, getCurrentUser() would 401 and can cause infinite loading
   if (isAuthenticationPath.value) return;
 

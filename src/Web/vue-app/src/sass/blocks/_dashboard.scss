@@ -46,6 +46,54 @@
     background-color: $color-grey-lighter;
     min-height: 0;
     overflow: auto;
+    position: relative;
+  }
+}
+
+.theme-toggle {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid $color-border;
+  background-color: $color-white;
+  color: $color-grey-medium;
+  cursor: pointer;
+  box-shadow: $small-shadow;
+  transition: all 0.2s cb(snappy);
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: $color-grey-light;
+      color: $color-beige-dark;
+      box-shadow: $bold-shadow;
+      transform: translateY(-1px);
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: $small-shadow;
+  }
+}
+
+[data-theme="dark"] .theme-toggle {
+  background-color: #1e1e36;
+  border-color: rgba($color-white, 0.12);
+  color: $color-beige-light;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: #2a2a44;
+      color: $color-white;
+    }
   }
 }
 
