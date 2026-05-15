@@ -513,7 +513,8 @@ function dashOffset(skillId: string) {
 
 type Skill = { id: string; label: string; examSkillId: string };
 
-const WEIGHTS = ["A", "B", "C", "D", "E", "F"] as const;
+const FALLBACK_WEIGHTS = ["A", "B", "C", "D", "E", "F"];
+type WeightKey = string;
 
 type DefaultLetter = {
   letter: WeightKey;
@@ -552,7 +553,7 @@ function addExistingCriterion(skillId: string, c: any) {
   const id =
     crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
 
-  const evaluations = WEIGHTS.map((w) => {
+  const evaluations = weights.value.map((w) => {
     const found = defaultLetters.value.find(x => x.letter === w);
 
     return {
@@ -593,8 +594,6 @@ async function loadDefaultLetters() {
 }
 
 
-type WeightKey = typeof WEIGHTS[number];
-
 type WeightEvaluation = {
   weight: WeightKey;
   value: number;
@@ -627,7 +626,14 @@ function weightPercentage(c: Criterion, e: WeightEvaluation) {
   return Number(percent.toFixed(1));
 }
 
-const previewGrades = [...WEIGHTS].reverse();
+const weights = computed<WeightKey[]>(() => {
+  const configured = defaultLetters.value
+    .map((x) => String(x.letter ?? "").trim())
+    .filter((x) => x.length > 0);
+  return configured.length > 0 ? configured : FALLBACK_WEIGHTS;
+});
+
+const previewGrades = computed(() => [...weights.value].reverse());
 
 const previewCompetencies = computed(() =>
   selectedSkills.value.map((skill, index) => {
@@ -813,7 +819,7 @@ async function fetchCriteriaForSkill(skillId: string) {
     text: c.label,
     totalValue: c.totalValue,
     valuePreset: [5, 10, 15, 20, 25, 30].includes(c.totalValue) ? c.totalValue : "other",
-    evaluations: WEIGHTS.map(w => {
+    evaluations: weights.value.map((w) => {
       const found = c.weights.find((x: any) => x.weight === w);
       const def = defaultLetters.value.find(x => x.letter === w);
 
@@ -950,7 +956,7 @@ function addCriterion() {
 
   const id = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
 
-  const evaluations = WEIGHTS.map((w) => {
+  const evaluations = weights.value.map((w) => {
     const found = defaultLetters.value.find(x => x.letter === w);
 
     return {
